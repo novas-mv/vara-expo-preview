@@ -16,10 +16,10 @@
 
 <script type="importmap">
 {
-  "imports": { "three": "https://unpkg.com/three@0.184.0/build/three.module.js" },
+  "imports": { "three": "https://unpkg.com/three@0.184.0/build/three.module.min.js" },
   "integrity": {
-    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
-    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT"
+    "https://unpkg.com/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
+    "https://unpkg.com/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6"
   }
 }
 </script>
@@ -144,7 +144,8 @@ header::before{
   mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
 }
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
-.brand img{width:34px;height:34px;display:block}
+/* 96x92, not square - a fixed 34x34 squashed it 4% (matches system/base.css) */
+.brand img{height:34px;width:auto;display:block}
 .brand:hover{opacity:.78}
 .brand{transition:opacity .18s ease}
 nav.links{display:flex;gap:clamp(12px,1.9vw,28px)}
@@ -864,7 +865,7 @@ header.scrolled::before{opacity:1}
 
 <header id="topbar">
   <a class="brand" href="./" aria-label="VARA Expo 2026">
-    <img class="mark" src="system/assets/vara-mark.png" srcset="system/assets/vara-mark.png 1x, system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+    <img class="mark" src="system/assets/vara-mark.png" srcset="system/assets/vara-mark.png 1x, system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async">
   </a>
   <!-- The SITE nav, not a list of this page's own anchors. The landing page
        carried Career/Education/Skills/Market/2025 pointing at its own sections,
@@ -2096,12 +2097,18 @@ function init(){
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);
+  let onScreen = true;          /* the hero starts in view */
   window.__varaWebGL = { alive:true };
 
+  /* Visibility and viewport are TWO independent reasons to stop, so they are
+     tracked separately and the loop runs only when neither says no. This used
+     to restart the loop on tab-return unconditionally: scroll the hero away,
+     switch tabs, come back, and the most expensive thing on the page rendered
+     every frame while off screen — with no intersection change left to stop it
+     again until the next scroll crossed the boundary. */
   document.addEventListener('visibilitychange', ()=>{
     if (dead) return;
-    if (document.hidden){ if (raf) cancelAnimationFrame(raf); raf = 0; }
-    else { if (started) t0 = performance.now()/1000 - MT*2; raf = requestAnimationFrame(frame); }  // re-base the clock
+    document.hidden ? pause() : resume();
   }, {passive:true});
 
   /* ---- TEARDOWN — on leaving the PAGE, never on leaving the viewport ----
@@ -2149,12 +2156,13 @@ function init(){
     cancelAnimationFrame(raf); raf = 0;
   }
   function resume(){
-    if (dead || raf || document.hidden) return;
+    if (dead || raf || document.hidden || !onScreen) return;
     if (started) t0 = performance.now()/1000 - MT*2;   // re-base, or it jumps
     raf = requestAnimationFrame(frame);
   }
   new IntersectionObserver(es=>{
-    es[0].isIntersecting ? resume() : pause();
+    onScreen = es[0].isIntersecting;
+    onScreen ? resume() : pause();
   },{threshold:0}).observe(heroEl);
 
   /* The context is worth freeing when the page is actually going away. */
@@ -2201,7 +2209,7 @@ function init(){
 })();
 </script>
 <script src="system/lines.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="system/icons.js"></script>
 <script>lucide.createIcons({attrs:{"stroke-width":1.9}});</script>
 </body>
 </html>

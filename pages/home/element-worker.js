@@ -19,7 +19,7 @@
    until the slowest stroke finished and all four arrived together. The build
    is now genuinely per-stroke: first paint is one stroke's build, not four.  */
 
-import * as THREE from 'https://unpkg.com/three@0.184.0/build/three.module.js';
+import * as THREE from 'https://unpkg.com/three@0.184.0/build/three.module.min.js';
 import { buildElement } from './vara-element.js';
 
 /* Matches the handoff's phase offsets: coral 0, green 0.02, violet 0.035,
