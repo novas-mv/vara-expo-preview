@@ -1,0 +1,283 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Venue — VARA Expo 2026</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+
+/* A — plan-led: the site plan dominates, facts sit beneath it as a grid. */
+
+/* ---- event fact strip ---- */
+.facts{max-width:var(--maxw);margin:0 auto;display:grid;
+  grid-template-columns:repeat(4,1fr);gap:var(--gap-md);align-items:start}
+.facts .f{display:flex;gap:var(--gap-sm);align-items:flex-start}
+.facts .f .k{font-size:var(--t-label);letter-spacing:var(--ls-label);text-transform:uppercase;
+  font-weight:700;color:var(--ink-56);margin:0 0 4px}
+.facts .f .v{font-family:var(--f-display);font-weight:700;font-size:var(--t-body-lg);
+  letter-spacing:var(--ls-display-tight);color:var(--cream);line-height:1.2}
+.facts .f .s{display:block;margin-top:4px;font-size:12.5px;color:var(--ink-84)}
+.facts .ico{--ico:22px}
+
+/* ---- the site plan ---- */
+.planhead{max-width:var(--maxw);margin:0 auto var(--gap-lg);
+  display:flex;gap:var(--gap-md);align-items:flex-end;flex-wrap:wrap}
+.planhead .lede{margin:0;max-width:42ch}
+.plan{position:relative;max-width:1000px;margin:0 auto}
+.planart{width:100%;height:auto;display:block}
+.planart path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.planart .shore{stroke:var(--ink-hairline);stroke-width:10}
+.planart .spine{stroke:var(--ink-rim);stroke-width:16}
+.planart .circuit{stroke:var(--ink-rim);stroke-width:16}
+.planart .cas{stroke:var(--navy);stroke-width:30}
+.planart .zpath{stroke:var(--accent);stroke-width:14}
+
+.zlab{position:absolute;transform:translate(-50%,-50%);pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.zlab .zn{font-family:var(--f-display);font-weight:800;font-size:var(--t-body-lg);
+  letter-spacing:var(--ls-display-tight);color:var(--cream);line-height:1.1;white-space:nowrap}
+.zlab .zs{font-size:var(--t-label);letter-spacing:var(--ls-label);text-transform:uppercase;
+  font-weight:700;color:var(--accent)}
+
+.pin{position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.pin.l{transform:translate(0,-50%);align-items:flex-start;text-align:left}
+.pin.r{transform:translate(-100%,-50%);align-items:flex-end;text-align:right}
+.pin .well{width:34px;height:34px;border-radius:var(--r-pill);display:grid;place-items:center;
+  background:var(--navy-950);color:var(--ink-94);
+  box-shadow:inset 0 0 0 1.5px var(--ink-rim),var(--sh-sm)}
+.pin .ico{--ico:17px}
+.pin .cap{display:flex;flex-direction:column;gap:2px;line-height:1.1}
+.pin .num{font-family:var(--f-mono);font-size:11px;font-weight:700;color:var(--ink-56)}
+.pin .txt{font-size:var(--t-label);letter-spacing:var(--ls-tag);text-transform:uppercase;
+  font-weight:700;color:var(--ink-90);white-space:nowrap}
+
+.keylist{max-width:var(--maxw);margin:var(--gap-lg) auto 0;display:none;
+  grid-template-columns:1fr 1fr;gap:var(--gap-xs) var(--gap-md)}
+.keylist li{display:flex;gap:var(--gap-xs);font-size:13px;color:var(--ink-90)}
+.keylist .num{font-family:var(--f-mono);font-weight:700;color:var(--ink-56)}
+
+/* ---- fact grid beneath the plan ---- */
+.fgrid{max-width:var(--maxw);margin:0 auto;display:grid;gap:var(--gap-md);
+  grid-template-columns:repeat(3,1fr)}
+.fgrid .card{display:flex;flex-direction:column;gap:var(--gap-sm)}
+.fgrid h3{font-size:var(--t-body-lg);font-family:var(--f-display);color:var(--cream)}
+.fgrid ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.fgrid li{display:flex;gap:10px;align-items:flex-start;font-size:var(--t-body);color:var(--ink-90)}
+.fgrid li .ico{--ico:17px;margin-top:3px;color:var(--ink-56)}
+.fgrid .icowell .ico{--ico:24px}
+.fgrid .wide{grid-column:span 2}
+
+.times{display:grid;gap:var(--gap-xs)}
+.times .row{display:flex;justify-content:space-between;gap:var(--gap-sm);
+  padding:10px 0;border-top:1px solid var(--ink-hairline);font-size:var(--t-body)}
+.times .row .t{font-family:var(--f-mono);font-weight:700;color:var(--cream)}
+
+@media (max-width:1000px){
+  .facts{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr 1fr}
+  .fgrid .wide{grid-column:span 2}
+}
+@media (max-width:760px){
+  .pin .txt{display:none}
+  .pin.l,.pin.r{transform:translate(-50%,-50%);align-items:center;text-align:center}
+  .pin .well{width:26px;height:26px}
+  .pin .ico{--ico:14px}
+  .zlab .zn{font-size:var(--t-body)}
+  .keylist{display:grid}
+}
+@media (max-width:640px){
+  .facts{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .fgrid .wide{grid-column:span 1}
+  .keylist{grid-template-columns:1fr}
+}
+
+</style>
+</head><body data-zone="cyan">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+<nav class="nav">
+  <img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/" aria-current="page">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+  <header class="pagehead">
+    <div class="wrap">
+      <div class="crumb"><a href="../../">Home</a><span aria-hidden="true">/</span><span>Venue</span></div>
+      <h1>Central Park, Hulhumalé</h1>
+      <p class="lede">Three days in the open air. One park, four zones, and everything you need
+        to find in about ninety seconds.</p>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="facts">
+      <div class="f"><span class="icowell"><i class="ico" data-lucide="calendar"></i></span>
+        <div><p class="k">Dates</p><span class="v">6&ndash;8 November 2026</span>
+          <span class="s">Friday to Sunday</span></div></div>
+      <div class="f"><span class="icowell"><i class="ico" data-lucide="clock"></i></span>
+        <div><p class="k">Daily hours</p><span class="v mono">10:00 &ndash; 22:00</span>
+          <span class="s">Last entry 21:30</span></div></div>
+      <div class="f"><span class="icowell"><i class="ico" data-lucide="ticket"></i></span>
+        <div><p class="k">Entry</p><span class="v">Free for everyone</span>
+          <span class="s">Registration recommended, not required</span></div></div>
+      <div class="f"><span class="icowell"><i class="ico" data-lucide="map-pin"></i></span>
+        <div><p class="k">Where</p><span class="v">Central Park, Hulhumal&eacute;</span>
+          <span class="s">15 min from Mal&eacute; &middot; 10 min from the airport</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="plan-h">
+    <div class="planhead">
+      <div>
+        <p class="eyebrow">The site</p>
+        <h2 id="plan-h">Four zones on one loop</h2>
+      </div>
+      <p class="lede muted">One circular path runs through the whole park. Start at any
+        entrance, walk the loop once, and you will have passed every zone.</p>
+    </div>
+
+    <div class="plan">
+      <svg class="planart" viewBox="0 0 1000 680" role="img" aria-label="Diagram of the Central Park site showing four zones arranged around a central loop path, with three entrances and visitor facilities.">
+        <path class="shore" d="M0 654C160 630 300 672 500 652S850 616 1000 646"/>
+        <path class="circuit" d="M500 140A210 210 0 1 0 661 215"/>
+        <path class="spine cas" d="M40 330C170 330 230 348 330 352"/>
+        <path class="spine" d="M40 330C170 330 230 348 330 352"/>
+        <path class="spine cas" d="M960 326C840 326 790 344 670 352"/>
+        <path class="spine" d="M960 326C840 326 790 344 670 352"/>
+        <path class="spine cas" d="M500 36C500 90 494 140 500 180"/>
+        <path class="spine" d="M500 36C500 90 494 140 500 180"/>
+        <path class="spine cas" d="M500 634C500 596 506 560 500 522"/>
+        <path class="spine" d="M500 634C500 596 506 560 500 522"/>
+        <path class="circuit cas" d="M700 285A210 210 0 0 1 700 415"/>
+        <path class="circuit" d="M700 285A210 210 0 0 1 700 415"/>
+        <g data-zone="coral"><path class="zpath" d="M180 235H140Q100 235 100 195V145Q100 105 140 105H260Q300 105 300 145V195Q300 235 260 235H220"/></g>
+        <g data-zone="green"><path class="zpath" d="M770 225H730Q690 225 690 185V135Q690 95 730 95H850Q890 95 890 135V185Q890 225 850 225H810"/></g>
+        <g data-zone="cyan"><path class="zpath" d="M180 590H140Q100 590 100 550V500Q100 460 140 460H260Q300 460 300 500V550Q300 590 260 590H220"/></g>
+        <g data-zone="violet"><path class="zpath" d="M780 585H740Q700 585 700 545V495Q700 455 740 455H860Q900 455 900 495V545Q900 585 860 585H820"/></g>
+      </svg>
+
+      <span class="zlab" data-zone="coral"  style="left:20%;top:25%"><span class="zn">Career</span><span class="zs">Zone 01</span></span>
+      <span class="zlab" data-zone="green"  style="left:79%;top:23.5%"><span class="zn">Education</span><span class="zs">Zone 02</span></span>
+      <span class="zlab" data-zone="cyan"   style="left:20%;top:77.2%"><span class="zn">Skills Experience</span><span class="zs">Zone 03</span></span>
+      <span class="zlab" data-zone="violet" style="left:80%;top:76.5%"><span class="zn">Market</span><span class="zs">Zone 04</span></span>
+
+      <span class="pin l" style="left:4%;top:48.5%" data-f="entrance"><span class="well"><i class="ico" data-lucide="log-in"></i></span><span class="cap"><b class="num">01</b><span class="txt">Main entrance</span></span></span>
+      <span class="pin" style="left:50%;top:5.3%" data-f="entrance"><span class="well"><i class="ico" data-lucide="log-in"></i></span><span class="cap"><b class="num">02</b><span class="txt">North entrance</span></span></span>
+      <span class="pin r" style="left:96%;top:47.9%" data-f="entrance"><span class="well"><i class="ico" data-lucide="log-in"></i></span><span class="cap"><b class="num">03</b><span class="txt">East entrance</span></span></span>
+      <span class="pin" style="left:50%;top:34.6%" data-f="lounge"><span class="well"><i class="ico" data-lucide="user"></i></span><span class="cap"><b class="num">04</b><span class="txt">Interview Lounge</span></span></span>
+      <span class="pin" style="left:50%;top:69.1%" data-f="stage"><span class="well"><i class="ico" data-lucide="mic"></i></span><span class="cap"><b class="num">05</b><span class="txt">Main stage</span></span></span>
+      <span class="pin" style="left:37.2%;top:42.9%" data-f="toilets"><span class="well"><i class="ico" data-lucide="toilet"></i></span><span class="cap"><b class="num">06</b><span class="txt">Toilets</span></span></span>
+      <span class="pin" style="left:62.8%;top:42.9%" data-f="food"><span class="well"><i class="ico" data-lucide="utensils"></i></span><span class="cap"><b class="num">07</b><span class="txt">Food &amp; drink</span></span></span>
+      <span class="pin" style="left:37.2%;top:62.9%" data-f="prayer"><span class="well"><i class="ico" data-lucide="moon-star"></i></span><span class="cap"><b class="num">08</b><span class="txt">Prayer room</span></span></span>
+      <span class="pin" style="left:62.8%;top:62.9%" data-f="firstaid"><span class="well"><i class="ico" data-lucide="heart-pulse"></i></span><span class="cap"><b class="num">09</b><span class="txt">First aid</span></span></span>
+      <span class="pin" style="left:50%;top:52.9%" data-f="water"><span class="well"><i class="ico" data-lucide="droplets"></i></span><span class="cap"><b class="num">10</b><span class="txt">Drinking water</span></span></span>
+      <span class="pin l" style="left:11%;top:57.6%" data-f="lost"><span class="well"><i class="ico" data-lucide="package-search"></i></span><span class="cap"><b class="num">11</b><span class="txt">Lost property</span></span></span>
+    </div>
+
+    <ul class="keylist">
+      <li><span class="num">01</span> Main entrance</li>
+      <li><span class="num">02</span> North entrance</li>
+      <li><span class="num">03</span> East entrance</li>
+      <li><span class="num">04</span> Interview Lounge</li>
+      <li><span class="num">05</span> Main stage</li>
+      <li><span class="num">06</span> Toilets (accessible)</li>
+      <li><span class="num">07</span> Food &amp; drink</li>
+      <li><span class="num">08</span> Prayer room</li>
+      <li><span class="num">09</span> First aid</li>
+      <li><span class="num">10</span> Drinking water</li>
+      <li><span class="num">11</span> Lost property</li>
+    </ul>
+  </section>
+
+  <section class="band" aria-labelledby="det-h">
+    <div class="wrap">
+      <p class="eyebrow">Practical detail</p>
+      <h2 id="det-h" style="margin-bottom:var(--gap-lg)">Everything else, in one grid</h2>
+    </div>
+    <div class="fgrid">
+
+      <article class="card">
+        <span class="icowell"><i class="ico" data-lucide="ship"></i></span>
+        <h3>Getting there</h3>
+        <ul>
+          <li><i class="ico" data-lucide="ship"></i><span><b>Ferry</b> from Mal&eacute; north harbour, every 15 minutes, roughly 15 minutes door to door.</span></li>
+          <li><i class="ico" data-lucide="bus"></i><span><b>Bus</b> across the Sinamal&eacute; Bridge, every 10&ndash;20 minutes until late.</span></li>
+          <li><i class="ico" data-lucide="car-taxi-front"></i><span><b>Taxi</b> from Mal&eacute; over the bridge, about 15 minutes; 10 minutes from Velana International Airport.</span></li>
+          <li><i class="ico" data-lucide="circle-parking"></i><span><b>Parking</b> on the streets bordering the park &mdash; busiest after 18:00.</span></li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="icowell"><i class="ico" data-lucide="accessibility"></i></span>
+        <h3>Accessibility</h3>
+        <ul>
+          <li><i class="ico" data-lucide="check"></i><span>Step-free throughout &mdash; every path, stand and stage is on one level.</span></li>
+          <li><i class="ico" data-lucide="check"></i><span>Accessible toilets at the main entrance and beside the stage.</span></li>
+          <li><i class="ico" data-lucide="check"></i><span>Assistance on request &mdash; ask any steward, or call ahead of your visit.</span></li>
+          <li><i class="ico" data-lucide="check"></i><span>Quiet, shaded seating away from the stage for anyone who needs a break.</span></li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="icowell"><i class="ico" data-lucide="tent"></i></span>
+        <h3>On site</h3>
+        <ul>
+          <li><i class="ico" data-lucide="moon-star"></i><span>Prayer facilities for men and women, with wudhu.</span></li>
+          <li><i class="ico" data-lucide="heart-pulse"></i><span>First aid staffed by the Maldivian Red Crescent, all opening hours.</span></li>
+          <li><i class="ico" data-lucide="utensils"></i><span>Food and drink stalls, plus free drinking water points.</span></li>
+          <li><i class="ico" data-lucide="package-search"></i><span>Lost property at the main entrance until 22:30 each day.</span></li>
+        </ul>
+      </article>
+
+      <article class="card wide">
+        <span class="icowell"><i class="ico" data-lucide="calendar-clock"></i></span>
+        <h3>Plan your visit</h3>
+        <div class="times">
+          <div class="row"><span>Quietest &mdash; best for talking to exhibitors</span><span class="t">10:00 &ndash; 13:00</span></div>
+          <div class="row"><span>Steady, full programme running</span><span class="t">13:00 &ndash; 17:00</span></div>
+          <div class="row"><span>Busiest &mdash; stage sets and families</span><span class="t">18:00 &ndash; 22:00</span></div>
+        </div>
+        <p class="muted" style="margin:0">Come in the morning if you want time with employers. Come in
+          the evening if you want the atmosphere.</p>
+      </article>
+
+      <article class="card">
+        <span class="icowell"><i class="ico" data-lucide="backpack"></i></span>
+        <h3>What to bring</h3>
+        <ul>
+          <li><i class="ico" data-lucide="file-text"></i><span>Several printed copies of your CV.</span></li>
+          <li><i class="ico" data-lucide="id-card"></i><span>Photo ID &mdash; required to check in at the Interview Lounge.</span></li>
+          <li><i class="ico" data-lucide="sun"></i><span>A hat, sunscreen and a refillable bottle. It is an open park.</span></li>
+          <li><i class="ico" data-lucide="baby"></i><span>Families: buggy-friendly paths, baby change at the main toilets.</span></li>
+        </ul>
+      </article>
+
+    </div>
+  </section>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+<div class="vlabel"><b>Venue · A</b> <span>Plan-led — the site diagram dominates, practical detail follows as a clean fact grid.</span></div>
+<script>lucide.createIcons({attrs:{'stroke-width':1.75}});</script>
+<script>
+  var n=document.querySelector('.nav');
+  addEventListener('scroll',function(){n.classList.toggle('scrolled',scrollY>10)},{passive:true});
+</script>
+</div>
+</body></html>

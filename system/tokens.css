@@ -1,0 +1,143 @@
+/* ============================================================================
+   VARA Expo 2026 — DESIGN TOKENS
+   Extracted from prototypes/vara-glass/index.html. See DESIGN-SYSTEM.md.
+
+   This file exists because the working build measured ~24% token coverage:
+   14 tokens against ~97 raw values, including 40 distinct clamp() expressions.
+   That is survivable for one page and fatal for fifteen. Every value a subpage
+   needs is named here; subpages should contain no raw hex and no raw clamp().
+   ============================================================================ */
+
+:root{
+  /* ---- Colour · navy ramp (structural ground) ------------------------------
+     #001D61 is the client's structural navy. It replaced the old plum #4B003C
+     everywhere. Never reintroduce plum. */
+  --navy-950:#00133F;      /* body ground */
+  --navy-900:#001A52;      /* footer, root bg, band grounds */
+  --navy:#001D61;          /* primary brand ground */
+  --navy-700:#0A3080;      /* raised navy, borders on dark */
+  --navy-shadow:0,9,30;    /* rgb triple for tinted shadows — never black */
+
+  /* ---- Colour · ink ---- */
+  --ink:#F6F1E6;           /* body text on dark */
+  --cream:#F3EDDF;         /* display type, solid button fills */
+  --ink-on-light:#04143C;  /* text on a cream fill */
+
+  /* ink opacity ladder — was a raw rgba() ladder repeated 54 times */
+  --ink-94:rgba(246,241,230,.94);
+  --ink-90:rgba(246,241,230,.90);
+  --ink-86:rgba(246,241,230,.86);
+  --ink-84:rgba(246,241,230,.84);
+  --ink-56:rgba(246,241,230,.56);
+  --ink-hairline:rgba(246,241,230,.14);
+  --ink-rim:rgba(246,241,230,.52);
+
+  /* ---- Colour · zone accents ----------------------------------------------
+     An accent is a ZONE IDENTITY, not a UI colour. It appears in the field,
+     the line system and a single emphasis word. It never becomes a button
+     fill, a link colour or a state colour. */
+  --coral:#FF8A66;         /* Career */
+  --green:#6BFE96;         /* Education */
+  --cyan:#1FE1FE;          /* Skills Experience */
+  --violet:#B66CF1;        /* Market */
+  --coral-tag:#FF724F;     /* the one accent-as-UI exception: .ztag */
+  --tag-ink:#06122C;
+
+  /* ---- Type ----------------------------------------------------------------
+     Cabinet Grotesk 800 = display. General Sans 400/500/600 = body + UI.
+     JetBrains Mono 700/800 = tabular numerals only. */
+  --f-display:"Cabinet Grotesk","General Sans",sans-serif;
+  --f-body:"General Sans",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* the scale that replaces 40 ad-hoc clamps */
+  --t-display-xl:clamp(44px,9vw,150px);     /* hero date */
+  --t-display-lg:clamp(34px,5.6vw,82px);    /* stat figures */
+  --t-display-md:clamp(30px,4.4vw,64px);    /* h2 / page title */
+  --t-display-sm:clamp(22px,2.7vw,40px);    /* h3 / statement */
+  --t-lead:clamp(19px,2.4vw,36px);          /* lede, venue line */
+  --t-body-lg:clamp(15px,1.25vw,18.5px);
+  --t-body:clamp(14px,1.25vw,17.5px);
+  --t-ui:13.5px;                            /* buttons, nav */
+  --t-label:11px;                           /* eyebrows, stat labels */
+  --t-key:clamp(8.5px,.78vw,11px);          /* countdown keys */
+
+  --ls-display:-.04em;
+  --ls-display-tight:-.035em;
+  --ls-label:.18em;
+  --ls-tag:.13em;
+  --lh-display:.95;
+  --lh-display-tight:.88;
+  --lh-body:1.62;
+
+  /* ---- Space ---- */
+  --gut:clamp(20px,4.6vw,72px);             /* page gutter, universal */
+  --maxw:1320px;
+  --maxw-text:68ch;
+  --pad-section:clamp(96px,14vh,170px);     /* standard zone */
+  --pad-band:clamp(80px,11vh,120px);        /* compact band */
+  --pad-subband:clamp(28px,5vh,56px);       /* sub-band */
+  --gap-xs:8px;
+  --gap-sm:14px;
+  --gap-md:clamp(18px,2vw,28px);
+  --gap-lg:clamp(24px,3vw,48px);
+  --gap-xl:clamp(44px,7vh,86px);
+
+  /* ---- Illustration (ILLUSTRATION.md) ----
+     Tier 2 ribbon artwork. Stroke is ~1/12 of the artboard at every size, so a
+     spot and an icon read at the same optical weight. */
+  --spot-sm:clamp(72px,8vw,104px);
+  --spot-md:clamp(96px,11vw,148px);
+  --spot-lg:clamp(140px,18vw,260px);
+  --ribbon-w:11;          /* stroke width on a 120-unit artboard */
+  --ribbon-casing:19;     /* the weave casing: ribbon + ~8 units */
+
+  /* ---- Radius ---- */
+  --r-pill:999px;
+  --r-panel:26px;
+  --r-card:18px;
+  --r-section:clamp(28px,4vw,54px);
+
+  /* ---- Elevation -----------------------------------------------------------
+     Layered, directional, navy-tinted. A centred 0 0 glow at high alpha has no
+     light direction and reads as a halo — that is what "harsh and amateurish"
+     was. Always offset on Y, 4-5 layers, increasing blur, decreasing alpha. */
+  --sh-sm:
+    0 1px 1px rgba(0,9,30,.30), 0 2px 4px rgba(0,9,30,.22),
+    0 4px 10px rgba(0,9,30,.18), 0 9px 22px rgba(0,9,30,.13),
+    0 18px 44px rgba(0,9,30,.09);
+  --sh-lg:
+    0 1px 2px rgba(0,9,30,.26), 0 4px 8px rgba(0,9,30,.20),
+    0 9px 22px rgba(0,9,30,.16), 0 20px 48px rgba(0,9,30,.12),
+    0 38px 78px rgba(0,9,30,.08);
+  /* for gradient-clipped (transparent-fill) text, which text-shadow ghosts through */
+  --sh-text:
+    drop-shadow(0 1px 1px rgba(0,9,30,.30)) drop-shadow(0 3px 8px rgba(0,9,30,.22))
+    drop-shadow(0 8px 20px rgba(0,9,30,.16)) drop-shadow(0 18px 42px rgba(0,9,30,.10));
+
+  /* ---- Motion --------------------------------------------------------------
+     Ease-in-out belongs to a clip on its own clock. On a scroll-SCRUBBED value
+     it fights the input — the finger moves linearly while the element stalls at
+     both ends. Use --e-scrub for anything driven by scroll position. */
+  --e-scrub:cubic-bezier(.16,1,.3,1);       /* expo-out, for scrubbed values */
+  --e-enter:cubic-bezier(.215,.61,.355,1);  /* entrance, own clock */
+  --e-exit:cubic-bezier(.4,0,1,1);
+  --d-fast:180ms; --d-base:320ms; --d-slow:1100ms;
+
+  /* ---- Glass ---- */
+  --glass-blur:22px;
+  --glass-sat:1.35;
+  --glass-bright:1.02;   /* ~1. At .78 over a dark field it renders a black box. */
+}
+
+/* Zone identity. Set data-zone on <body> or a section; the field reads it. */
+[data-zone="coral"]  { --accent:var(--coral);  }
+[data-zone="green"]  { --accent:var(--green);  }
+[data-zone="cyan"]   { --accent:var(--cyan);   }
+[data-zone="violet"] { --accent:var(--violet); }
+[data-zone="navy"]   { --accent:var(--cream);  }
+:root                { --accent:var(--coral);  }
+
+@media (prefers-reduced-motion:reduce){
+  :root{ --d-fast:0ms; --d-base:0ms; --d-slow:0ms; }
+}

@@ -1,0 +1,245 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sponsors — VARA Expo 2026</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* Sponsor item. Not utility-shaped: the logo placeholder is a token gradient with
+   a weave-free ribbon ground, and its type scale is driven by [data-tier] so the
+   tier comes from the CMS field, never from where the item sits in the document.
+   Candidate for promotion to base.css — see report. */
+.sponsor{display:flex;flex-direction:column;min-width:0}
+.sponsor .smark{display:grid;place-items:center;aspect-ratio:16/10;padding:var(--gap-sm);
+  border-radius:var(--r-card);text-align:center;overflow-wrap:anywhere;
+  background:linear-gradient(150deg,color-mix(in oklab,var(--accent) 26%,var(--navy-700)),
+    var(--navy) 58%,var(--navy-950));
+  box-shadow:inset 0 0 0 1px var(--ink-hairline);
+  font-family:var(--f-display);font-weight:800;letter-spacing:var(--ls-display-tight);
+  line-height:1;color:var(--cream);
+  transition:box-shadow var(--d-base) var(--e-enter),transform var(--d-base) var(--e-enter)}
+.sponsor:hover .smark{transform:translateY(-2px);
+  box-shadow:inset 0 0 0 1px var(--ink-rim),var(--sh-sm)}
+.sponsor h3{margin:var(--gap-sm) 0 0;font-family:var(--f-display);font-weight:700;
+  font-size:var(--t-body);letter-spacing:var(--ls-display-tight);line-height:1.12;
+  color:var(--cream);overflow-wrap:anywhere}
+.sponsor p{margin:6px 0 0;font-size:var(--t-label);letter-spacing:var(--ls-tag);
+  text-transform:uppercase;font-weight:700;color:var(--ink-56)}
+
+/* Hierarchy is scale: the tier attribute sets the mark's type size. */
+.sponsor[data-tier="main"] .smark{font-size:var(--t-display-xl);aspect-ratio:2/1}
+.sponsor[data-tier="main"] h3{font-size:var(--t-display-sm)}
+.sponsor[data-tier="gold"] .smark{font-size:var(--t-display-md)}
+.sponsor[data-tier="gold"] h3{font-size:var(--t-body-lg)}
+.sponsor[data-tier="partner"] .smark{font-size:var(--t-display-sm)}
+.sponsor[data-tier="supporter"] .smark{font-size:var(--t-lead);aspect-ratio:2/1}
+.sponsor[data-tier="supporter"] h3{font-size:var(--t-label);letter-spacing:0;
+  text-transform:none;font-weight:600;font-family:var(--f-body);color:var(--ink-90)}
+</style>
+</head><body data-zone="violet">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+<nav class="nav">
+  <img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+<header class="pagehead">
+  <div class="wrap">
+    <div class="crumb"><a href="../../">Home</a><span aria-hidden="true">/</span><span>Sponsors</span></div>
+    <p class="eyebrow">17 organisations &middot; 4 tiers</p>
+    <h1 class="d">Sponsors</h1>
+    <p class="lede muted">VARA Expo 2026 runs on the backing of Maldivian institutions and
+      businesses who put their people, kit and expertise behind the country&rsquo;s skills
+      and careers programme.</p>
+  </div>
+</header>
+
+<!-- TIER 1 — Main -->
+<section class="section" aria-labelledby="tier-main">
+  <div class="wrap">
+    <h2 id="tier-main" class="eyebrow">Main Sponsor</h2>
+    <ul class="mt-6 grid list-none grid-cols-1 gap-gap-lg p-0">
+      <li>
+        <article class="sponsor" data-tier="main">
+          <span class="smark" aria-hidden="true">BML</span>
+          <h3>Bank of Maldives</h3>
+          <p>Main Sponsor</p>
+        </article>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- TIER 2 — Gold -->
+<section class="band" aria-labelledby="tier-gold">
+  <div class="wrap">
+    <h2 id="tier-gold" class="eyebrow">Gold Sponsors</h2>
+    <ul class="mt-6 grid list-none grid-cols-1 gap-gap-lg p-0 sm:grid-cols-2 lg:grid-cols-4">
+      <li>
+        <article class="sponsor" data-tier="gold">
+          <span class="smark" aria-hidden="true">DHI</span>
+          <h3>Dhiraagu</h3>
+          <p>Gold Sponsor</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="gold">
+          <span class="smark" aria-hidden="true">MACL</span>
+          <h3>Maldives Airports Company Ltd</h3>
+          <p>Gold Sponsor</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="gold">
+          <span class="smark" aria-hidden="true">MTCC</span>
+          <h3>Maldives Transport and Contracting Company Plc</h3>
+          <p>Gold Sponsor</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="gold">
+          <span class="smark" aria-hidden="true">STO</span>
+          <h3>State Trading Organization plc</h3>
+          <p>Gold Sponsor</p>
+        </article>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- TIER 3 — Partners (named roles) -->
+<section class="band" aria-labelledby="tier-partner">
+  <div class="wrap">
+    <h2 id="tier-partner" class="eyebrow">Partners</h2>
+    <ul class="mt-6 grid list-none grid-cols-2 gap-gap-lg p-0 sm:grid-cols-3 lg:grid-cols-4">
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">PSM</span>
+          <h3>Public Service Media</h3>
+          <p>Broadcasting Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">HDC</span>
+          <h3>Housing Development Corporation</h3>
+          <p>Venue Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">MRC</span>
+          <h3>Maldivian Red Crescent</h3>
+          <p>First Aid Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">WAMCO</span>
+          <h3>Waste Management Corporation</h3>
+          <p>Sustainability Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">SCR</span>
+          <h3>Shady Cabin Rentals</h3>
+          <p>Setup Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">GFS</span>
+          <h3>Global Fire Services</h3>
+          <p>Safety Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">OE</span>
+          <h3>Oceans End Pvt Ltd</h3>
+          <p>Image Partner</p>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="partner">
+          <span class="smark" aria-hidden="true">STELCO</span>
+          <h3>State Electric Company Limited</h3>
+          <p>Electricity Partner</p>
+        </article>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- TIER 4 — Supporters -->
+<section class="band" aria-labelledby="tier-supporter">
+  <div class="wrap">
+    <h2 id="tier-supporter" class="eyebrow">Supporters</h2>
+    <ul class="mt-6 grid list-none grid-cols-2 gap-gap-lg p-0 sm:grid-cols-3 lg:grid-cols-4">
+      <li>
+        <article class="sponsor" data-tier="supporter">
+          <span class="smark" aria-hidden="true">OXQ</span>
+          <h3>Oxiqa Pvt Ltd</h3>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="supporter">
+          <span class="smark" aria-hidden="true">MPAO</span>
+          <h3>Maldives Pension Administration Office</h3>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="supporter">
+          <span class="smark" aria-hidden="true">BCC</span>
+          <h3>Business Center Corporation</h3>
+        </article>
+      </li>
+      <li>
+        <article class="sponsor" data-tier="supporter">
+          <span class="smark" aria-hidden="true">MWSC</span>
+          <h3>Mal&eacute; Water &amp; Sewerage Company</h3>
+        </article>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="band" aria-labelledby="cta-title">
+  <div class="wrap">
+    <div class="glass flex flex-col items-start gap-gap-lg lg:flex-row lg:items-center">
+      <div class="min-w-0 max-w-text">
+        <p class="eyebrow">Sponsorship</p>
+        <h2 id="cta-title" class="d mt-2 text-display-sm text-cream">Become a sponsor of VARA Expo 2026</h2>
+        <p class="muted mt-4 text-body">Four tiers are open, from title backing to a named
+          operational role. Packages close <time datetime="2026-07-31">31 July 2026</time>.</p>
+      </div>
+      <a class="pill lg:ml-auto" href="../contact/">Request the sponsorship pack
+        <i data-lucide="arrow-right" class="ico sm" aria-hidden="true"></i></a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+
+<div class="vlabel"><b>Sponsors &middot; A</b> <span>Tiered wall &mdash; rank is read purely as scale, each tier a smaller grid than the one above.</span></div>
+</div>
+<script>lucide.createIcons({attrs:{'stroke-width':1.75}});</script>
+</body></html>

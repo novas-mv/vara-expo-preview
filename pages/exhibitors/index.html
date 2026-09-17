@@ -1,0 +1,280 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exhibitors — VARA Expo 2026</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* CHOSEN: A + B combined (DECISIONS.md).
+   B alone was four thin name-lists — structured but sparse. A alone was one flat
+   A–Z grid — dense but characterless, 150 companies with no sense of what part of
+   the park you were in. Combined: the four zones give the page its spine and its
+   colour changes, and A's card grid fills each zone so it still reads as a
+   directory. Filters cut ACROSS the zones and collapse any band they empty.
+
+   Only the cross-zone filtering behaviour is page-specific; everything visible
+   comes from the shared system (.zband .zintro .zlist .ecard .chip .filters
+   .empty .ndiv .icowell, and data-lines for the drawn strokes). */
+
+/* a band the active filter has emptied collapses rather than showing a hole */
+.zband[hidden]{display:none}
+/* the count chip reflects what the filter is actually showing */
+.zcount{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:12.5px;color:var(--ink-56)}
+</style>
+</head>
+<body data-zone="coral">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+
+<nav class="nav">
+  <img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/" aria-current="page">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+<header class="pagehead" data-lines="4">
+  <div class="wrap">
+    <div class="crumb"><a href="../home/">Home</a><span aria-hidden="true">/</span><span>Exhibitors</span></div>
+    <p class="eyebrow">150+ exhibitors · 4 zones</p>
+    <h1>Exhibitors</h1>
+    <p class="lede">Three days where every college, employer and trade in the Maldives is standing in one park.</p>
+    <p class="muted max-w-text mt-gap-md">The park is laid out in four zones. Filter to what you are after, or walk the whole directory zone by zone.</p>
+  </div>
+</header>
+
+<!-- filters cut across all four zones -->
+<div class="band pt-0">
+  <div class="wrap">
+    <div class="flex flex-wrap items-center gap-gap-sm mb-gap-md">
+      <label class="sr-only" for="exsearch">Search all exhibitors</label>
+      <div class="relative grow max-w-text">
+        <i class="ico sm absolute left-gap-sm top-1/2 -translate-y-1/2 text-ink-56" data-lucide="search" aria-hidden="true"></i>
+        <input class="input pl-gap-xl" id="exsearch" type="search" autocomplete="off"
+               placeholder="Search all 150+ exhibitors by name or stand">
+      </div>
+      <button class="pill ghost sm" id="exclear" hidden>
+        <i class="ico sm" data-lucide="x" aria-hidden="true"></i>Clear
+      </button>
+    </div>
+    <div class="filters">
+      <button class="chip" aria-pressed="true" data-filter="all">All zones</button>
+      <button class="chip" aria-pressed="false" data-filter="coral"><span class="swatch" style="background:var(--coral)" aria-hidden="true"></span>Career</button>
+      <button class="chip" aria-pressed="false" data-filter="green"><span class="swatch" style="background:var(--green)" aria-hidden="true"></span>Education</button>
+      <button class="chip" aria-pressed="false" data-filter="cyan"><span class="swatch" style="background:var(--cyan)" aria-hidden="true"></span>Skills Experience</button>
+      <button class="chip" aria-pressed="false" data-filter="violet"><span class="swatch" style="background:var(--violet)" aria-hidden="true"></span>Market</button>
+      <span class="count" id="count" role="status">Showing 17 of 150+</span>
+    </div>
+  </div>
+</div>
+
+<main id="zones">
+
+  <!-- ===== Career ===== -->
+  <section class="band" data-zone="coral" aria-labelledby="z1">
+    <div class="zband">
+      <div class="zintro">
+        <div class="zmark"><span class="icowell solid"><i class="ico lg" data-lucide="briefcase-business"></i></span></div>
+        <span class="znum">Zone 01 / 04</span>
+        <h2 id="z1">Career</h2>
+        <div class="zrule" aria-hidden="true"></div>
+        <p>Employers hiring now. Walk in with a CV, walk out with an interview slot — most stands here run same-day shortlisting through the <a class="underline decoration-1 underline-offset-4" href="../interview-lounge/">Interview Lounge</a>.</p>
+        <div class="zhead-figs">
+          <div><b>5</b>confirmed stands</div>
+          <div><b>3</b>days, all open</div>
+        </div>
+      </div>
+      <div class="grid" data-zgrid>
+        <article class="ecard sponsor" data-zone="coral"><span class="ztag">Main Sponsor</span><h3 class="nm">Bank of Maldives</h3><div class="meta"><span class="stand">Stand A-01</span><span class="zn"><i aria-hidden="true"></i>Career</span></div></article>
+        <article class="ecard" data-zone="coral"><h3 class="nm">Dhiraagu</h3><div class="meta"><span class="stand">Stand A-04</span><span class="zn"><i aria-hidden="true"></i>Career</span></div></article>
+        <article class="ecard" data-zone="coral"><h3 class="nm">Maldives Airports Company Ltd</h3><div class="meta"><span class="stand">Stand C-14</span><span class="zn"><i aria-hidden="true"></i>Career</span></div></article>
+        <article class="ecard" data-zone="coral"><h3 class="nm">Public Service Media</h3><div class="meta"><span class="stand">Stand C-06</span><span class="zn"><i aria-hidden="true"></i>Career</span></div></article>
+        <article class="ecard" data-zone="coral"><h3 class="nm">State Trading Organization plc</h3><div class="meta"><span class="stand">Stand C-10</span><span class="zn"><i aria-hidden="true"></i>Career</span></div></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="zgap" data-zone="green" data-lines="0"><div class="rrule soft" aria-hidden="true"></div></div>
+
+  <!-- ===== Education ===== -->
+  <section class="band" data-zone="green" aria-labelledby="z2">
+    <div class="zband">
+      <div class="zintro">
+        <div class="zmark"><span class="icowell solid"><i class="ico lg" data-lucide="graduation-cap"></i></span></div>
+        <span class="znum">Zone 02 / 04</span>
+        <h2 id="z2">Education</h2>
+        <div class="zrule" aria-hidden="true"></div>
+        <p>Admissions officers in person, from national and private institutions. Scholarship and student-loan desks run same-day eligibility checks, and course walls compare fees, duration and entry requirements side by side.</p>
+        <div class="zhead-figs">
+          <div><b>4</b>confirmed stands</div>
+          <div><b>2</b>sessions daily</div>
+        </div>
+      </div>
+      <div class="grid" data-zgrid>
+        <article class="ecard" data-zone="green"><h3 class="nm">Maldives Pension Administration Office</h3><div class="meta"><span class="stand">Stand B-02</span><span class="zn"><i aria-hidden="true"></i>Education</span></div></article>
+        <article class="ecard" data-zone="green"><h3 class="nm">Business Center Corporation</h3><div class="meta"><span class="stand">Stand M-08</span><span class="zn"><i aria-hidden="true"></i>Education</span></div></article>
+        <article class="ecard" data-zone="green"><h3 class="nm">Oxiqa Pvt Ltd</h3><div class="meta"><span class="stand">Stand B-11</span><span class="zn"><i aria-hidden="true"></i>Education</span></div></article>
+        <article class="ecard" data-zone="green"><h3 class="nm">Male' Water &amp; Sewerage Company</h3><div class="meta"><span class="stand">Stand B-07</span><span class="zn"><i aria-hidden="true"></i>Education</span></div></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="zgap" data-zone="cyan" data-lines="1"><div class="rrule soft" aria-hidden="true"></div></div>
+
+  <!-- ===== Skills Experience ===== -->
+  <section class="band" data-zone="cyan" aria-labelledby="z3">
+    <div class="zband">
+      <div class="zintro">
+        <div class="zmark"><span class="icowell solid"><i class="ico lg" data-lucide="wrench"></i></span></div>
+        <span class="znum">Zone 03 / 04</span>
+        <h2 id="z3">Skills Experience</h2>
+        <div class="zrule" aria-hidden="true"></div>
+        <p>Hands-on bays running all three days — welding, marine engineering, electrical, culinary, hairdressing. Live competitions judged on the floor, and dive, hospitality and aviation simulators open to walk-ups.</p>
+        <div class="zhead-figs">
+          <div><b>4</b>confirmed stands</div>
+          <div><b>5</b>trade bays</div>
+        </div>
+      </div>
+      <div class="grid" data-zgrid>
+        <article class="ecard" data-zone="cyan"><h3 class="nm">Maldives Transport and Contracting Company Plc</h3><div class="meta"><span class="stand">Stand S-03</span><span class="zn"><i aria-hidden="true"></i>Skills</span></div></article>
+        <article class="ecard" data-zone="cyan"><h3 class="nm">Global Fire Services</h3><div class="meta"><span class="stand">Stand S-09</span><span class="zn"><i aria-hidden="true"></i>Skills</span></div></article>
+        <article class="ecard" data-zone="cyan"><h3 class="nm">State Electric Company Limited</h3><div class="meta"><span class="stand">Stand S-05</span><span class="zn"><i aria-hidden="true"></i>Skills</span></div></article>
+        <article class="ecard" data-zone="cyan"><h3 class="nm">Maldivian Red Crescent</h3><div class="meta"><span class="stand">Stand S-12</span><span class="zn"><i aria-hidden="true"></i>Skills</span></div></article>
+      </div>
+    </div>
+  </section>
+
+  <div class="zgap" data-zone="violet" data-lines="2"><div class="rrule soft" aria-hidden="true"></div></div>
+
+  <!-- ===== Market ===== -->
+  <section class="band" data-zone="violet" aria-labelledby="z4">
+    <div class="zband">
+      <div class="zintro">
+        <div class="zmark"><span class="icowell solid"><i class="ico lg" data-lucide="store"></i></span></div>
+        <span class="znum">Zone 04 / 04</span>
+        <h2 id="z4">Market</h2>
+        <div class="zrule" aria-hidden="true"></div>
+        <p>SME and island-enterprise stalls trading across all three evenings, with business registration and SME finance desks on site. Craft, food and fisheries producers from across the atolls.</p>
+        <div class="zhead-figs">
+          <div><b>4</b>confirmed stands</div>
+          <div><b>Late</b>evening trading</div>
+        </div>
+      </div>
+      <div class="grid" data-zgrid>
+        <article class="ecard" data-zone="violet"><h3 class="nm">Waste Management Corporation</h3><div class="meta"><span class="stand">Stand M-01</span><span class="zn"><i aria-hidden="true"></i>Market</span></div></article>
+        <article class="ecard" data-zone="violet"><h3 class="nm">Shady Cabin Rentals</h3><div class="meta"><span class="stand">Stand M-04</span><span class="zn"><i aria-hidden="true"></i>Market</span></div></article>
+        <article class="ecard" data-zone="violet"><h3 class="nm">Oceans End Pvt Ltd</h3><div class="meta"><span class="stand">Stand M-06</span><span class="zn"><i aria-hidden="true"></i>Market</span></div></article>
+        <article class="ecard" data-zone="violet"><h3 class="nm">Housing Development Corporation</h3><div class="meta"><span class="stand">Stand M-10</span><span class="zn"><i aria-hidden="true"></i>Market</span></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- shown only when a filter matches nothing -->
+  <div class="band" id="empty" hidden>
+    <div class="wrap">
+      <div class="empty">
+        <svg class="smark" viewBox="0 0 120 108" aria-hidden="true">
+          <path class="under" d="M19.4 76c0 16-16 28-36 28"/>
+          <path class="casing" d="M77 22c18 6 30 22 34 42"/>
+          <path class="over" d="M77 22c18 6 30 22 34 42"/>
+        </svg>
+        <h3>Nothing matches that</h3>
+        <p>Try a different spelling, another zone, or clear the search to see the whole directory.</p>
+        <button class="pill" data-filter="all">Show all exhibitors</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="band" data-lines="5">
+  <div class="wrap">
+    <div class="ndiv"><span class="n">→</span><span class="t">Exhibiting in 2026?</span></div>
+    <p class="muted max-w-text">Applications are open. The information kit covers stand specifications, costs and deadlines.</p>
+    <div class="flex flex-wrap gap-gap-sm mt-gap-md">
+      <a class="pill" href="../register/">Apply for a stand</a>
+      <a class="pill ghost" href="../information-kit/">Information kit</a>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+
+<div class="vlabel"><b>Exhibitors · chosen</b> <span>A + B: zones give the spine and the colour changes, A's card grid gives the density. Filters cut across zones.</span></div>
+</div>
+
+<script src="../../system/lines.js"></script>
+<script>
+lucide.createIcons({attrs:{'stroke-width':1.75}});
+
+/* Cross-zone filtering. A zone band whose cards are all hidden collapses, so the
+   page never shows an empty band with a heading and nothing under it. */
+(function(){
+  var chips = [].slice.call(document.querySelectorAll('.chip[data-filter]'));
+  var bands = [].slice.call(document.querySelectorAll('#zones .band[data-zone]'));
+  var cards = [].slice.call(document.querySelectorAll('.ecard'));
+  var empty = document.getElementById('empty');
+  var count = document.getElementById('count');
+
+  var search = document.getElementById('exsearch');
+  var clear  = document.getElementById('exclear');
+  var zone   = 'all';
+
+  /* searchable haystack cached once per card — name + stand + zone, so
+     "A-01", "bank" and "career" all find the right row */
+  cards.forEach(function(c){
+    c.dataset.hay = (c.textContent || '').toLowerCase().replace(/\s+/g, ' ');
+  });
+
+  function apply(){
+    var q = (search.value || '').trim().toLowerCase();
+    var shown = 0;
+    cards.forEach(function(c){
+      var inZone = zone === 'all' || c.dataset.zone === zone;
+      var inText = !q || c.dataset.hay.indexOf(q) > -1;
+      var on = inZone && inText;
+      c.hidden = !on;
+      if (on) shown++;
+    });
+    /* a band collapses when nothing in it survives, so a search never leaves a
+       zone heading standing over an empty grid */
+    bands.forEach(function(b){
+      var any = [].slice.call(b.querySelectorAll('.ecard')).some(function(c){ return !c.hidden; });
+      b.hidden = !any;
+    });
+    empty.hidden = shown > 0;
+    count.textContent = shown
+      ? 'Showing ' + shown + (q ? ' match' + (shown === 1 ? '' : 'es') : ' of 150+')
+      : 'No matches';
+    chips.forEach(function(ch){
+      ch.setAttribute('aria-pressed', String(ch.dataset.filter === zone));
+    });
+    clear.hidden = !q && zone === 'all';
+  }
+
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-filter]');
+    if (t){ zone = t.dataset.filter; apply(); }
+  });
+  search.addEventListener('input', apply);
+  clear.addEventListener('click', function(){
+    search.value = ''; zone = 'all'; apply(); search.focus();
+  });
+  apply();
+})();
+</script>
+</body></html>

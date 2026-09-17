@@ -1,0 +1,432 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register — VARA Expo 2026</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* CHOSEN: B (wizard) with A's split entry promoted to step 1 (DECISIONS.md).
+   B alone dropped you straight into exhibitor fields and made a visitor read
+   past an application. A alone put the choice up front but then dumped one
+   long form under it. Combined: the choice IS step 1, and the three steps
+   after it are the ones that path actually needs.
+
+   Everything visible comes from the shared kit — .stepper .step .field-row
+   .label .input .select .textarea .hint .err-msg .opts .opt .box .req
+   .is-filled .is-focus .actions .success .kv .fs-note .sum .bar .navbtns
+   .form-grid, plus the graphic layer (data-lines, .ndiv, .rrule,
+   .icowell.solid). Only the four things below are page CSS. */
+
+/* 1. PATH-CONDITIONAL STEP VISIBILITY — the whole point of the merge, and the
+   one thing no utility or component can express. The choice made in step 1
+   sets data-path on the wizard; the stepper labels, the step-2 panel and the
+   summary rail all carry both variants in the markup and CSS reveals the one
+   that belongs to the chosen path. Done in CSS rather than JS so the branch is
+   visible in the source and works with scripting off. */
+[data-path="exhibitor"] .p-vis,
+[data-path="visitor"]  .p-exh { display:none }
+
+/* 2. The wizard's two-column shell and its sticky rail. Layout unique to this
+   page; no utility exists for `sticky` + a token top offset. */
+.wizard{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);
+  gap:var(--gap-xl);max-width:var(--maxw);margin:0 auto;align-items:start}
+.rail{position:sticky;top:var(--gap-xl);display:grid;gap:var(--gap-md)}
+@media(max-width:980px){ .wizard{grid-template-columns:1fr} .rail{position:static} }
+
+/* 3. .bar's fill. .bar is in base.css; its inner span is not. */
+.bar i{display:block;height:100%;width:42%;border-radius:var(--r-pill);background:var(--cream)}
+
+/* 4. The step-1 path card. A real <label> wrapping a real radio, so it is
+   keyboard operable and announced as a choice — not a div with a click
+   handler. PROMOTION CANDIDATE: this is a component, not page layout, and it
+   belongs in base.css the moment a second page needs a large choice card
+   (Contact and Exhibitor Feedback both will). Left here only because this
+   task may write one file. */
+.paths{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-md);
+  max-width:var(--maxw);margin:0 auto}
+.path{position:relative;display:grid;gap:var(--gap-sm);padding:var(--gap-lg);cursor:pointer;
+  border-radius:var(--r-panel);border:1.5px solid var(--ink-hairline);
+  background:color-mix(in oklab,var(--navy-950) 34%,transparent);
+  transition:border-color var(--d-base) var(--e-enter),transform var(--d-base) var(--e-enter)}
+.path:hover{transform:translateY(-2px);border-color:var(--ink-rim)}
+.path>input{position:absolute;opacity:0;width:1px;height:1px}
+.path:has(>input:checked){border-color:var(--cream);box-shadow:var(--sh-sm)}
+.path>input:focus-visible~.path-top .box{outline:2px solid var(--cream);outline-offset:3px}
+.path>input:checked~.path-top .box{background:var(--cream);border-color:var(--cream)}
+.path>input:checked~.path-top .box.round::after{opacity:1}
+.path-top{display:flex;align-items:center;gap:var(--gap-sm)}
+.path-top .name{font-family:var(--f-display);font-weight:800;
+  letter-spacing:var(--ls-display-tight);font-size:var(--t-display-sm);color:var(--cream)}
+.path .price{font-family:var(--f-mono);font-weight:800;font-size:var(--t-body-lg);color:var(--cream);margin:0}
+.path ul{margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:14px;color:var(--ink-84)}
+.path ul li::marker{color:var(--accent)}
+@media(max-width:820px){ .paths{grid-template-columns:1fr} }
+
+/* 5. GAP IN THE SHARED FORM KIT — base.css styles every control state except
+   disabled, so a locked field is indistinguishable from an open one. Flagged
+   for promotion; kept minimal here. */
+.input[disabled],.select[disabled],.textarea[disabled]{
+  opacity:.5;cursor:not-allowed;border-style:dashed;
+  background:color-mix(in oklab,var(--navy-950) 55%,transparent)}
+</style>
+</head>
+<body data-zone="coral">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+
+<nav class="nav">
+  <img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/" aria-current="page"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+<header class="pagehead">
+  <div class="wrap">
+    <div class="crumb"><a href="../home/">Home</a><span aria-hidden="true">/</span><span>Register</span></div>
+    <p class="eyebrow">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    <h1>Register in four short steps</h1>
+    <p class="lede">Pick your path first and you only ever see the fields that path needs. Visitors finish in about two minutes and get in free. Exhibitors get the longer route, broken into three short steps.</p>
+  </div>
+</header>
+
+<!-- ===== STEP 1 — the split entry, brought in from variant A ===== -->
+<section class="band" data-lines aria-labelledby="s1-h">
+  <div class="wrap">
+    <div class="ndiv"><span class="n">01</span><span class="t">Who you are</span></div>
+    <p class="eyebrow">Step 1 of 4</p>
+    <h2 id="s1-h" class="mt-gap-xs">Are you visiting, or exhibiting?</h2>
+    <p class="muted max-w-text mt-gap-md">This is the only question that changes the rest of the form. Choose one — you can go back and switch at any point before you submit.</p>
+  </div>
+
+  <fieldset class="mt-gap-lg">
+    <legend class="sr-only">Register as a visitor or as an exhibitor</legend>
+    <div class="paths">
+      <label class="path" data-zone="green">
+        <input type="radio" name="path" value="visitor" checked aria-describedby="p-vis-d">
+        <span class="path-top">
+          <span class="box round" aria-hidden="true"></span>
+          <span class="icowell solid" aria-hidden="true"><i class="ico lg" data-lucide="ticket"></i></span>
+          <span class="name">Visitor</span>
+        </span>
+        <p class="price">Free entry</p>
+        <ul id="p-vis-d">
+          <li>All four zones, all three days</li>
+          <li>Interview Lounge slots and workshops</li>
+          <li>Three steps after this one, about two minutes</li>
+        </ul>
+      </label>
+
+      <label class="path" data-zone="violet">
+        <input type="radio" name="path" value="exhibitor" aria-describedby="p-exh-d">
+        <span class="path-top">
+          <span class="box round" aria-hidden="true"></span>
+          <span class="icowell solid" aria-hidden="true"><i class="ico lg" data-lucide="store"></i></span>
+          <span class="name">Exhibitor</span>
+        </span>
+        <p class="price">By application</p>
+        <ul id="p-exh-d">
+          <li>A stand in Career, Education, Skills Experience or Market</li>
+          <li>Organisation details, then stand and services</li>
+          <li>Three steps after this one, allow about ten minutes</li>
+        </ul>
+      </label>
+    </div>
+  </fieldset>
+
+  <div class="wrap">
+    <div class="actions">
+      <button class="pill" type="button" id="choose"><span class="dot" aria-hidden="true"></span>Continue to step 2</button>
+      <span class="text-ink-56">Switching path resets nothing you have already typed.</span>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rrule soft" aria-hidden="true"></div></div>
+
+<!-- ===== THE WIZARD, SHOWN MID-FLOW AT STEP 2 ON THE EXHIBITOR PATH ===== -->
+<section class="band" data-lines aria-labelledby="s2-h">
+  <div class="wrap">
+    <div class="ndiv"><span class="n">02</span><span class="t">The wizard, mid-flow</span></div>
+  </div>
+
+  <div id="wizard" data-path="exhibitor">
+  <ol class="stepper">
+    <li class="step" data-state="done"><span class="n" aria-hidden="true">1</span><span><span class="t">Who you are</span><span class="s">Completed</span></span></li>
+    <li class="step" data-state="current" aria-current="step"><span class="n" aria-hidden="true">2</span><span><span class="t"><span class="p-exh">Organisation</span><span class="p-vis">Your details</span></span><span class="s">In progress</span></span></li>
+    <li class="step" data-state="todo"><span class="n" aria-hidden="true">3</span><span><span class="t"><span class="p-exh">Stand &amp; requirements</span><span class="p-vis">Preferences</span></span><span class="s">Up next</span></span></li>
+    <li class="step" data-state="todo"><span class="n" aria-hidden="true">4</span><span><span class="t">Confirm</span><span class="s">Not started</span></span></li>
+  </ol>
+
+  <div class="wizard">
+
+    <form class="glass" novalidate aria-labelledby="s2-h">
+      <p class="eyebrow">Step 2 of 4</p>
+      <h2 id="s2-h"><span class="p-exh">Organisation</span><span class="p-vis">Your details</span></h2>
+
+      <p class="fs-note p-exh">You chose <b>Exhibitor</b> in step 1, so step 2 asks about the organisation behind the stand. The stand itself comes in step 3. Fields marked <span class="req" aria-hidden="true">*</span> are required. The <a class="underline decoration-1 underline-offset-4" href="../information-kit/">information kit</a> covers stand specifications, costs and deadlines.</p>
+      <p class="fs-note p-vis">You chose <b>Visitor</b> in step 1, so step 2 is just who you are. Preferences come in step 3. Fields marked <span class="req" aria-hidden="true">*</span> are required.</p>
+
+      <!-- ---------- EXHIBITOR PATH ---------- -->
+      <div class="p-exh">
+        <fieldset>
+          <legend>The organisation</legend>
+          <div class="form-grid">
+            <div class="field-row">
+              <label class="label" for="e-org">Organisation name<span class="req" aria-hidden="true">*</span></label>
+              <input class="input is-filled" id="e-org" name="e-org" type="text" value="Maldives Marine Works Pvt Ltd" aria-required="true">
+            </div>
+            <div class="field-row">
+              <label class="label" for="e-reg">Registration number<span class="req" aria-hidden="true">*</span></label>
+              <input class="input is-focus" id="e-reg" name="e-reg" type="text" value="C-1234/2019" aria-required="true" aria-describedby="e-reg-h">
+              <p class="hint" id="e-reg-h">As shown on your Ministry of Economic Development certificate.</p>
+            </div>
+            <div class="field-row">
+              <label class="label" for="e-contact">Contact person<span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="e-contact" name="e-contact" type="text" placeholder="Full name" aria-required="true">
+            </div>
+            <div class="field-row">
+              <label class="label" for="e-email">Email<span class="req" aria-hidden="true">*</span></label>
+              <input class="input is-filled" id="e-email" name="e-email" type="email" value="stands@marineworks.mv" aria-required="true">
+            </div>
+            <!-- the one static error example -->
+            <div class="field-row err">
+              <label class="label" for="e-mobile">Mobile<span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="e-mobile" name="e-mobile" type="tel" value="990" aria-required="true" aria-invalid="true" aria-describedby="e-mobile-e">
+              <p class="err-msg" id="e-mobile-e">This number is too short. Use a 7-digit Maldivian mobile.</p>
+            </div>
+            <div class="field-row">
+              <label class="label" for="e-acct">Exhibitor account ID</label>
+              <input class="input" id="e-acct" name="e-acct" type="text" value="Issued after approval" disabled aria-describedby="e-acct-h">
+              <p class="hint" id="e-acct-h">Locked until the ministry accepts your application.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Stand &amp; requirements</legend>
+          <p class="fs-note">Step 3 on this path. Shown here so the whole application is visible at once.</p>
+          <div class="form-grid">
+            <div class="field-row">
+              <label class="label" for="e-zone">Zone applying for<span class="req" aria-hidden="true">*</span></label>
+              <select class="select is-filled" id="e-zone" name="e-zone" aria-required="true">
+                <option>Career</option><option selected>Skills Experience</option>
+                <option>Education</option><option>Market</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label class="label" for="e-size">Stand size<span class="req" aria-hidden="true">*</span></label>
+              <select class="select" id="e-size" name="e-size" aria-required="true" aria-describedby="e-size-h">
+                <option value="">Select a size</option>
+                <option>Small &mdash; 3 &times; 3 m</option><option>Medium &mdash; 6 &times; 3 m</option>
+                <option>Large &mdash; 9 &times; 3 m</option><option>Custom footprint</option>
+              </select>
+              <p class="hint" id="e-size-h">Shell scheme, fascia board and two chairs included in every size.</p>
+            </div>
+            <div class="field-row full">
+              <label class="label" for="e-desc">What you&rsquo;ll exhibit<span class="req" aria-hidden="true">*</span></label>
+              <textarea class="textarea" id="e-desc" name="e-desc" aria-required="true" aria-describedby="e-desc-h">Live welding and marine-engine servicing demos, plus an apprenticeship sign-up desk.</textarea>
+              <p class="hint" id="e-desc-h">Around 60 words. This text appears in the printed programme.</p>
+            </div>
+          </div>
+
+          <p class="label mb-gap-xs" id="e-svc-l">Power &amp; water requirements</p>
+          <div class="opts" role="group" aria-labelledby="e-svc-l">
+            <label class="opt"><input type="checkbox" name="e-svc" value="single" checked><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Single-phase power</span><span class="opt-s">13 A, included</span></span></label>
+            <label class="opt"><input type="checkbox" name="e-svc" value="three" checked><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Three-phase power</span><span class="opt-s">Chargeable, limited bays</span></span></label>
+            <label class="opt"><input type="checkbox" name="e-svc" value="water"><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Water supply &amp; drain</span><span class="opt-s">Perimeter stands only</span></span></label>
+            <label class="opt"><input type="checkbox" name="e-svc" value="air" disabled><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Compressed air</span><span class="opt-s">Unavailable in this zone</span></span></label>
+          </div>
+
+          <label class="opt mt-gap-md">
+            <input type="checkbox" name="e-terms" aria-required="true">
+            <span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="opt-t"><span class="opt-h">I agree to the exhibitor terms<span class="req" aria-hidden="true">*</span></span><span class="opt-s">Build-up, insurance and the stand code of conduct &mdash; all in the <a class="underline decoration-1 underline-offset-4" href="../information-kit/">information kit</a>.</span></span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- ---------- VISITOR PATH ---------- -->
+      <div class="p-vis">
+        <fieldset>
+          <legend>About you</legend>
+          <div class="form-grid">
+            <div class="field-row">
+              <label class="label" for="v-name">Full name<span class="req" aria-hidden="true">*</span></label>
+              <input class="input is-filled" id="v-name" name="v-name" type="text" value="Aishath Nuha Ibrahim" aria-required="true">
+            </div>
+            <div class="field-row">
+              <label class="label" for="v-email">Email<span class="req" aria-hidden="true">*</span></label>
+              <input class="input is-focus" id="v-email" name="v-email" type="email" value="nuha@example.mv" aria-required="true">
+            </div>
+            <div class="field-row err">
+              <label class="label" for="v-mobile">Mobile<span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="v-mobile" name="v-mobile" type="tel" value="77" aria-required="true" aria-invalid="true" aria-describedby="v-mobile-e">
+              <p class="err-msg" id="v-mobile-e">This number is too short. Use a 7-digit Maldivian mobile.</p>
+            </div>
+            <div class="field-row">
+              <label class="label" for="v-island">Island / atoll<span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="v-island" name="v-island" type="text" placeholder="e.g. Hithadhoo, Addu" aria-required="true" aria-describedby="v-island-h">
+              <p class="hint" id="v-island-h">Used only to plan transport and session capacity.</p>
+            </div>
+            <div class="field-row">
+              <label class="label" for="v-age">Age bracket<span class="req" aria-hidden="true">*</span></label>
+              <select class="select" id="v-age" name="v-age" aria-required="true">
+                <option value="">Select a bracket</option>
+                <option>Under 18</option><option>18&ndash;24</option>
+                <option>25&ndash;34</option><option>35&ndash;49</option><option>50 and over</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Preferences</legend>
+          <p class="fs-note">Step 3 on this path. Shown here so the whole registration is visible at once.</p>
+          <p class="label mb-gap-xs" id="v-zones-l">Zones you are interested in</p>
+          <div class="opts" role="group" aria-labelledby="v-zones-l">
+            <label class="opt"><input type="checkbox" name="v-zones" value="career" checked><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Career</span><span class="opt-s">Employers hiring on the floor</span></span></label>
+            <label class="opt"><input type="checkbox" name="v-zones" value="education" checked><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Education</span><span class="opt-s">Admissions and scholarships</span></span></label>
+            <label class="opt"><input type="checkbox" name="v-zones" value="skills"><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Skills Experience</span><span class="opt-s">Hands-on trade bays</span></span></label>
+            <label class="opt"><input type="checkbox" name="v-zones" value="market"><span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.4 4.4 9.2 10.5 2.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="opt-t"><span class="opt-h">Market</span><span class="opt-s">SME and island enterprise</span></span></label>
+          </div>
+          <div class="form-grid mt-gap-md">
+            <div class="field-row full">
+              <label class="label" for="v-heard">How did you hear about us?</label>
+              <select class="select" id="v-heard" name="v-heard">
+                <option value="">Select one</option>
+                <option>School or college</option><option>Employer</option>
+                <option>Social media</option><option>Radio or TV</option>
+                <option>Friend or family</option><option>Island council</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="navbtns">
+        <button class="pill ghost" type="button">Back to step 1</button>
+        <span class="spacer"></span>
+        <button class="pill ghost" type="button">Save draft</button>
+        <button class="pill" type="button" id="next"><span class="dot" aria-hidden="true"></span>Continue to step 3</button>
+      </div>
+    </form>
+
+    <aside class="rail" aria-label="Your progress so far">
+      <div class="glass">
+        <p class="eyebrow mb-gap-xs">Progress</p>
+        <div class="bar" role="img" aria-label="Step 2 of 4"><i></i></div>
+        <p class="mono text-ink-56 mt-gap-xs mb-gap-lg" id="pct">STEP 2 / 4 &middot; 42% COMPLETE</p>
+        <dl class="sum">
+          <div><dt>Registering as</dt><dd><span class="p-exh">Exhibitor</span><span class="p-vis">Visitor</span></dd></div>
+          <div class="p-exh"><dt>Organisation</dt><dd>Maldives Marine Works</dd></div>
+          <div class="p-exh"><dt>Zone</dt><dd>Skills Experience</dd></div>
+          <div class="p-exh pending"><dt>Stand size</dt><dd>Not chosen yet</dd></div>
+          <div class="p-vis"><dt>Name</dt><dd>Aishath Nuha Ibrahim</dd></div>
+          <div class="p-vis"><dt>Entry</dt><dd>Free</dd></div>
+          <div class="p-vis pending"><dt>Island / atoll</dt><dd>Not entered yet</dd></div>
+          <div class="pending"><dt>Step 3</dt><dd><span class="p-exh">Stand &amp; requirements</span><span class="p-vis">Preferences</span></dd></div>
+        </dl>
+      </div>
+
+      <div class="glass">
+        <p class="eyebrow mb-gap-xs">The event</p>
+        <dl class="kv">
+          <dt>Dates</dt><dd>6&ndash;8 November 2026</dd>
+          <dt>Venue</dt><dd>Central Park, Hulhumal&eacute;</dd>
+          <dt>Zones</dt><dd>Career &middot; Education &middot; Skills Experience &middot; Market</dd>
+          <dt>Visitors</dt><dd>Free entry</dd>
+        </dl>
+      </div>
+
+      <div class="glass p-exh">
+        <span class="icowell solid" aria-hidden="true"><i class="ico lg" data-lucide="file-text"></i></span>
+        <p class="eyebrow mt-gap-sm mb-gap-xs">Before you finish</p>
+        <p class="muted mb-0">Stand specifications, costs and build-up deadlines are all in the information kit.</p>
+        <div class="actions"><a class="pill ghost" href="../information-kit/">Information kit</a></div>
+      </div>
+    </aside>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rrule soft" aria-hidden="true"></div></div>
+
+<!-- ===== STEP 4 — the success state ===== -->
+<section class="band" data-lines aria-labelledby="s4-h">
+  <div class="wrap">
+    <div class="ndiv"><span class="n">04</span><span class="t">Confirmed</span></div>
+    <p class="eyebrow">What you see when it&rsquo;s done</p>
+    <div class="glass success max-w-text mt-gap-md">
+      <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none"><path d="M4 12.6 9.6 18 20 6.6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <h2 id="s4-h">Application received</h2>
+      <p class="muted mb-0">Thanks &mdash; the exhibitor team reviews applications weekly and will email stands@marineworks.mv with a decision and your stand number. Visitors get their entry pass by email straight away.</p>
+      <dl class="kv">
+        <dt>Reference</dt><dd class="mono">VX26-E-00219</dd>
+        <dt>Organisation</dt><dd>Maldives Marine Works Pvt Ltd</dd>
+        <dt>Zone</dt><dd>Skills Experience</dd>
+        <dt>Decision by</dt><dd>15 September 2026</dd>
+      </dl>
+      <div class="actions">
+        <a class="pill" href="../information-kit/"><span class="dot" aria-hidden="true"></span>Information kit</a>
+        <a class="pill ghost" href="../schedule/">Plan your three days</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+
+<div class="vlabel"><b>Register &middot; chosen</b> <span>B's wizard with A's split entry as step 1. The path chosen in step 1 rewrites steps 2 and 3; the summary rail stays visible throughout.</span></div>
+</div>
+
+<script src="../../system/lines.js"></script>
+<script>
+lucide.createIcons({attrs:{'stroke-width':1.75}});
+
+/* Static mockup — no validation. Two behaviours only.
+   1. The step-1 radios set data-path on the wizard, which is what makes the
+      two paths visibly different further down. */
+(function(){
+  var wiz = document.getElementById('wizard');
+  document.querySelectorAll('input[name="path"]').forEach(function(r){
+    r.addEventListener('change', function(){ wiz.dataset.path = r.value; });
+  });
+  document.getElementById('choose').addEventListener('click', function(){
+    var on = document.querySelector('input[name="path"]:checked');
+    if (on) wiz.dataset.path = on.value;
+    wiz.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* 2. The stepper advances so the wizard can be walked without a backend. */
+document.getElementById('next').addEventListener('click', function(){
+  var steps = [].slice.call(document.querySelectorAll('.step'));
+  var i = steps.findIndex(function(s){ return s.dataset.state === 'current'; });
+  if (i < 0 || i >= steps.length - 1) return;
+  steps[i].dataset.state = 'done';
+  steps[i].removeAttribute('aria-current');
+  steps[i].querySelector('.s').textContent = 'Completed';
+  steps[i+1].dataset.state = 'current';
+  steps[i+1].setAttribute('aria-current', 'step');
+  steps[i+1].querySelector('.s').textContent = 'In progress';
+  var n = i + 2, pct = Math.round(n / 4 * 100);
+  document.querySelector('.bar i').style.width = pct + '%';
+  document.querySelector('.bar').setAttribute('aria-label', 'Step ' + n + ' of 4');
+  document.getElementById('pct').textContent = 'STEP ' + n + ' / 4 · ' + pct + '% COMPLETE';
+});
+</script>
+</body></html>

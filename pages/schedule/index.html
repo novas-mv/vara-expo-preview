@@ -1,0 +1,1134 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Schedule &mdash; VARA Expo 2026</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* CHOSEN: B + C as switchable views, dates selectable (DECISIONS.md).
+   B alone could only ever show one day and B's grid is the only view that shows
+   what CLASHES. C alone reads the whole three days but flattens the collisions.
+   So: one page, one programme, two renderings of it — and a date selector that
+   drives both.
+
+   SINGLE SOURCE OF TRUTH: the stream markup below IS the programme. Every
+   session is one self-contained <article class="sitem"> with its own <time
+   datetime>, data-zone, data-col and data-start/data-end. The grid view is
+   GENERATED from those same nodes at run time, so the two views can never drift
+   and a CMS only ever emits the stream.
+
+   Everything visible comes from the shared system (.band .wrap .chip .card
+   .icowell .ico .ndiv .rrule .smark .aedge .zline .empty, and data-lines for the
+   drawn strokes). What is below is only what cannot be expressed as a utility or
+   an existing component: the timetable's row/column placement arithmetic, the
+   sticky offsets for the stream's day and time markers, and the view/day/zone
+   switching. Page-local metrics are declared once as custom properties.
+   ------------------------------------------------------------------------ */
+
+/* ---- page-local metrics (declared once, referenced everywhere) ---------- */
+#sched{
+  --row-h:34px;          /* one half-hour row in the grid view */
+  --tt-time-col:78px;    /* the hour gutter down the left of the grid */
+  --tt-col-min:150px;    /* a zone column's minimum before the grid scrolls */
+  --tt-min:960px;        /* below this the grid scrolls inside its own box */
+  --stick-nav:70px;      /* nav height — the day bar parks under it */
+  --stick-day:150px;     /* day bar bottom — the time markers park under that */
+  --stick-day-sm:132px;
+  --stick-nav-sm:62px;
+  --hair:1px;
+}
+
+/* ---- time and meta lines (shared by both views) ------------------------ */
+.time{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:700;
+  letter-spacing:var(--ls-tag);color:var(--cream)}
+.time .to{color:var(--ink-56);font-weight:700}
+.zline{display:inline-flex;align-items:center;gap:var(--gap-xs);
+  font-size:var(--t-label);letter-spacing:var(--ls-tag);text-transform:uppercase;
+  font-weight:700;color:var(--ink-84)}
+/* rule 7: icon size comes from a CSS rule, never an inline custom property —
+   lucide.createIcons() rewrites the element and drops inline vars. */
+.zline .ico{--ico:14px;color:var(--accent)}
+.zdot{width:9px;height:9px;border-radius:var(--r-pill);background:var(--accent);flex:none}
+.place{display:inline-flex;align-items:center;gap:var(--gap-xs);
+  font-size:12.5px;color:var(--ink-56)}
+.place .ico{--ico:14px}
+.lang{display:inline-flex;align-items:center;padding:3px 9px;border-radius:var(--r-pill);
+  font-family:var(--f-mono);font-size:10px;font-weight:700;letter-spacing:var(--ls-tag);
+  text-transform:uppercase;color:var(--ink-84);
+  box-shadow:inset 0 0 0 var(--hair) var(--ink-hairline)}
+.legend{display:flex;flex-wrap:wrap;gap:var(--gap-md);align-items:center;
+  max-width:var(--maxw);margin:0 auto}
+
+/* ---- the two real controls -------------------------------------------- */
+/* A tab's selected state must not rest on colour alone (it carries a filled
+   accent bar and an inset rim, and aria-selected for anyone not looking). */
+.tabs{display:flex;flex-wrap:wrap;gap:var(--gap-xs);align-items:center}
+.tab{position:relative;display:inline-flex;align-items:center;gap:var(--gap-xs);
+  padding:var(--gap-xs) var(--gap-md);border:0;cursor:pointer;
+  border-radius:var(--r-pill);background:transparent;color:var(--ink-84);
+  font-family:var(--f-body);font-size:var(--t-ui);font-weight:600;
+  box-shadow:inset 0 0 0 var(--hair) var(--ink-hairline);
+  transition:color var(--d-fast) var(--e-enter),box-shadow var(--d-fast) var(--e-enter)}
+.tab:hover:not([aria-disabled="true"]){color:var(--cream);
+  box-shadow:inset 0 0 0 var(--hair) var(--ink-rim)}
+.tab .ico{--ico:15px}
+.tab[aria-selected="true"]{color:var(--cream);
+  box-shadow:inset 0 0 0 2px var(--accent),var(--sh-sm)}
+.tab[aria-disabled="true"]{opacity:.38;cursor:not-allowed}
+.tab .mono{font-variant-numeric:tabular-nums}
+.ctlrow{display:flex;flex-wrap:wrap;gap:var(--gap-lg) var(--gap-xl);align-items:flex-end;
+  max-width:var(--maxw);margin:0 auto}
+.ctlrow .lbl{display:block;margin-bottom:var(--gap-xs);
+  font-family:var(--f-mono);font-size:var(--t-label);letter-spacing:var(--ls-label);
+  text-transform:uppercase;font-weight:700;color:var(--ink-56)}
+
+/* ---- "happening now" -------------------------------------------------- */
+.nowtag{display:inline-flex;align-items:center;gap:var(--gap-xs);padding:3px 9px;
+  border-radius:var(--r-pill);background:var(--accent);color:var(--tag-ink);
+  font-family:var(--f-mono);font-size:10px;font-weight:800;
+  letter-spacing:var(--ls-tag);text-transform:uppercase}
+.nowtag i{width:6px;height:6px;border-radius:var(--r-pill);background:currentColor;
+  animation:nowpulse 1.8s var(--e-scrub) infinite}
+@keyframes nowpulse{0%,100%{opacity:1}50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.nowtag i{animation:none}}
+[data-now] .sitem-body h3,[data-now].blk .h{color:var(--cream)}
+.sitem[data-now]{box-shadow:inset 0 0 0 2px var(--accent)}
+
+/* ================= GRID VIEW (from b.html) ============================= */
+/* The one thing that genuinely cannot be a utility: every block is placed by
+   grid-row span computed from its own start and end time, so two sessions in
+   the same zone at the same hour sit side by side and the clash is visible. */
+.tt-scroll{max-width:var(--maxw);margin:0 auto;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;padding-bottom:var(--gap-sm)}
+.tt{display:grid;min-width:var(--tt-min);
+  grid-template-columns:var(--tt-time-col) repeat(5,minmax(var(--tt-col-min),1fr));
+  grid-template-rows:auto repeat(24,var(--row-h));
+  gap:5px}
+.tt .colhead{display:flex;flex-direction:column;gap:6px;padding:0 0 var(--gap-sm);
+  border-bottom:var(--hair) solid var(--ink-hairline)}
+.tt .colhead .nm{font-family:var(--f-display);font-weight:800;font-size:var(--t-body-lg);
+  letter-spacing:var(--ls-display-tight);color:var(--cream);line-height:1.1}
+.tt .hr{grid-column:1;display:flex;align-items:flex-start;justify-content:flex-end;
+  padding-right:var(--gap-sm);font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-weight:700;font-size:12.5px;color:var(--ink-56);
+  border-top:var(--hair) solid var(--ink-hairline)}
+.tt .gl{grid-column:2/-1;border-top:var(--hair) solid var(--ink-hairline);pointer-events:none}
+.tt .gl.half{border-top-style:dashed;opacity:.45}
+.blk{position:relative;z-index:1;display:flex;flex-direction:column;gap:5px;
+  min-width:0;overflow:hidden;box-sizing:border-box;padding:10px 12px;
+  border-radius:var(--r-card);
+  background:color-mix(in oklab,var(--accent) 15%, transparent);
+  box-shadow:inset 0 0 0 var(--hair) color-mix(in oklab,var(--accent) 40%, transparent);
+  transition:background var(--d-fast) var(--e-enter),box-shadow var(--d-fast) var(--e-enter)}
+.blk:hover{background:color-mix(in oklab,var(--accent) 24%, transparent);
+  box-shadow:inset 0 0 0 var(--hair) var(--accent),var(--sh-sm)}
+.blk .t{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:700;
+  font-size:11px;letter-spacing:var(--ls-tag);color:var(--ink-90)}
+.blk .h{font-family:var(--f-display);font-weight:700;font-size:14px;line-height:1.16;
+  letter-spacing:var(--ls-display-tight);color:var(--cream)}
+.blk .v{font-size:11.5px;color:var(--ink-56);margin-top:auto}
+.blk .lang,.blk .nowtag{align-self:flex-start}
+/* two sessions clashing in one zone column share the column width rather than
+   overlapping — --sub-i / --sub-n are set per block by the generator */
+.blk[data-sub]{margin-left:calc(var(--sub-i) * (100% / var(--sub-n)));
+  width:calc(100% / var(--sub-n))}
+.hint-scroll{max-width:var(--maxw);margin:var(--gap-xs) auto 0;font-size:12.5px;
+  color:var(--ink-56);display:none}
+
+/* ================= TRACK VIEW (from c.html) ============================ */
+.stream{max-width:var(--maxw);margin:0 auto}
+.daybar{position:sticky;top:var(--stick-nav);z-index:12;display:flex;flex-wrap:wrap;
+  align-items:baseline;gap:var(--gap-md);margin:var(--gap-lg) 0 var(--gap-sm);
+  padding:var(--gap-sm) var(--gap-md);border-radius:var(--r-pill);
+  background:color-mix(in oklab,var(--navy-950) 88%, transparent);
+  box-shadow:inset 0 0 0 var(--hair) var(--ink-hairline),var(--sh-sm);
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat))}
+.daybar h2{font-size:var(--t-display-sm)}
+.daybar .meta{margin-left:auto;font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:12.5px;letter-spacing:var(--ls-tag);text-transform:uppercase;color:var(--ink-56)}
+.slot{display:grid;grid-template-columns:96px 1fr;gap:var(--gap-md);
+  align-items:start;padding:var(--gap-sm) 0}
+.slot .tmark{position:sticky;top:var(--stick-day);align-self:start;display:grid;gap:4px;
+  padding-top:var(--gap-xs)}
+.slot .tmark .t{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:800;
+  font-size:var(--t-body-lg);letter-spacing:var(--ls-tag);color:var(--cream)}
+.slot .tmark .r{height:var(--hair);background:var(--ink-hairline)}
+.slot .items{display:grid;gap:var(--gap-xs);min-width:0}
+.sitem{display:grid;grid-template-columns:auto 1fr;gap:var(--gap-md);align-items:start;
+  padding:var(--gap-md);border-radius:var(--r-card);min-width:0;
+  background:color-mix(in oklab,var(--navy) 22%, transparent);
+  box-shadow:inset 0 0 0 var(--hair) var(--ink-hairline);
+  transition:background var(--d-base) var(--e-enter),box-shadow var(--d-base) var(--e-enter)}
+.sitem:hover{background:color-mix(in oklab,var(--navy) 36%, transparent);
+  box-shadow:inset 0 0 0 var(--hair) var(--ink-rim)}
+.sitem .icowell{width:42px;height:42px}
+.sitem .icowell .ico{--ico:19px}
+.sitem h3{font-family:var(--f-display);font-weight:700;font-size:var(--t-body-lg);
+  line-height:1.2;letter-spacing:var(--ls-display-tight);color:var(--cream)}
+.sitem .blurb{margin:6px 0 0;font-size:var(--t-body);color:var(--ink-84);line-height:1.5;
+  max-width:var(--maxw-text)}
+.sitem .row{display:flex;flex-wrap:wrap;gap:var(--gap-sm);align-items:center;
+  margin-top:var(--gap-sm)}
+.sitem .srange{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-weight:700;font-size:12px;color:var(--ink-90)}
+.sitem .srange .to{color:var(--ink-56)}
+
+/* ---- view / day / zone switching -------------------------------------- */
+/* Which rendering is on screen. Grid is per-day by nature, so at narrow widths
+   it hands the day straight back to the stream (b.html's stacked answer, with
+   no second set of markup to keep in step). */
+#sched[data-view="grid"] .streambox{display:none}
+#sched[data-view="track"] .gridbox{display:none}
+.dayblock[hidden],.slot[hidden]{display:none}
+@media (max-width:900px){
+  #sched[data-view="grid"] .gridbox{display:none}
+  #sched[data-view="grid"] .streambox{display:block}
+}
+@media (min-width:901px) and (max-width:1200px){
+  #sched[data-view="grid"] .hint-scroll{display:block}
+}
+/* Zone filtering cuts across both views at once. Career includes the Interview
+   Lounge because the Lounge is a Career facility, not a fifth zone. */
+#sched[data-filter="career"] .sitem:not([data-col="career"]):not([data-col="lounge"]),
+#sched[data-filter="career"] .blk:not([data-col="career"]):not([data-col="lounge"]),
+#sched[data-filter="education"] .sitem:not([data-col="education"]),
+#sched[data-filter="education"] .blk:not([data-col="education"]),
+#sched[data-filter="skills"] .sitem:not([data-col="skills"]),
+#sched[data-filter="skills"] .blk:not([data-col="skills"]),
+#sched[data-filter="market"] .sitem:not([data-col="market"]),
+#sched[data-filter="market"] .blk:not([data-col="market"])
+  {display:none}
+
+@media (max-width:760px){
+  .slot{grid-template-columns:1fr;gap:var(--gap-xs)}
+  .slot .tmark{position:sticky;top:var(--stick-day-sm);z-index:6;
+    display:flex;align-items:center;gap:var(--gap-sm);padding:6px var(--gap-sm);
+    border-radius:var(--r-pill);width:fit-content;
+    background:color-mix(in oklab,var(--navy-950) 88%, transparent);
+    box-shadow:inset 0 0 0 var(--hair) var(--ink-hairline)}
+  .slot .tmark .r{display:none}
+  .daybar{top:var(--stick-nav-sm);border-radius:var(--r-card);gap:var(--gap-xs)}
+  .daybar .meta{margin-left:0;width:100%}
+  .sitem{grid-template-columns:1fr;gap:var(--gap-sm)}
+}
+/* .rrule.full is 100vw wide; on desktop that is wider than the scrollbar-inset
+   content box, so it is bled inside a clipped wrapper rather than the page. */
+.bleed{overflow:hidden}
+</style>
+</head>
+<body data-zone="cyan">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+
+<nav class="nav">
+  <img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/" aria-current="page">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+<header class="pagehead" data-lines="1">
+  <div class="wrap">
+    <div class="crumb"><a href="../home/">Home</a><span aria-hidden="true">/</span><span>Schedule</span></div>
+    <p class="eyebrow">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute; &middot; Daily 10:00&ndash;22:00</p>
+    <h1>Schedule</h1>
+    <p class="lede">Thirty-four sessions over three days. Read them as a grid to see what clashes, or as one continuous track to see what is on while you are in the park.</p>
+    <p class="muted max-w-text mt-gap-md">Pick a day, pick a view. Both views show the same programme &mdash; the grid puts the hours down the side and the zones across the top, the track runs the whole day as one stream.</p>
+  </div>
+</header>
+
+<!-- ===== controls: two real tablists ===================================== -->
+<div class="band pt-0">
+  <div class="ctlrow">
+    <div>
+      <span class="lbl" id="viewlbl">View</span>
+      <div class="tabs" role="tablist" aria-labelledby="viewlbl" data-tabs="view">
+        <button class="tab" type="button" role="tab" id="tab-grid" data-view="grid" aria-selected="true" aria-controls="sched"><i class="ico" data-lucide="layout-grid"></i>Grid timetable</button>
+        <button class="tab" type="button" role="tab" id="tab-track" data-view="track" aria-selected="false" aria-controls="sched" tabindex="-1"><i class="ico" data-lucide="align-left"></i>Continuous track</button>
+      </div>
+    </div>
+    <div>
+      <span class="lbl" id="daylbl">Day</span>
+      <div class="tabs" role="tablist" aria-labelledby="daylbl" data-tabs="day">
+        <button class="tab" type="button" role="tab" id="tab-fri" data-day="fri" aria-selected="true" aria-controls="sched">Fri <span class="mono">6</span> Nov</button>
+        <button class="tab" type="button" role="tab" id="tab-sat" data-day="sat" aria-selected="false" aria-controls="sched" tabindex="-1">Sat <span class="mono">7</span> Nov</button>
+        <button class="tab" type="button" role="tab" id="tab-sun" data-day="sun" aria-selected="false" aria-controls="sched" tabindex="-1">Sun <span class="mono">8</span> Nov</button>
+        <button class="tab" type="button" role="tab" id="tab-all" data-day="all" aria-selected="false" aria-controls="sched" tabindex="-1" aria-disabled="true" title="Track view only">All three days</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="band pt-0">
+  <div class="wrap">
+    <div class="filters" role="group" aria-label="Filter by zone">
+      <button class="chip" type="button" aria-pressed="true" data-f="all">Everything</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="career" data-zone="coral"><span class="zdot" aria-hidden="true"></span>Career</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="education" data-zone="green"><span class="zdot" aria-hidden="true"></span>Education</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="skills" data-zone="cyan"><span class="zdot" aria-hidden="true"></span>Skills Experience</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="market" data-zone="violet"><span class="zdot" aria-hidden="true"></span>Market</button>
+      <span class="count" id="count" role="status">11 sessions &middot; Friday</span>
+    </div>
+  </div>
+</div>
+
+<main>
+<section class="band" aria-labelledby="schedhead">
+  <div class="wrap">
+    <div class="ndiv"><span class="n" id="dnum">01</span><span class="t" id="schedhead">Friday 6 November</span></div>
+    <p class="muted max-w-text" id="dblurb">Opening day. The ceremony takes the Main Stage at 10:00 and the Market runs the first of the three evenings.</p>
+  </div>
+
+  <div id="sched" data-view="grid" data-day="fri" data-filter="all">
+
+    <!-- ---------- GRID VIEW: generated from the stream markup below -------- -->
+    <div class="gridbox">
+      <div class="legend mt-gap-lg mb-gap-md">
+        <span class="zline" data-zone="coral"><span class="zdot" aria-hidden="true"></span>Career</span>
+        <span class="zline" data-zone="green"><span class="zdot" aria-hidden="true"></span>Education</span>
+        <span class="zline" data-zone="cyan"><span class="zdot" aria-hidden="true"></span>Skills Experience</span>
+        <span class="zline" data-zone="violet"><span class="zdot" aria-hidden="true"></span>Market</span>
+        <span class="place">Half-hour rows &middot; overlapping sessions sit side by side</span>
+      </div>
+      <p class="hint-scroll">Scroll the timetable sideways to reach the Market and Interview Lounge columns.</p>
+      <div class="tt-scroll">
+        <div class="tt" id="tt" role="table" aria-label="Timetable by zone for the selected day"></div>
+      </div>
+    </div>
+
+    <!-- ---------- TRACK VIEW: the canonical programme ---------------------- -->
+    <div class="streambox">
+      <div class="stream">
+
+        <!-- ===== Friday 6 November ===== -->
+        <section class="dayblock" data-dayid="fri" aria-label="Friday 6 November 2026">
+          <div class="daybar"><h2>Friday</h2><span class="time">6 Nov 2026</span><span class="meta">Day 1 &middot; Opening day</span></div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">10:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="navy" data-col="main" data-start="10:00" data-end="10:45">
+                <span class="icowell solid"><i class="ico" data-lucide="sparkles"></i></span>
+                <div class="sitem-body">
+                  <h3>Opening Ceremony</h3>
+                  <p class="blurb">Minister of Higher Education, Labour and Skills Development opens the expo.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T10:00">10:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T10:45">10:45</time></span><span class="zline"><i class="ico" data-lucide="sparkles"></i>Main Stage</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Main Stage</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+              <article class="sitem" data-zone="coral" data-col="lounge" data-start="10:00" data-end="22:00">
+                <span class="icowell solid"><i class="ico" data-lucide="messages-square"></i></span>
+                <div class="sitem-body">
+                  <h3>CV Clinic &amp; Mock Interviews</h3>
+                  <p class="blurb">Drop in any time. Bring a printed CV or use a booth laptop.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T10:00">10:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T22:00">22:00</time></span><span class="zline"><i class="ico" data-lucide="messages-square"></i>Interview Lounge</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Interview Lounge</span><span class="lang">Dhivehi &amp; English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">11:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="11:00" data-end="12:00">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Panel: The Maldivian Labour Market to 2030</h3>
+                  <p class="blurb">Employers, MNU and the Ministry on where the jobs actually are.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T11:00">11:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T12:00">12:00</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Pavilion</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">11:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="11:30" data-end="13:00">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Welding Skills Competition &mdash; Heat 1</h3>
+                  <p class="blurb">Twelve apprentices, four hours of arc, one heat.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T11:30">11:30</time><span class="to">&ndash;</span><time datetime="2026-11-06T13:00">13:00</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">12:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="green" data-col="education" data-start="12:00" data-end="13:00">
+                <span class="icowell solid"><i class="ico" data-lucide="graduation-cap"></i></span>
+                <div class="sitem-body">
+                  <h3>Scholarship &amp; Student Loan Desk Opens</h3>
+                  <p class="blurb">Eligibility checks and a printed list of every open scheme.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T12:00">12:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T13:00">13:00</time></span><span class="zline"><i class="ico" data-lucide="graduation-cap"></i>Education</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Education Hall</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">13:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="13:30" data-end="14:30">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Employer Talk: Working at Bank of Maldives</h3>
+                  <p class="blurb">Graduate programme, internships and what a first year looks like.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T13:30">13:30</time><span class="to">&ndash;</span><time datetime="2026-11-06T14:30">14:30</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Stage</span><span class="lang">English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">14:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="14:00" data-end="15:30" data-now>
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Dive &amp; Marine Simulator</h3>
+                  <p class="blurb">Try a regulator, a compass swim and a tank change on dry land.</p>
+                  <div class="row"><span class="nowtag"><i aria-hidden="true"></i>Happening now</span><span class="srange"><time datetime="2026-11-06T14:00">14:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T15:30">15:30</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">15:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="green" data-col="education" data-start="15:00" data-end="16:00">
+                <span class="icowell solid"><i class="ico" data-lucide="graduation-cap"></i></span>
+                <div class="sitem-body">
+                  <h3>Study Abroad: Applying for 2027</h3>
+                  <p class="blurb">Deadlines, documents and the mistakes that cost people a place.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T15:00">15:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T16:00">16:00</time></span><span class="zline"><i class="ico" data-lucide="graduation-cap"></i>Education</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Education Hall</span><span class="lang">English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">16:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="16:30" data-end="17:30">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Robotics Showcase &mdash; Student Teams</h3>
+                  <p class="blurb">Eight school teams demo line-followers and pick-and-place arms.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T16:30">16:30</time><span class="to">&ndash;</span><time datetime="2026-11-06T17:30">17:30</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">18:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="violet" data-col="market" data-start="18:00" data-end="19:00">
+                <span class="icowell solid"><i class="ico" data-lucide="store"></i></span>
+                <div class="sitem-body">
+                  <h3>Culinary Competition &mdash; Street Food Round</h3>
+                  <p class="blurb">Short-order cooking, judged live. Tasting plates for the crowd.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T18:00">18:00</time><span class="to">&ndash;</span><time datetime="2026-11-06T19:00">19:00</time></span><span class="zline"><i class="ico" data-lucide="store"></i>Market</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Market Kitchen</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">19:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="violet" data-col="market" data-start="19:30" data-end="22:00">
+                <span class="icowell solid"><i class="ico" data-lucide="store"></i></span>
+                <div class="sitem-body">
+                  <h3>Opening Night: Music &amp; Food</h3>
+                  <p class="blurb">Boduberu, a DJ set and thirty food stalls under the lights.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-06T19:30">19:30</time><span class="to">&ndash;</span><time datetime="2026-11-06T22:00">22:00</time></span><span class="zline"><i class="ico" data-lucide="store"></i>Market</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Market Green</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Saturday 7 November ===== -->
+        <section class="dayblock" data-dayid="sat" aria-label="Saturday 7 November 2026">
+          <div class="daybar"><h2>Saturday</h2><span class="time">7 Nov 2026</span><span class="meta">Day 2 &middot; Busiest day</span></div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">10:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="lounge" data-start="10:00" data-end="22:00">
+                <span class="icowell solid"><i class="ico" data-lucide="messages-square"></i></span>
+                <div class="sitem-body">
+                  <h3>CV Clinic &amp; Mock Interviews</h3>
+                  <p class="blurb">Twelve booths. Average wait on Saturday is about twenty minutes.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T10:00">10:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T22:00">22:00</time></span><span class="zline"><i class="ico" data-lucide="messages-square"></i>Interview Lounge</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Interview Lounge</span><span class="lang">Dhivehi &amp; English</span></div>
+                </div>
+              </article>
+              <article class="sitem" data-zone="coral" data-col="career" data-start="10:00" data-end="11:00">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Employer Roundtable: Hiring School Leavers</h3>
+                  <p class="blurb">Fifteen employers on what they look for in a first application.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T10:00">10:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T11:00">11:00</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Pavilion</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">10:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="10:30" data-end="12:30">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Hairdressing &amp; Beauty Competition &mdash; Final</h3>
+                  <p class="blurb">Cut, colour and bridal styling, judged against a live brief.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T10:30">10:30</time><span class="to">&ndash;</span><time datetime="2026-11-07T12:30">12:30</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">11:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="11:00" data-end="12:00">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Aviation Simulator: Flight Deck Experience</h3>
+                  <p class="blurb">Take the left seat for a Mal&eacute; approach. Ten-minute slots.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T11:00">11:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T12:00">12:00</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span><span class="lang">English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">11:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="green" data-col="education" data-start="11:30" data-end="12:30">
+                <span class="icowell solid"><i class="ico" data-lucide="graduation-cap"></i></span>
+                <div class="sitem-body">
+                  <h3>Student Loan Applications, Step by Step</h3>
+                  <p class="blurb">Bring your documents and leave with a submitted application.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T11:30">11:30</time><span class="to">&ndash;</span><time datetime="2026-11-07T12:30">12:30</time></span><span class="zline"><i class="ico" data-lucide="graduation-cap"></i>Education</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Education Hall</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">13:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="13:00" data-end="14:00">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Panel: Women in the Trades</h3>
+                  <p class="blurb">Welders, electricians and marine engineers on getting started.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T13:00">13:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T14:00">14:00</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Pavilion</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">14:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="14:00" data-end="15:00">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Employer Talk: Resort &amp; Hospitality Careers</h3>
+                  <p class="blurb">Four resort groups on seasons, transfers and progression.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T14:00">14:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T15:00">15:00</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Stage</span><span class="lang">English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">14:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="14:30" data-end="16:00">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Drone Demonstration &mdash; Student Teams</h3>
+                  <p class="blurb">Survey flights, payload drops and a timed obstacle run.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T14:30">14:30</time><span class="to">&ndash;</span><time datetime="2026-11-07T16:00">16:00</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">15:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="green" data-col="education" data-start="15:30" data-end="16:30">
+                <span class="icowell solid"><i class="ico" data-lucide="graduation-cap"></i></span>
+                <div class="sitem-body">
+                  <h3>TVET Pathways: Certificate 3 to Degree</h3>
+                  <p class="blurb">How a trade certificate becomes a diploma and then a degree.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T15:30">15:30</time><span class="to">&ndash;</span><time datetime="2026-11-07T16:30">16:30</time></span><span class="zline"><i class="ico" data-lucide="graduation-cap"></i>Education</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Education Hall</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">17:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="17:00" data-end="18:30">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Welding Skills Competition &mdash; Final</h3>
+                  <p class="blurb">The four heat winners, one plate, one judge panel.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T17:00">17:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T18:30">18:30</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">19:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="violet" data-col="market" data-start="19:00" data-end="20:00">
+                <span class="icowell solid"><i class="ico" data-lucide="store"></i></span>
+                <div class="sitem-body">
+                  <h3>Young Entrepreneurs Pitch</h3>
+                  <p class="blurb">Twelve student businesses pitch for a stall grant.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T19:00">19:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T20:00">20:00</time></span><span class="zline"><i class="ico" data-lucide="store"></i>Market</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Market Stage</span><span class="lang">Dhivehi &amp; English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">20:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="violet" data-col="market" data-start="20:00" data-end="22:00">
+                <span class="icowell solid"><i class="ico" data-lucide="store"></i></span>
+                <div class="sitem-body">
+                  <h3>Night Market: Music &amp; Food</h3>
+                  <p class="blurb">The Market zone runs late. Live band from 20:30.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-07T20:00">20:00</time><span class="to">&ndash;</span><time datetime="2026-11-07T22:00">22:00</time></span><span class="zline"><i class="ico" data-lucide="store"></i>Market</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Market Green</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Sunday 8 November ===== -->
+        <section class="dayblock" data-dayid="sun" aria-label="Sunday 8 November 2026">
+          <div class="daybar"><h2>Sunday</h2><span class="time">8 Nov 2026</span><span class="meta">Day 3 &middot; Finals &amp; closing</span></div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">10:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="lounge" data-start="10:00" data-end="20:00">
+                <span class="icowell solid"><i class="ico" data-lucide="messages-square"></i></span>
+                <div class="sitem-body">
+                  <h3>CV Clinic &amp; Mock Interviews &mdash; Final Day</h3>
+                  <p class="blurb">Last chance. Booths close at 20:00 sharp.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T10:00">10:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T20:00">20:00</time></span><span class="zline"><i class="ico" data-lucide="messages-square"></i>Interview Lounge</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Interview Lounge</span><span class="lang">Dhivehi &amp; English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">10:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="10:30" data-end="11:30">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Employer Talk: Construction &amp; Engineering</h3>
+                  <p class="blurb">Site roles, apprenticeships and the licences you need.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T10:30">10:30</time><span class="to">&ndash;</span><time datetime="2026-11-08T11:30">11:30</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Stage</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">11:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="11:00" data-end="12:00">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Hospitality Simulator: Front Desk &amp; Housekeeping</h3>
+                  <p class="blurb">Run a check-in rush and a room turnaround against the clock.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T11:00">11:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T12:00">12:00</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span><span class="lang">English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">11:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="11:30" data-end="12:30">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Panel: Skills the Maldives Needs by 2035</h3>
+                  <p class="blurb">Employers and educators on the gap nobody is filling yet.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T11:30">11:30</time><span class="to">&ndash;</span><time datetime="2026-11-08T12:30">12:30</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Pavilion</span><span class="lang">English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">13:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="green" data-col="education" data-start="13:00" data-end="14:00">
+                <span class="icowell solid"><i class="ico" data-lucide="graduation-cap"></i></span>
+                <div class="sitem-body">
+                  <h3>Scholarship &amp; Loan Desk: Last Call</h3>
+                  <p class="blurb">Final on-site submissions before the desk closes.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T13:00">13:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T14:00">14:00</time></span><span class="zline"><i class="ico" data-lucide="graduation-cap"></i>Education</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Education Hall</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">14:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="violet" data-col="market" data-start="14:00" data-end="15:00">
+                <span class="icowell solid"><i class="ico" data-lucide="store"></i></span>
+                <div class="sitem-body">
+                  <h3>Culinary Competition &mdash; Grand Final</h3>
+                  <p class="blurb">Three finalists, one mystery basket, ninety minutes.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T14:00">14:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T15:00">15:00</time></span><span class="zline"><i class="ico" data-lucide="store"></i>Market</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Market Kitchen</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">15:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="cyan" data-col="skills" data-start="15:00" data-end="16:00">
+                <span class="icowell solid"><i class="ico" data-lucide="wrench"></i></span>
+                <div class="sitem-body">
+                  <h3>Robotics Grand Challenge</h3>
+                  <p class="blurb">The top four teams run the full course head to head.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T15:00">15:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T16:00">16:00</time></span><span class="zline"><i class="ico" data-lucide="wrench"></i>Skills Experience</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Skills Arena</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">16:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="coral" data-col="career" data-start="16:00" data-end="17:00">
+                <span class="icowell solid"><i class="ico" data-lucide="briefcase"></i></span>
+                <div class="sitem-body">
+                  <h3>Graduate Employers Speed Networking</h3>
+                  <p class="blurb">Six minutes per employer. Register at the Career desk first.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T16:00">16:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T17:00">17:00</time></span><span class="zline"><i class="ico" data-lucide="briefcase"></i>Career</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Career Pavilion</span><span class="lang">Dhivehi &amp; English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">17:30</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="navy" data-col="main" data-start="17:30" data-end="18:30">
+                <span class="icowell solid"><i class="ico" data-lucide="award"></i></span>
+                <div class="sitem-body">
+                  <h3>Skills Competition Awards</h3>
+                  <p class="blurb">Welding, culinary, hairdressing and robotics medals.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T17:30">17:30</time><span class="to">&ndash;</span><time datetime="2026-11-08T18:30">18:30</time></span><span class="zline"><i class="ico" data-lucide="award"></i>Main Stage</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Main Stage</span><span class="lang">Dhivehi &amp; English</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">19:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="navy" data-col="main" data-start="19:00" data-end="20:00">
+                <span class="icowell solid"><i class="ico" data-lucide="sparkles"></i></span>
+                <div class="sitem-body">
+                  <h3>Closing Ceremony</h3>
+                  <p class="blurb">Thanks, numbers and the date for 2027.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T19:00">19:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T20:00">20:00</time></span><span class="zline"><i class="ico" data-lucide="sparkles"></i>Main Stage</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Main Stage</span><span class="lang">Dhivehi</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="slot">
+            <div class="tmark" aria-hidden="true"><span class="t">20:00</span><span class="r"></span></div>
+            <div class="items">
+              <article class="sitem" data-zone="violet" data-col="market" data-start="20:00" data-end="22:00">
+                <span class="icowell solid"><i class="ico" data-lucide="store"></i></span>
+                <div class="sitem-body">
+                  <h3>Closing Night: Music &amp; Food</h3>
+                  <p class="blurb">The Market zone stays open to the last stall.</p>
+                  <div class="row"><span class="srange"><time datetime="2026-11-08T20:00">20:00</time><span class="to">&ndash;</span><time datetime="2026-11-08T22:00">22:00</time></span><span class="zline"><i class="ico" data-lucide="store"></i>Market</span><span class="place"><i class="ico" data-lucide="map-pin"></i>Market Green</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- shown only when the zone filter empties the selected day -->
+    <div class="wrap" id="empty" hidden>
+      <div class="empty">
+        <svg class="smark" viewBox="0 0 120 108" aria-hidden="true">
+          <path class="under" d="M19.4 76c0 16-16 28-36 28"/>
+          <path class="casing" d="M77 22c18 6 30 22 34 42"/>
+          <path class="over" d="M77 22c18 6 30 22 34 42"/>
+        </svg>
+        <h3>Nothing in that zone on this day</h3>
+        <p>Try another day, or drop the zone filter and read the whole programme.</p>
+        <button class="pill" type="button" data-f="all">Show everything</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="bleed"><div class="rrule full" aria-hidden="true"></div></div>
+
+<!-- ===== plan your day: coloured icon wells, one per zone ================= -->
+<section class="band" data-zone="coral" aria-labelledby="plan">
+  <div class="wrap">
+    <div class="ndiv"><span class="n">02</span><span class="t" id="plan">Plan your day</span></div>
+    <p class="muted max-w-text">Four zones and the Interview Lounge, all open 10:00 to 22:00. Sessions are drop-in unless the card says to register at a desk first.</p>
+    <div class="zonerow mt-gap-lg">
+      <div class="aedge" data-zone="coral">
+        <span class="icowell solid sm"><i class="ico" data-lucide="briefcase"></i></span>
+        <h3 class="mt-gap-sm">Career</h3>
+        <p class="muted">Panels, employer talks and speed networking. Same-day shortlisting through the Lounge.</p>
+      </div>
+      <div class="aedge" data-zone="green">
+        <span class="icowell solid sm"><i class="ico" data-lucide="graduation-cap"></i></span>
+        <h3 class="mt-gap-sm">Education</h3>
+        <p class="muted">Scholarship and student-loan desks, study-abroad clinics, TVET pathway sessions.</p>
+      </div>
+      <div class="aedge" data-zone="cyan">
+        <span class="icowell solid sm"><i class="ico" data-lucide="wrench"></i></span>
+        <h3 class="mt-gap-sm">Skills Experience</h3>
+        <p class="muted">Live competitions and walk-up simulators &mdash; dive, aviation, hospitality, robotics, drones.</p>
+      </div>
+      <div class="aedge" data-zone="violet">
+        <span class="icowell solid sm"><i class="ico" data-lucide="store"></i></span>
+        <h3 class="mt-gap-sm">Market</h3>
+        <p class="muted">Island enterprise stalls and the evening programme, running late all three nights.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="band pt-0">
+  <div class="wrap">
+    <div class="rrule soft" aria-hidden="true"></div>
+    <div class="ndiv"><span class="n">&rarr;</span><span class="t">Coming on the day?</span></div>
+    <p class="muted max-w-text">Entry is free. Registering gets you a printed pass, a session reminder and priority in the Interview Lounge queue.</p>
+    <div class="flex flex-wrap gap-gap-sm mt-gap-md">
+      <a class="pill" href="../register/">Register now</a>
+      <a class="pill ghost" href="../venue/">Venue &amp; getting there</a>
+      <a class="pill ghost" href="../interview-lounge/">Interview Lounge</a>
+    </div>
+  </div>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+
+<div class="vlabel"><b>Schedule &middot; chosen</b> <span>B + C as switchable views with selectable dates. The stream is the source of truth; the grid is generated from it, so the two can never disagree.</span></div>
+</div>
+
+<!-- system/lines.js now imports ./strokes.js, so it must load as a module —
+     without type="module" it throws and no ribbon strokes are drawn at all. -->
+<script src="../../system/lines.js"></script>
+<script>
+lucide.createIcons({attrs:{'stroke-width':1.75}});
+
+/* ==========================================================================
+   Schedule behaviour. Three pieces of state on #sched: data-view, data-day,
+   data-filter. Everything else is CSS.
+
+   The grid view is BUILT from the stream's own <article class="sitem"> nodes,
+   which is why the two views cannot drift: there is one programme in the
+   document and two ways of drawing it.
+   ========================================================================== */
+(function(){
+  var sched   = document.getElementById('sched');
+  var tt      = document.getElementById('tt');
+  var days    = [].slice.call(document.querySelectorAll('.dayblock'));
+  var slots   = [].slice.call(document.querySelectorAll('.slot'));
+  var chips   = [].slice.call(document.querySelectorAll('[data-f]'));
+  var count   = document.getElementById('count');
+  var empty   = document.getElementById('empty');
+  var dnum    = document.getElementById('dnum');
+  var dhead   = document.getElementById('schedhead');
+  var dblurb  = document.getElementById('dblurb');
+  var allTab  = document.getElementById('tab-all');
+
+  var COL = {career:2, education:3, skills:4, market:5, lounge:6};
+  var ICON = {career:'briefcase', education:'graduation-cap', skills:'wrench',
+              market:'store', lounge:'messages-square', main:'sparkles'};
+  var HEADS = [['career','Career'],['education','Education'],['skills','Skills Experience'],
+               ['market','Market'],['lounge','Interview Lounge']];
+  var HEADZ = {career:'coral', education:'green', skills:'cyan', market:'violet', lounge:'coral'};
+  var DAYS = {
+    fri:{n:'01', title:'Friday 6 November',
+         blurb:'Opening day. The ceremony takes the Main Stage at 10:00 and the Market runs the first of the three evenings.'},
+    sat:{n:'02', title:'Saturday 7 November',
+         blurb:'The busiest day. Two competition finals, three simulators and the Interview Lounge at full capacity.'},
+    sun:{n:'03', title:'Sunday 8 November',
+         blurb:'Finals and closing. The Lounge shuts at 20:00, everything else runs to the last stall.'},
+    all:{n:'01–03', title:'All three days',
+         blurb:'The whole programme as one stream. Scroll through, or filter to a zone and read only what you came for.'}
+  };
+
+  /* half-hour rows: 10:00 is row 2, 22:00 is row 26. A session that ends on a
+     quarter hour rounds outward so the block never ends mid-row. */
+  function mins(t){ var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function rowStart(t){ return 2 + Math.floor((mins(t) - 600) / 30); }
+  /* the guard is against the block's OWN start row, so a session shorter than a
+     half hour still occupies one row rather than collapsing to zero height */
+  function rowEnd(start, end){
+    return Math.max(rowStart(start) + 1, 2 + Math.ceil((mins(end) - 600) / 30));
+  }
+
+  function txt(node, sel){ var n = node.querySelector(sel); return n ? n.textContent.trim() : ''; }
+
+  function buildGrid(dayId){
+    tt.textContent = '';
+    var frag = document.createDocumentFragment();
+
+    /* corner + five zone column heads */
+    var corner = document.createElement('div');
+    corner.className = 'colhead';
+    corner.style.gridColumn = '1'; corner.style.gridRow = '1';
+    frag.appendChild(corner);
+    HEADS.forEach(function(h, i){
+      var d = document.createElement('div');
+      d.className = 'colhead';
+      d.setAttribute('data-zone', HEADZ[h[0]]);
+      d.style.gridColumn = String(i + 2); d.style.gridRow = '1';
+      d.innerHTML = '<span class="zline"><i class="ico" data-lucide="' + ICON[h[0]] +
+                    '"></i></span><span class="nm"></span>';
+      d.querySelector('.nm').textContent = h[1];
+      frag.appendChild(d);
+    });
+
+    /* hour gutter + rules, 10:00 to 21:00 */
+    for (var h = 10; h <= 21; h++){
+      var r = 2 + (h - 10) * 2;
+      var lab = document.createElement('div');
+      lab.className = 'hr mono';
+      lab.style.gridRow = r + '/span 2';
+      lab.textContent = (h < 10 ? '0' : '') + h + ':00';
+      frag.appendChild(lab);
+      var g1 = document.createElement('div');
+      g1.className = 'gl'; g1.style.gridRow = String(r); g1.setAttribute('aria-hidden','true');
+      frag.appendChild(g1);
+      var g2 = document.createElement('div');
+      g2.className = 'gl half'; g2.style.gridRow = String(r + 1); g2.setAttribute('aria-hidden','true');
+      frag.appendChild(g2);
+    }
+
+    /* the sessions of this day, read straight off the stream */
+    var src = document.querySelector('.dayblock[data-dayid="' + dayId + '"]');
+    var ses = src ? [].slice.call(src.querySelectorAll('.sitem')) : [];
+    var placed = [];
+
+    ses.forEach(function(s){
+      var col = s.dataset.col;
+      var r0 = rowStart(s.dataset.start), r1 = rowEnd(s.dataset.start, s.dataset.end);
+      var b = document.createElement('article');
+      b.className = 'blk';
+      b.setAttribute('data-zone', s.dataset.zone);
+      b.setAttribute('data-col', col);
+      if (s.hasAttribute('data-now')) b.setAttribute('data-now','');
+      b.style.gridColumn = (col === 'main') ? '2/6' : String(COL[col]);
+      b.style.gridRow = r0 + '/' + r1;
+
+      var range = s.querySelector('.srange');
+      var t = document.createElement('span');
+      t.className = 't';
+      t.textContent = s.dataset.start + '–' + s.dataset.end;
+      if (range) { t.textContent = ''; t.appendChild(range.cloneNode(true)); }
+      b.appendChild(t);
+
+      if (s.hasAttribute('data-now')){
+        var nt = document.createElement('span');
+        nt.className = 'nowtag';
+        nt.innerHTML = '<i aria-hidden="true"></i>';
+        nt.appendChild(document.createTextNode('Happening now'));
+        b.appendChild(nt);
+      }
+
+      var hd = document.createElement('span');
+      hd.className = 'h'; hd.textContent = txt(s, 'h3');
+      b.appendChild(hd);
+
+      var v = document.createElement('span');
+      v.className = 'v'; v.textContent = txt(s, '.place');
+      b.appendChild(v);
+
+      var lg = s.querySelector('.lang');
+      if (lg){
+        var l = document.createElement('span');
+        l.className = 'lang'; l.textContent = lg.textContent.trim();
+        b.appendChild(l);
+      }
+
+      placed.push({el:b, col:col, r0:r0, r1:r1});
+      frag.appendChild(b);
+    });
+
+    /* clashes: two sessions in the same column overlapping in time share the
+       column width instead of covering each other. */
+    Object.keys(COL).forEach(function(c){
+      var group = placed.filter(function(p){ return p.col === c; });
+      group.forEach(function(p){
+        var over = group.filter(function(q){ return q.r0 < p.r1 && q.r1 > p.r0; });
+        if (over.length > 1){
+          over.sort(function(a, b2){ return a.r0 - b2.r0; });
+          p.el.setAttribute('data-sub','');
+          p.el.style.setProperty('--sub-n', String(over.length));
+          p.el.style.setProperty('--sub-i', String(over.indexOf(p)));
+        }
+      });
+    });
+
+    tt.appendChild(frag);
+    lucide.createIcons({attrs:{'stroke-width':1.75}});
+  }
+
+  function matches(el, f){
+    if (f === 'all') return true;
+    var c = el.dataset.col;
+    if (f === 'career') return c === 'career' || c === 'lounge';
+    return c === f;
+  }
+
+  function render(){
+    var view = sched.dataset.view, day = sched.dataset.day, f = sched.dataset.filter;
+
+    /* the grid is per-day by nature, so "All three days" is a track-only option */
+    var allowAll = view === 'track';
+    allTab.setAttribute('aria-disabled', String(!allowAll));
+    if (!allowAll && day === 'all'){ day = 'fri'; sched.dataset.day = day; syncTabs('day', 'fri'); }
+
+    days.forEach(function(d){ d.hidden = !(day === 'all' || d.dataset.dayid === day); });
+
+    /* collapse any time slot the zone filter has emptied */
+    var shown = 0;
+    slots.forEach(function(sl){
+      var items = [].slice.call(sl.querySelectorAll('.sitem'));
+      var on = items.filter(function(i){ return matches(i, f); });
+      sl.hidden = on.length === 0;
+      if (!sl.closest('.dayblock').hidden) shown += on.length;
+    });
+
+    var meta = DAYS[day];
+    dnum.textContent = meta.n;
+    dhead.textContent = meta.title;
+    dblurb.textContent = meta.blurb;
+    count.textContent = shown
+      ? shown + (shown === 1 ? ' session' : ' sessions') + ' · ' + meta.title
+      : 'No sessions match';
+    empty.hidden = shown > 0;
+
+    if (view === 'grid') buildGrid(day);
+  }
+
+  function syncTabs(group, value){
+    var key = group === 'view' ? 'view' : 'day';
+    [].slice.call(document.querySelectorAll('[data-tabs="' + group + '"] .tab'))
+      .forEach(function(t){
+        var on = t.dataset[key] === value;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+      });
+  }
+
+  /* --- tablists: click + arrow keys (Home/End too) ------------------------ */
+  [].slice.call(document.querySelectorAll('[data-tabs]')).forEach(function(list){
+    var group = list.dataset.tabs;
+    var key = group === 'view' ? 'view' : 'day';
+    var tabs = [].slice.call(list.querySelectorAll('.tab'));
+
+    function pick(tab){
+      if (tab.getAttribute('aria-disabled') === 'true') return;
+      sched.dataset[key] = tab.dataset[key];
+      syncTabs(group, tab.dataset[key]);
+      tab.focus();
+      render();
+    }
+
+    list.addEventListener('click', function(e){
+      var t = e.target.closest('.tab');
+      if (t) pick(t);
+    });
+
+    list.addEventListener('keydown', function(e){
+      var i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      var n = null, dir = 1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ dir = -1; n = (i - 1 + tabs.length) % tabs.length; }
+      else if (e.key === 'Home') n = 0;
+      else if (e.key === 'End'){ dir = -1; n = tabs.length - 1; }
+      else return;
+      e.preventDefault();
+      /* step over a disabled tab rather than parking focus on it, continuing in
+         the direction of travel so End lands on the last ENABLED tab */
+      var guard = 0;
+      while (tabs[n].getAttribute('aria-disabled') === 'true' && guard++ < tabs.length){
+        n = (n + dir + tabs.length) % tabs.length;
+      }
+      pick(tabs[n]);
+    });
+  });
+
+  /* --- zone filter chips, cutting across both views ---------------------- */
+  document.addEventListener('click', function(e){
+    var c = e.target.closest('[data-f]');
+    if (!c) return;
+    sched.dataset.filter = c.dataset.f;
+    chips.forEach(function(ch){
+      ch.setAttribute('aria-pressed', String(ch.dataset.f === c.dataset.f));
+    });
+    render();
+  });
+
+  render();
+
+  var nav = document.querySelector('.nav');
+  addEventListener('scroll', function(){
+    nav.classList.toggle('scrolled', scrollY > 10);
+  }, {passive:true});
+})();
+</script>
+</body></html>

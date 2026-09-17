@@ -1,0 +1,210 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Information Kit &mdash; VARA Expo 2026</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<style>
+.dl-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--gap-xs)}
+.dl{position:relative;border-radius:var(--r-card);
+  background:color-mix(in oklab,var(--navy-950) 34%,transparent);
+  box-shadow:inset 0 0 0 1px var(--ink-hairline);
+  transition:background var(--d-fast) var(--e-enter),
+             box-shadow var(--d-fast) var(--e-enter),
+             transform var(--d-fast) var(--e-enter)}
+.dl:hover{transform:translateY(-1px);
+  background:color-mix(in oklab,var(--navy-700) 30%,transparent);
+  box-shadow:inset 0 0 0 1px var(--ink-rim),var(--sh-sm)}
+.dl-hit{display:flex;align-items:center;gap:var(--gap-sm);
+  padding:var(--gap-sm) var(--gap-md);border-radius:inherit;
+  text-decoration:none;color:inherit}
+.dl-hit:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+.dl-ico{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;
+  color:var(--ink-90);background:color-mix(in oklab,var(--navy) 58%,transparent);
+  box-shadow:inset 0 0 0 1px var(--ink-hairline);
+  transition:background var(--d-fast) var(--e-enter),color var(--d-fast) var(--e-enter)}
+.dl-ico .ico{--ico:19px}
+.dl:hover .dl-ico,.dl-hit:focus-visible .dl-ico{background:var(--cream);color:var(--ink-on-light)}
+.dl-main{flex:1 1 auto;min-width:0;display:grid;gap:4px}
+.dl-name{font-weight:600;font-size:var(--t-body);line-height:1.3;color:var(--ink-94);
+  overflow-wrap:anywhere}
+.dl:hover .dl-name{color:var(--cream)}
+.dl-meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-xs);
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:11px;letter-spacing:.06em;color:var(--ink-56)}
+.dl-type{padding:2px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;
+  color:var(--ink-90);box-shadow:inset 0 0 0 1px var(--ink-hairline)}
+.dl-sep{opacity:.55}
+.dl-flag{flex:none;padding:3px 10px;border-radius:var(--r-pill);
+  font-family:var(--f-mono);font-size:10px;font-weight:700;
+  letter-spacing:var(--ls-tag);text-transform:uppercase;
+  color:var(--ink-on-light);background:var(--cream)}
+.dl-flag.is-updated{color:var(--ink-90);background:transparent;
+  box-shadow:inset 0 0 0 1px var(--ink-rim)}
+.dates{list-style:none;margin:0;padding:0;display:grid}
+.dt{position:relative;display:grid;grid-template-columns:minmax(0,11ch) minmax(0,1fr);
+  gap:var(--gap-md);padding:var(--gap-md) 0;border-top:1px solid var(--ink-hairline)}
+.dt:last-child{border-bottom:1px solid var(--ink-hairline)}
+.dt-when{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:700;
+  font-size:12.5px;line-height:1.5;color:var(--ink-90)}
+.dt-what{font-family:var(--f-body);font-weight:600;letter-spacing:0;
+  font-size:var(--t-body-lg);line-height:1.35;color:var(--cream);margin:0}
+.dt p{margin:5px 0 0;font-size:var(--t-body);color:var(--ink-84)}
+.dt-mark{display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+  font-size:var(--t-label);letter-spacing:var(--ls-tag);text-transform:uppercase;
+  font-weight:700;color:var(--ink-56)}
+.dt-mark .ico{--ico:14px}
+.dt.is-key .dt-when{color:var(--cream)}
+.dt.is-key::before{content:"";position:absolute;left:calc(var(--gap-md) * -1);top:var(--gap-md);
+  bottom:var(--gap-md);width:2px;border-radius:var(--r-pill);background:var(--accent)}
+.qa summary:hover .chev{color:var(--cream)}
+.qa .ans p{font-size:var(--t-body);color:var(--ink-84)}
+.kitspot{width:var(--spot-lg)}
+.inc{display:grid;gap:var(--gap-sm);list-style:none;margin:0;padding:0}
+.inc li{display:flex;gap:var(--gap-sm);align-items:flex-start;font-size:var(--t-body);
+  color:var(--ink-90)}
+.inc .ico{--ico:18px;margin-top:3px;flex:none;color:var(--ink-56)}
+.inc b{color:var(--cream);font-weight:600}
+.inc.extra .ico{color:var(--ink-56)}
+.kithead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--gap-lg);align-items:center}
+.kithead .kitspot{width:var(--spot-md)}
+.dlgroup{margin-bottom:var(--gap-xl)}
+.dlgroup > header{display:flex;align-items:baseline;gap:var(--gap-sm);flex-wrap:wrap;
+  padding-bottom:var(--gap-sm);margin-bottom:var(--gap-md);
+  border-bottom:1px solid var(--ink-hairline)}
+.dlgroup h2{font-size:var(--t-display-sm)}
+.dlgroup .count{margin-left:auto;font-family:var(--f-mono);font-size:var(--t-label);
+  letter-spacing:var(--ls-label);text-transform:uppercase;font-weight:700;color:var(--ink-56)}
+.dlgroup .note{width:100%;margin:0;font-size:var(--t-body);color:var(--ink-84);max-width:60ch}
+.dl-desc{display:block;font-size:var(--t-body);line-height:1.45}
+@media (max-width:440px){
+  .dl-hit{align-items:flex-start;flex-wrap:wrap}
+  .dl-flag{order:3;margin-left:calc(44px + var(--gap-sm))}
+}
+@media (max-width:520px){
+  .dt{grid-template-columns:minmax(0,1fr);gap:6px}
+  .dt.is-key::before{display:none}
+}
+@media (max-width:820px){
+  .kithead{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head><body data-zone="violet">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+<nav class="nav">
+  <img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="30" height="29" alt="" decoding="async">
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+  <header class="pagehead">
+    <div class="wrap">
+      <div class="crumb"><a href="../../">Home</a><span aria-hidden="true">/</span><span>Information Kit</span></div>
+      <div class="kithead">
+        <div>
+          <p class="eyebrow">Exhibitor information &middot; 2026 edition</p>
+          <h1>Information Kit</h1>
+          <p class="lede">Every document an exhibitor needs for VARA Expo 2026, in one place. Nine files, all current.</p>
+        </div>
+        <svg class="zspot kitspot" viewBox="0 0 120 108" role="img" aria-label="A folded document bound with a woven ribbon">
+      <path class="under" d="M88 36v60H32V14h38"/>
+      <path class="under" d="M70 14v22h18"/>
+      <path class="casing" d="M58 10v88"/><path class="over" d="M58 10v88"/>
+      <path class="casing" d="M12 66h96"/><path class="over" d="M12 66h96"/>
+      <path class="casing" d="M58 62c-22-6-30 16-12 18 10 1 12-10 12-18"/>
+      <path class="over" d="M58 62c-22-6-30 16-12 18 10 1 12-10 12-18"/>
+    </svg>
+      </div>
+    </div>
+  </header>
+
+  <section class="section pt-0">
+    <div class="wrap">
+      <section class="dlgroup" aria-labelledby="g0"><header><h2 id="g0">Start here</h2><span class="count">3 files</span><p class="note">Read these before you apply. The prospectus answers most of the money and audience questions on its own.</p></header><ul class="dl-list "><li><article class="dl" data-doc-type="pdf"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Exhibitor Prospectus 2026</span><span class="dl-desc muted">Zones, audience profile, stand rates and everything the decision needs.</span><span class="dl-meta"><span class="dl-type">PDF</span><span class="dl-size">4.2 MB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2026-01-12">12 Jan 2026</time></span></span></span><span class="dl-flag">New</span></a></article></li><li><article class="dl" data-doc-type="pdf"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Previous Edition Report 2025</span><span class="dl-desc muted">Attendance, hiring outcomes and exhibitor satisfaction from last year.</span><span class="dl-meta"><span class="dl-type">PDF</span><span class="dl-size">12.8 MB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2025-09-22">22 Sep 2025</time></span></span></span></a></article></li><li><article class="dl" data-doc-type="docx"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Application Form</span><span class="dl-desc muted">Only needed if you are applying offline &mdash; the online form is faster.</span><span class="dl-meta"><span class="dl-type">DOCX</span><span class="dl-size">240 KB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2026-01-12">12 Jan 2026</time></span></span></span></a></article></li></ul></section><section class="dlgroup" aria-labelledby="g1"><header><h2 id="g1">Stand &amp; build</h2><span class="count">3 files</span><p class="note">Everything about the physical stand, from fascia sizes to the loading bay rota.</p></header><ul class="dl-list "><li><article class="dl" data-doc-type="pdf"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Stand Specifications &amp; Floor Plan</span><span class="dl-desc muted">Shell dimensions, rigging limits, fascia artwork sizes and the hall plan.</span><span class="dl-meta"><span class="dl-type">PDF</span><span class="dl-size">8.6 MB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2026-02-18">18 Feb 2026</time></span></span></span><span class="dl-flag is-updated">Updated</span></a></article></li><li><article class="dl" data-doc-type="pdf"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Build-up &amp; Breakdown Schedule</span><span class="dl-desc muted">Hall access windows, vehicle slots and the loading bay rota.</span><span class="dl-meta"><span class="dl-type">PDF</span><span class="dl-size">620 KB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2026-03-04">4 Mar 2026</time></span></span></span><span class="dl-flag is-updated">Updated</span></a></article></li><li><article class="dl" data-doc-type="xlsx"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Power &amp; Water Request Form</span><span class="dl-desc muted">Order extra sockets, three-phase supply, or a plumbed water point.</span><span class="dl-meta"><span class="dl-type">XLSX</span><span class="dl-size">84 KB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2026-02-18">18 Feb 2026</time></span></span></span></a></article></li></ul></section><section class="dlgroup" aria-labelledby="g2"><header><h2 id="g2">Rules &amp; compliance</h2><span class="count">2 files</span><p class="note">Required reading. Two of these produce documents you must return to us.</p></header><ul class="dl-list "><li><article class="dl" data-doc-type="pdf"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Health &amp; Safety Policy</span><span class="dl-desc muted">The policy every stand signs up to, including demonstration rules.</span><span class="dl-meta"><span class="dl-type">PDF</span><span class="dl-size">1.1 MB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2026-01-28">28 Jan 2026</time></span></span></span></a></article></li><li><article class="dl" data-doc-type="pdf"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Insurance Requirements</span><span class="dl-desc muted">The minimum public liability cover and what your certificate must show.</span><span class="dl-meta"><span class="dl-type">PDF</span><span class="dl-size">480 KB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2025-12-15">15 Dec 2025</time></span></span></span></a></article></li></ul></section><section class="dlgroup" aria-labelledby="g3"><header><h2 id="g3">Brand &amp; promotion</h2><span class="count">1 files</span><p class="note">Use these to tell people you will be there.</p></header><ul class="dl-list "><li><article class="dl" data-doc-type="zip"><a class="dl-hit" href="#" download><span class="dl-ico" aria-hidden="true"><i class="ico" data-lucide="download"></i></span><span class="dl-main"><span class="dl-name">Brand Guidelines &amp; Logo Pack</span><span class="dl-desc muted">Logos, the ribbon motif, colour values and how to write the event name.</span><span class="dl-meta"><span class="dl-type">ZIP</span><span class="dl-size">26.4 MB</span><span class="dl-sep" aria-hidden="true">&middot;</span><span class="dl-upd">Updated <time datetime="2025-11-30">30 Nov 2025</time></span></span></span></a></article></li></ul></section>
+      <p class="muted max-w-text">Files are updated as details are confirmed. The date on each item is the last change, so if you downloaded something before that date, download it again.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="dates">
+    <div class="wrap grid gap-gap-xl lg:grid-cols-2 lg:gap-gap-lg items-start">
+      <div>
+        <p class="eyebrow">Key dates</p>
+        <h2 id="dates">The 2026 timetable</h2>
+        <p class="muted mt-gap-md max-w-text">Three of these are hard deadlines: the application close, the payment date and the forms date. Miss one and your stand goes back on the plan.</p>
+        <ol class="dates"><li class="dt"><time class="dt-when" datetime="2026-01-12">12 Jan 2026</time><div class="dt-body"><h3 class="dt-what">Applications open</h3><p>The online application and the prospectus go live. Early applications get first pick of stand position.</p></div></li><li class="dt is-key"><time class="dt-when" datetime="2026-05-29">29 May 2026</time><div class="dt-body"><h3 class="dt-what">Application deadline</h3><p>Applications close at 15:00. Late requests join a waiting list and are only placed if a stand is released.</p></div></li><li class="dt"><time class="dt-when" datetime="2026-06-19">19 Jun 2026</time><div class="dt-body"><h3 class="dt-what">Stand allocation confirmed</h3><p>You receive your zone, stand number and neighbouring exhibitors, with the floor plan marked up.</p></div></li><li class="dt is-key"><time class="dt-when" datetime="2026-08-14">14 Aug 2026</time><div class="dt-body"><h3 class="dt-what">Payment deadline</h3><p>The balance is due in full. Unpaid stands are released back to the waiting list the following week.</p></div></li><li class="dt"><time class="dt-when" datetime="2026-09-25">25 Sep 2026</time><div class="dt-body"><h3 class="dt-what">Forms deadline</h3><p>Power and water requests, insurance certificate, risk assessment and your directory listing copy.</p></div></li><li class="dt"><time class="dt-when" datetime="2026-11-04">4&ndash;5 Nov 2026</time><div class="dt-body"><h3 class="dt-what">Build-up days</h3><p>Hall access 08:00&ndash;20:00 both days. All stands must be dressed and cleared by 20:00 on 5 November.</p></div></li><li class="dt is-key"><time class="dt-when" datetime="2026-11-06">6&ndash;8 Nov 2026</time><div class="dt-body"><h3 class="dt-what">Show days</h3><p>Open to the public 09:00&ndash;18:00. Exhibitor access from 08:00.</p></div></li><li class="dt"><time class="dt-when" datetime="2026-11-08">8&ndash;9 Nov 2026</time><div class="dt-body"><h3 class="dt-what">Breakdown</h3><p>From 18:30 on 8 November until 14:00 on 9 November. Nothing may be dismantled before the hall closes.</p></div></li></ol>
+      </div>
+      <div class="hidden lg:grid place-items-center"><svg class="zspot kitspot" viewBox="0 0 120 108" aria-hidden="true">
+      <path class="under" d="M88 36v60H32V14h38"/>
+      <path class="under" d="M70 14v22h18"/>
+      <path class="casing" d="M58 10v88"/><path class="over" d="M58 10v88"/>
+      <path class="casing" d="M12 66h96"/><path class="over" d="M12 66h96"/>
+      <path class="casing" d="M58 62c-22-6-30 16-12 18 10 1 12-10 12-18"/>
+      <path class="over" d="M58 62c-22-6-30 16-12 18 10 1 12-10 12-18"/>
+    </svg></div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="stand">
+    <div class="wrap">
+      <p class="eyebrow">What you get</p>
+      <h2 id="stand">What a stand includes</h2>
+      <div class="grid gap-gap-lg lg:grid-cols-2 mt-gap-lg items-start">
+        <div class="glass">
+          <p class="eyebrow">Included in the stand fee</p>
+          <ul class="inc "><li><i class="ico" data-lucide="box" aria-hidden="true"></i><span><b>Shell scheme</b> 3m &times; 2m walled bay, 2.5m high, with a printed fascia carrying your name.</span></li><li><i class="ico" data-lucide="zap" aria-hidden="true"></i><span><b>Power</b> One 13A socket and a 500W allowance. Three-phase is orderable separately.</span></li><li><i class="ico" data-lucide="lightbulb" aria-hidden="true"></i><span><b>Lighting</b> Two LED spots on the fascia rail, on the hall circuit for all three days.</span></li><li><i class="ico" data-lucide="armchair" aria-hidden="true"></i><span><b>Furniture</b> One counter, two stools and a waste bin, delivered before build-up closes.</span></li><li><i class="ico" data-lucide="wifi" aria-hidden="true"></i><span><b>Wifi</b> Exhibitor SSID with four device credentials per stand. Wired lines are orderable.</span></li><li><i class="ico" data-lucide="book-open" aria-hidden="true"></i><span><b>Directory listing</b> Your name, zone, stand number and 60-word profile in the printed and online directory.</span></li></ul>
+        </div>
+        <div class="glass">
+          <p class="eyebrow">Orderable at extra cost</p>
+          <ul class="inc extra"><li><i class="ico" data-lucide="plus" aria-hidden="true"></i><span><b>Extra power</b> Additional sockets, three-phase supply and 24-hour circuits.</span></li><li><i class="ico" data-lucide="plus" aria-hidden="true"></i><span><b>Plumbed water</b> A water point and waste drain &mdash; required for any food preparation.</span></li><li><i class="ico" data-lucide="plus" aria-hidden="true"></i><span><b>Custom build</b> Space-only plots from 12m&sup2; if you are bringing your own structure.</span></li><li><i class="ico" data-lucide="plus" aria-hidden="true"></i><span><b>Rigging &amp; banners</b> Anything suspended from the roof structure must be ordered and certified.</span></li><li><i class="ico" data-lucide="plus" aria-hidden="true"></i><span><b>Storage</b> Locked overnight storage in the service corridor, by the pallet.</span></li><li><i class="ico" data-lucide="plus" aria-hidden="true"></i><span><b>Extra badges</b> Six exhibitor badges are included; more are available at cost.</span></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="rules">
+    <div class="wrap grid gap-gap-lg lg:grid-cols-2 items-start">
+      <div>
+        <p class="eyebrow">Required reading</p>
+        <h2 id="rules">Rules &amp; requirements</h2>
+        <p class="muted mt-gap-md">The full text is in the Health &amp; Safety Policy. This is the short version.</p>
+      </div>
+      <div class="art max-w-text"><h2>Insurance</h2><p>Every exhibitor must hold public liability cover of at least MVR 5 million for the full period from build-up to breakdown, naming VARA Expo as an interested party. A copy of the certificate is due with your forms on 25 September 2026. Stands without a certificate on file are not released on build-up day.</p><h2>Health &amp; safety</h2><p>You are responsible for your own stand, your staff and your contractors. A short risk assessment is required for every stand and a full method statement for any space-only build. Gangways must stay clear, and nothing may project beyond your stand line.</p><h2>Live demonstrations</h2><p>Welding, cutting, hot work, machinery and anything with a moving part must be declared in advance and screened from the public. The Skills Experience zone is built for this; demonstrations elsewhere are assessed case by case. A fire extinguisher and a trained operator are required at all times.</p><h2>Food handling</h2><p>Any stand preparing, sampling or selling food needs a Maldives Food and Drug Authority permit, a plumbed water point and a designated handwash station. Cooking with open flame is permitted only in the Market zone service bays.</p><h2>Noise</h2><p>Sound from your stand must stay under 75 dB measured at the gangway. Amplified music, PA systems and demonstration sirens are limited to scheduled slots so that neighbouring stands can hold a conversation.</p><h2>Waste</h2><p>Take away what you bring in. General and recycling bins are provided at the end of each aisle; packaging, offcuts and build waste are your own to remove. Anything left after 14:00 on 9 November is cleared at the exhibitor's cost.</p></div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="faq">
+    <div class="wrap max-w-text">
+      <p class="eyebrow">Exhibitor FAQ</p>
+      <h2 id="faq">Questions we get every year</h2>
+      <div class="mt-gap-lg"><div class="qa"><details open><summary><h3>How much does a stand cost?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>Rates for 2026 are set out in the prospectus and vary by zone and stand size. Small businesses and registered training providers qualify for a reduced rate, and there is a limited allocation of subsidised stands for first-time exhibitors in the Market zone.</p></div></details><details><summary><h3>Can we choose our own stand position?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>You can state a preference for a zone and for a position on the plan when you apply. Allocation is confirmed on 19 June and balances your preference against zone mix, stand size and how early you applied.</p></div></details><details><summary><h3>What is the difference between shell scheme and space only?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>Shell scheme is the walled bay described above, ready to dress. Space only is a marked floor plot from 12m&sup2; where you bring your own structure &mdash; it needs a method statement and a longer build-up slot.</p></div></details><details><summary><h3>Do we need to staff the stand for all three days?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>Yes. Stands must be staffed from 09:00 to 18:00 on each of the three show days. Leaving a stand unattended during opening hours affects your allocation next year.</p></div></details><details><summary><h3>Can we share a stand with another organisation?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>Two organisations may share a stand if both are named on the application. Both appear in the directory. Sub-letting a stand to an organisation not named on the application is not permitted.</p></div></details><details><summary><h3>What happens if we need to cancel?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>Cancellations before the payment deadline forfeit the deposit only. After 14 August the full fee stands, though we will try to re-let the stand and refund what we recover.</p></div></details><details><summary><h3>Is there a deadline for the directory listing?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>Your 60-word profile and logo are due with the rest of your forms on 25 September 2026. After that the printed directory goes to press and only the online listing can be changed.</p></div></details><details><summary><h3>Who do we contact during build-up?</h3><i class="ico chev" data-lucide="chevron-down" aria-hidden="true"></i></summary><div class="ans"><p>The exhibitor services desk sits at the north entrance and is staffed from 08:00 on both build-up days and from 07:30 on each show day. Phone and email details are in the build-up schedule.</p></div></details></div></div>
+    </div>
+  </section>
+
+  <section class="section pt-0">
+    <div class="wrap glass grid gap-gap-md">
+      <h2>Ready to take a stand?</h2>
+      <p class="muted max-w-text">Applications close 29 May 2026. If something here is unclear, ask before you apply &mdash; it is much easier to change a zone now than after allocation.</p>
+      <div class="flex flex-wrap items-center gap-gap-sm"><a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Apply to exhibit</a><a class="pill ghost" href="../contact/"><i class="ico sm" data-lucide="mail" aria-hidden="true"></i>Talk to the exhibitor team</a></div>
+    </div>
+  </section>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+<div class="vlabel"><b>Information Kit &middot; A</b> <span>Downloads first, grouped by job, prose underneath &mdash; for someone who already knows what they need.</span></div>
+</div>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>lucide.createIcons({attrs:{'stroke-width':1.75}});</script>
+</body></html>
