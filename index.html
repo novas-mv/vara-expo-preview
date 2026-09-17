@@ -130,16 +130,23 @@ header{
    77px. Measured as the sharpest transition on the page both times. */
 header::before{
   content:"";position:absolute;left:0;right:0;top:0;
-  height:220%;                       /* extends well past the fade */
+  /* SAME RECIPE AS system/base.css .nav::before — the nav must read identically
+     on the landing page and on every subpage. Home had its own weaker tint and
+     blur, so moving between pages changed the bar. Keep these four values in
+     step with base.css if either changes. */
+  height:170%;                       /* extends well past the fade */
   pointer-events:none;z-index:-1;
-  background:linear-gradient(180deg,rgba(0,16,47,.82) 0%,rgba(0,16,47,.46) 34%,rgba(0,16,47,0) 62%);
-  -webkit-backdrop-filter:blur(14px) saturate(1.22);
-  backdrop-filter:blur(14px) saturate(1.22);
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 26%,rgba(0,0,0,.35) 48%,transparent 62%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 26%,rgba(0,0,0,.35) 48%,transparent 62%);
+  background:linear-gradient(180deg,
+    rgba(0,16,47,.78) 0%, rgba(0,16,47,.70) 46%, rgba(0,16,47,0) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
 }
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
-.brand img{height:30px;width:auto}
+.brand img{width:34px;height:34px;display:block}
+.brand:hover{opacity:.78}
+.brand{transition:opacity .18s ease}
 nav.links{display:flex;gap:clamp(12px,1.9vw,28px)}
 nav.links a{
   color:rgba(246,241,230,.90);text-decoration:none;font-size:13.5px;font-weight:500;
@@ -496,7 +503,7 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
   /* mobile raster budget: phone GPUs are the one case this machine cannot
      measure, so shadows drop further and the nav blur radius halves. */
   #hero h1,h2,.fig .n{text-shadow:0 0 10px rgba(0,8,28,.5)}
-  header.scrolled::before{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  header.scrolled::before{-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
 }
 
 /* ---------- hero intro: CSS-owned ----------
@@ -526,9 +533,12 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
    it. When home is migrated onto the system these become .ncard and the
    sponsor wall from the Sponsors template — until then they must not import
    classes that do not exist here. */
-#news-home .nrow{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.2vw,30px);
+/* row gap is deliberately larger than the column gap: when the grid drops to
+   one or two columns the tiles stacked almost touching. */
+#news-home .nrow{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(34px,4.2vw,56px) clamp(18px,2.2vw,30px);
   margin-top:clamp(26px,3.4vh,44px)}
-#news-home .ntile{display:grid;gap:12px;text-decoration:none;color:inherit;
+#news-home .ntile{display:grid;gap:14px;text-decoration:none;color:inherit;
   transition:transform .32s cubic-bezier(.215,.61,.355,1)}
 #news-home .ntile:hover{transform:translateY(-3px)}
 #news-home .nmedia{aspect-ratio:16/10;border-radius:18px;position:relative;overflow:hidden;
@@ -626,7 +636,7 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
 /* 1. The frost was abrupt because header.scrolled::before CREATED the layer —
       there was nothing to transition from. The layer now always exists and
       only its opacity moves. */
-header::before{opacity:0;transition:opacity .42s cubic-bezier(.215,.61,.355,1)}
+header::before{opacity:0;transition:opacity 520ms cubic-bezier(.215,.61,.355,1)}
 header.scrolled::before{opacity:1}
 
 /* 4. SPACING: section.zone and #scale carried the section rhythm; the news and
@@ -677,6 +687,14 @@ header.scrolled::before{opacity:1}
       errors. Now: the main sponsor as a feature, partners as a dense card grid
       where the ROLE leads (that is the useful information), and the remaining
       sponsors as a quiet name grid. */
+/* The tag sat ABOVE the copy on its own line, stacked, and kept reading as a
+   stray band. Laid horizontally it becomes a label on the sponsor's name —
+   which is what it is. */
+#sponsors-home .slead{display:flex;align-items:center;flex-wrap:wrap;
+  gap:clamp(10px,1.1vw,16px)}
+#sponsors-home .slead .ztag{margin-top:0}
+#sponsors-home .slead .co{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;
+  letter-spacing:-.03em;font-size:clamp(19px,1.8vw,26px);color:var(--cream)}
 #sponsors-home .main{grid-template-columns:minmax(0,auto) minmax(0,1fr);
   gap:clamp(20px,2.6vw,40px);align-items:center}
 #sponsors-home .plate{
@@ -759,13 +777,24 @@ header.scrolled::before{opacity:1}
   box-shadow:none;margin:0;padding:0;border-radius:0}
 #zones .zpanel .glass::before,#zones .zpanel .glass::after{display:none}
 
-/* 3. VISUALS: the zone's ribbon mark, at size, as the panel's own artwork. */
-#zones .zpanel{position:relative;overflow:hidden}
-#zones .zart{position:absolute;right:calc(var(--gut) / -3);bottom:-14%;
-  width:clamp(160px,22vw,300px);height:auto;opacity:.3;pointer-events:none;z-index:0}
-#zones .zart .under,#zones .zart .over{fill:none;stroke:var(--accent);
-  stroke-linecap:round;stroke-width:11}
-#zones .zpanel > *:not(.zart){position:relative;z-index:1}
+/* 3. VISUALS: the zone's COLOURED ICON, in the same accent-filled well the
+      subpages use (.icowell.solid). This was briefly a large ribbon
+      illustration behind the panel; the decision on record is the icon only,
+      so the illustration is gone and the icon leads the panel beside its tag. */
+#zones .zpanel{position:relative}
+#zones .zhead{display:flex;align-items:center;gap:clamp(12px,1.3vw,18px);
+  margin-bottom:clamp(14px,1.6vh,22px)}
+#zones .zhead .ztag{margin-top:0}
+.icowell{display:grid;place-items:center;width:52px;height:52px;flex:none;
+  border-radius:20px;color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 14%, transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--accent) 26%, transparent)}
+.icowell.solid{background:var(--accent);color:var(--tag-ink,#06122C);
+  box-shadow:0 1px 2px rgba(0,9,30,.26),0 6px 16px rgba(0,9,30,.18)}
+.icowell.lg{width:60px;height:60px;border-radius:22px}
+.ico{width:var(--ico,20px);height:var(--ico,20px);flex:none;display:inline-block;
+  vertical-align:-.18em;color:inherit}
+.ico.lg{--ico:28px}
 
 /* 4. LEGIBILITY: the rail sits straight on the colour field, which swings from
       green to violet behind it. Type that light on a mid-tone needs a shadow
@@ -892,29 +921,25 @@ header.scrolled::before{opacity:1}
     <div class="zwrap">
       <div class="zpanels">
       <div class="zpanel" id="zp-career" role="tabpanel" aria-labelledby="zt-career" data-zone="coral">
-        <svg class="zart" viewBox="0 0 120 108" aria-hidden="true"><path class="under" d="M18 74c0-24 15-42 34-42s31 15 31 28-11 24-22 24-17-9-17-17 6-15 14-15"/><path class="over" d="M74 26c16 8 26 24 26 44"/></svg>
-        <span class="ztag">Career Zone</span>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="briefcase-business"></i></span><span class="ztag">Career Zone</span></div>
         <h3 class="d">The people who are actually hiring.</h3>
         <div class="glass"><p class="body">Not a jobs board. Recruiters from resorts, ports, banks, construction, health and the public service take meetings on the floor — with people who can say yes on the spot. Bring a CV; leave with an interview slot.</p>
         <ul class="specs"><li><b>01</b><span>Live interview booths running all three days, walk-in and pre-booked</span></li><li><b>02</b><span>Free CV clinic and mock-interview desk staffed by HR practitioners</span></li><li><b>03</b><span>Apprenticeship and on-the-job training placements, signed on site</span></li><li><b>04</b><span>Employer talks: what a hiring manager actually reads first</span></li></ul></div>
       </div>
       <div class="zpanel" id="zp-education" role="tabpanel" aria-labelledby="zt-education" data-zone="green" hidden>
-        <svg class="zart" viewBox="0 0 120 108" aria-hidden="true"><path class="under" d="M16 62 58 40l44 22-44 22z"/><path class="over" d="M100 62v26"/></svg>
-        <span class="ztag">Education Zone</span>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="graduation-cap"></i></span><span class="ztag">Education Zone</span></div>
         <h3 class="d">Every route, laid out side by side.</h3>
         <div class="glass"><p class="body">Diploma, degree, certificate, apprenticeship, overseas. See them next to each other, with the cost, the length and the job at the end stated plainly — so the choice is yours and it's an informed one.</p>
         <ul class="specs"><li><b>01</b><span>Admissions officers from national and private institutions, in person</span></li><li><b>02</b><span>Scholarship and student-loan desk with same-day eligibility checks</span></li><li><b>03</b><span>Course comparison walls — fees, duration, entry requirement</span></li><li><b>04</b><span>Sessions in Dhivehi and English, twice daily</span></li></ul></div>
       </div>
       <div class="zpanel" id="zp-skills" role="tabpanel" aria-labelledby="zt-skills" data-zone="cyan" hidden>
-        <svg class="zart" viewBox="0 0 120 108" aria-hidden="true"><path class="under" d="M22 88 62 48"/><path class="over" d="M58 44c-7-7-7-18 0-25s18-7 25 0 7 18 0 25-18 7-25 0"/></svg>
-        <span class="ztag">Skills Experience Zone</span>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="wrench"></i></span><span class="ztag">Skills Experience Zone</span></div>
         <h3 class="d">Try the job before you choose it.</h3>
         <div class="glass"><p class="body">The loudest, busiest corner of the park — and the point of the whole expo. You don't watch a trade here, you do one. Ten minutes with a welding torch tells you more than ten pages of prospectus.</p>
         <ul class="specs"><li><b>01</b><span>Hands-on bays: welding, marine engineering, electrical, culinary, hairdressing</span></li><li><b>02</b><span>Live skills competitions with judging on the floor</span></li><li><b>03</b><span>Dive, hospitality and aviation simulators open to walk-ups</span></li><li><b>04</b><span>Robotics, drone and digital-fabrication demos from student teams</span></li></ul></div>
       </div>
       <div class="zpanel" id="zp-market" role="tabpanel" aria-labelledby="zt-market" data-zone="violet" hidden>
-        <svg class="zart" viewBox="0 0 120 108" aria-hidden="true"><path class="under" d="M18 52h84l-8-22a9 9 0 0 0-8-6H34a9 9 0 0 0-8 6z"/><path class="over" d="M28 60v34h64V60"/></svg>
-        <span class="ztag">Market Zone</span>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="store"></i></span><span class="ztag">Market Zone</span></div>
         <h3 class="d">Small businesses, out in the open.</h3>
         <div class="glass"><p class="body">Island enterprises, makers and graduates selling what they build. Proof that a skill is a livelihood — plus the desks that get a business registered, funded and trading.</p>
         <ul class="specs"><li><b>01</b><span>SME and island-enterprise stalls, trading across all three evenings</span></li><li><b>02</b><span>Business registration and SME finance desks on site</span></li><li><b>03</b><span>Craft, food and fisheries producers from across the atolls</span></li><li><b>04</b><span>Evening programme: music, food and family activity until late</span></li></ul></div>
@@ -1010,7 +1035,7 @@ header.scrolled::before{opacity:1}
     <div class="main">
       <div class="plate">Bank of Maldives</div>
       <div>
-        <span class="ztag">Main Sponsor</span>
+        <div class="slead"><span class="ztag">Main Sponsor</span><span class="co">Bank of Maldives</span></div>
         <p style="margin:14px 0 0;max-width:46ch;color:rgba(246,241,230,.84);font-size:clamp(14px,1.2vw,16.5px)">
           The largest bank in the Maldives, present across every atoll, backing the expo
           for a third year and recruiting on site through the Interview Lounge.
@@ -2176,5 +2201,7 @@ function init(){
 })();
 </script>
 <script src="system/lines.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>lucide.createIcons({attrs:{"stroke-width":1.9}});</script>
 </body>
 </html>

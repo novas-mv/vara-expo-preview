@@ -123,6 +123,9 @@
   --e-enter:cubic-bezier(.215,.61,.355,1);  /* entrance, own clock */
   --e-exit:cubic-bezier(.4,0,1,1);
   --d-fast:180ms; --d-base:320ms; --d-slow:1100ms;
+  /* the nav frost: slower than a hover, faster than an entrance. At --d-base it
+     read as a snap when the scroll threshold tripped. */
+  --d-frost:520ms;
 
   /* ---- Glass ---- */
   --glass-blur:22px;
@@ -139,5 +142,5 @@
 :root                { --accent:var(--coral);  }
 
 @media (prefers-reduced-motion:reduce){
-  :root{ --d-fast:0ms; --d-base:0ms; --d-slow:0ms; }
+  :root{ --d-fast:0ms; --d-base:0ms; --d-slow:0ms; --d-frost:0ms; }
 }

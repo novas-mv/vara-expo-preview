@@ -60,23 +60,40 @@ p{margin:0 0 1em}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 
 /* ---- Nav ------------------------------------------------------------------
-   Fixed and transparent. On scroll a 220%-tall MASKED gradient fades in — a
-   tall fade, not a blur, because a backdrop-filter's bottom edge is
-   viewport-locked and draws a hard line across the page. */
+   Fixed and transparent at rest; on scroll ONE frosted bar fades in.
+
+   It used to be a 220%-tall gradient with no blur, because a backdrop-filter's
+   bottom edge is viewport-locked and draws a hard line across the page. The
+   consequence was that the nav looked different on every page — the "frost" was
+   really just the page's own background showing through at 82%/46%/0%, so a
+   dark section made it heavy and a light one made it vanish, and type overlapped
+   content underneath. Fix: give the bar a FIXED tint (so it reads identically
+   everywhere) PLUS a real blur, and hide the blur's hard bottom edge with a
+   mask that fades the last third out. Mask and backdrop-filter compose, so the
+   blur fades with the tint and no line is drawn. */
 .nav{
   position:fixed; inset:0 0 auto 0; z-index:40; isolation:isolate;
   display:flex; align-items:center; gap:clamp(14px,3vw,40px);
   padding:18px var(--gut); background:transparent;
 }
 .nav::before{
-  content:""; position:absolute; left:0; right:0; top:0; height:220%;
-  pointer-events:none; z-index:-1; opacity:0; transition:opacity var(--d-base) var(--e-enter);
-  background:linear-gradient(180deg,rgba(0,16,47,.82) 0%,rgba(0,16,47,.46) 34%,rgba(0,16,47,0) 62%);
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 44%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 44%,transparent 100%);
+  content:""; position:absolute; left:0; right:0; top:0; height:170%;
+  pointer-events:none; z-index:-1; opacity:0;
+  transition:opacity var(--d-frost) var(--e-enter);
+  background:linear-gradient(180deg,
+    rgba(0,16,47,.78) 0%, rgba(0,16,47,.70) 46%, rgba(0,16,47,0) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
 }
 .nav.scrolled::before{opacity:1}
-.nav .mark{width:34px;height:34px;flex:none}
+/* the mark is a link home on every page, so it needs to sit like one */
+.nav .home{display:inline-flex;flex:none;border-radius:10px;
+  transition:opacity var(--d-fast) var(--e-enter)}
+.nav .home:hover{opacity:.78}
+.nav .home:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
+.nav .mark{width:34px;height:34px;flex:none;display:block}
 .nav ul{display:flex;gap:clamp(12px,1.7vw,26px);list-style:none;margin:0 0 0 auto;padding:0}
 .nav a{font-size:var(--t-ui);font-weight:500;color:var(--ink-90);text-decoration:none;
   transition:color var(--d-fast) var(--e-enter)}
@@ -155,6 +172,14 @@ p{margin:0 0 1em}
    every line at the section seam). No per-zone background wash. */
 .section{position:relative;padding:var(--pad-section) var(--gut);background:transparent}
 .band{position:relative;padding:var(--pad-band) var(--gut);background:transparent}
+/* A row of controls (view tabs, day tabs, zone filters) under a page header is
+   not a band of content — it is chrome. As `.band pt-0` each one still carried
+   a full --pad-band BOTTOM, so two stacked control rows pushed the content
+   ~350px down the page and read as dead space. `.ctl` makes them a cluster;
+   `.ctl-end` closes it, and `.tight-top` opens the content that follows. */
+.band.ctl{padding-top:0;padding-bottom:var(--gap-md)}
+.band.ctl-end{padding-bottom:0}
+.band.tight-top{padding-top:var(--pad-subband)}
 .wrap{max-width:var(--maxw);margin:0 auto}
 .wrap-text{max-width:var(--maxw-text)}
 
