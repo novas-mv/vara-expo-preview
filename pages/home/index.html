@@ -96,7 +96,7 @@ if (location.search.includes('probe')){
    of raw colour field below the footer that reads as unfinished deadspace.
    Two guards: stop the bounce, and paint the root the footer's own ground so
    even a browser that bounces anyway has nothing alien to show. */
-html{scroll-behavior:smooth;background:#0C34B6;overscroll-behavior-y:none}
+html{scroll-behavior:smooth;background:#0B2064;overscroll-behavior-y:none}
 body{overscroll-behavior-y:none}
 body{
   background:var(--navy-950);color:var(--ink);
@@ -1380,12 +1380,19 @@ function weightsInto(dst, key, s, key2){
        blending is why — screening coral over navy lifts coral's blue channel
        and lands on salmon, which the pass-A comment already warns about.
 
-       0.06 makes the hero ground essentially the blue ramp. The coloured spill
-       the reference has comes from the AMBILIGHT instead, which is localised to
-       the element — a glow around the logo rather than a wash over the page,
-       which is the actual brief. Below the hero the pools return to full
-       strength; this constant only governs the `all` (hero) key. */
-    var HW = 0.06;
+       0.06 still was not zero, and a weak pool is worse than a strong one: four
+       faint hues overlapping average to GREY. Measured at 0.06 the hero centre
+       came back #424378 and the lower left #493c58 — a muddy mauve at 19-29%
+       saturation, sitting in the middle of a ground whose corners were a clean
+       68% blue. The reference has no mud anywhere; it is a clean deep navy
+       with one violet bloom on it.
+
+       So the hero ground is now the ramp and the vignette, nothing else. All
+       of its colour comes from the AMBILIGHT, which is tied to the element and
+       therefore lands where the reference's bloom lands, instead of being
+       smeared across the whole section. Below the hero the pools return to
+       full strength — this constant only governs the `all` (hero) key. */
+    var HW = 0;
     var a = (key==='all') ? HW : ((k===key)?1:0.30);
     var b = (key2==='all') ? HW : ((k===key2)?1:0.30);
     dst[k] = a + (b-a)*s;
@@ -1457,13 +1464,22 @@ function draw(t){
      bottom and made every section boundary read as a dark seam. Now the
      whole ramp stays inside the navy family, so sections blend into each
      other instead of through black. */
-  /* VIBRANCY. The ramp was #001A52 -> #002273 -> #001347: correct navy family
-     but very dark and low-chroma, so the page read as near-black behind the
-     hues. Lifted into a brighter, bluer navy with a violet lean at the middle
-     stop — the same family, more chroma and more light. The 3D element is
-     still the most saturated thing in frame; this only stops the GROUND from
-     being the least. */
-  g.addColorStop(0,'#0C34B6'); g.addColorStop(0.42,'#1B47DC'); g.addColorStop(1,'#08205C');
+  /* DARK AND SATURATED — the two are independent, and confusing them is the
+     mistake this comment exists to stop anyone repeating.
+
+     The ramp started at #001A52 -> #002273 -> #001347: the right darkness but
+     almost no chroma, so it read as dead navy. Fixing that by LIGHTENING it
+     (to #0C34B6 -> #1B47DC) measured at lightness 23-55, which is a bright
+     royal blue — vivid, but nothing like the reference, which is a deep navy
+     carrying high chroma and gets its life from the coloured bloom on top of
+     it rather than from being light. Reference measures roughly lightness
+     12-33 at 40-80% saturation.
+
+     So: keep the saturation, put the darkness back. Saturation 70-82% at
+     lightness 14-29. The bottom stop stays at lightness ~14, matching the old
+     #001347 — go darker and every section boundary below the hero reads as a
+     dark seam, which is a bug this file has already had once. */
+  g.addColorStop(0,'#0B2064'); g.addColorStop(0.42,'#16307E'); g.addColorStop(1,'#07153F');
   octx.globalCompositeOperation='source-over'; octx.globalAlpha=1;
   octx.fillStyle=g; octx.fillRect(0,0,OW,OH);
 
@@ -1518,9 +1534,11 @@ function draw(t){
   var vg = octx.createRadialGradient(OW*0.46, OH*0.30, 0,
                                      OW*0.46, OH*0.30, Math.max(OW,OH)*0.92);
   vg.addColorStop(0,   'rgba(255,255,255,0)');
-  vg.addColorStop(0.46,'rgba(190,205,255,0.10)');
-  vg.addColorStop(0.78,'rgba(96,126,220,0.30)');
-  vg.addColorStop(1,   'rgba(46,72,170,0.52)');
+  vg.addColorStop(0.50,'rgba(205,215,255,0.07)');
+  vg.addColorStop(0.80,'rgba(130,155,235,0.20)');
+  vg.addColorStop(1,   'rgba(70,100,190,0.34)');   /* lighter than it was: the
+     ground underneath is now dark on its own, and the old 0.52 crushed the
+     corners toward the near-black this file is not allowed to reach */
   octx.fillStyle=vg; octx.fillRect(0,0,OW,OH);
   octx.globalCompositeOperation='source-over';
 
