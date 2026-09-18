@@ -608,9 +608,23 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
    framing always change together — if these two ever disagree the element is
    framed for a column that isn't there. */
 @media (max-width:900px){
-  #hero{grid-template-columns:1fr;align-items:start;
-    padding-top:clamp(96px,16vh,150px)}
-  .hero-copy{grid-column:1;justify-items:center;text-align:center;
+  /* STACKED, NOT LAYERED. The canvas is position:absolute inset:0 on wide, which
+     is right there — the element is framed by shifting the camera frustum and
+     confining it to a column would shrink and re-crop it. On narrow that same
+     rule laid the element straight over the copy: the headline, the date and
+     both buttons sat on top of the strokes and neither could be read.
+
+     Here it becomes a real grid row instead. Row 1 is the element, row 2 is the
+     copy, and nothing overlaps. layout() takes its size from the canvas box
+     (renderer.setSize + cam.aspect both read clientWidth/clientHeight), so the
+     framing follows the new shape on its own — no change to the module. */
+  #hero{grid-template-columns:1fr;grid-template-rows:auto auto;
+    align-items:start;justify-items:center;
+    gap:clamp(16px,2.6vh,30px);
+    padding-top:clamp(78px,11vh,112px)}
+  #hero canvas{position:relative;inset:auto;grid-row:1;
+    width:100%;height:min(44svh,360px)}
+  .hero-copy{grid-row:2;grid-column:1;justify-items:center;text-align:center;
     max-width:min(30ch,100%);margin:0 auto}
   .hero-meta{justify-items:center}
   .hero-meta .hrule{background:linear-gradient(90deg,rgba(246,241,230,.02),
@@ -1216,7 +1230,7 @@ header.scrolled::before{opacity:1}
   <div class="lightbox">
     <div>
       <div class="org">Organised by</div>
-      <h4>Ministry of Higher Education,<br>Labour and Skills Development</h4>
+      <h4>Ministry of Homeland Security,<br>Labour and Technology</h4>
       <p class="lb-note">VARA Expo — the National Skills &amp; Career Expo of the Maldives. 6–8 November 2026, Central Park, Hulhumalé.</p>
     </div>
     <div class="p">

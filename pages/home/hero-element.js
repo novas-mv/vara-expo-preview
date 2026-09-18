@@ -182,13 +182,19 @@ function init(){
     /* NEVER translate the element to reposition it: moving it sideways views
        it obliquely and changes which strokes occlude which. Shift the frustum
        window instead, so the approved pose is preserved exactly. */
-    /* Move the element into the right half by sliding the frustum WINDOW left
+    /* The narrow offset was 0.120, lifting the element clear of copy that used
+       to sit UNDER it — the canvas was full-bleed at every width and the two
+       overlapped. Narrow now gives the element its own grid row, so there is
+       nothing to lift clear of and the offset only left dead space beneath it:
+       measured 11.9%-72.9% of a row it should fill. 0.030 centres it.
+
+       Move the element into the right half by sliding the frustum WINDOW left
        (a negative x offset moves rendered content right), never by translating
        the mesh — see the note above. On narrow screens the copy stacks above
        the element, so it stays centred and only drops down the frame. */
     cam.setViewOffset(w, h,
                       wide ? -w * 0.220 : 0,
-                      h * (wide ? 0.020 : 0.120),
+                      h * (wide ? 0.020 : 0.030),
                       w, h);
     cam.updateProjectionMatrix();
     /* Hand the element's on-screen centre to the ambilight, so the glow is
