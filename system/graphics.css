@@ -60,6 +60,19 @@
 [data-lines]{position:relative;isolation:isolate;overflow:clip visible}
 [data-lines] > *:not(.lineset){position:relative;z-index:1}
 
+/* ---- 1b. Where a line set may go -----------------------------------------
+   NOT on a band of running prose. The standing instruction is that a ribbon
+   belongs "around the gutter or sides", and a `data-lines-edge` component was
+   built to mask the middle out for exactly that. Measuring it killed it: on
+   every text band of every page here the copy runs about 5%-95% of the
+   viewport — these are full-bleed grids, not narrow centred columns — so there
+   is no gutter to clear and a mask wide enough to protect the text leaves no
+   ribbon. Even the news article, the narrowest thing on the site, is 26%-74%.
+
+   So the rule is placement, not masking: put `data-lines` on page headers,
+   where the type is display-scale and tolerant, and on card or photo grids,
+   where nothing is read in long lines. Leave prose bands clean. */
+
 @media (prefers-reduced-motion:reduce){
   .lineset path{stroke-dashoffset:0 !important}
 }
