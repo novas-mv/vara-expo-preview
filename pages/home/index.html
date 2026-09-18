@@ -229,21 +229,27 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
   position:absolute;z-index:0;pointer-events:none;
   left:var(--amb-x,72.5%);top:var(--amb-y,53%);
   width:var(--amb-w,44%);aspect-ratio:1;transform:translate(-50%,-50%);
-  mix-blend-mode:plus-lighter;opacity:.17;
-  /* The warm half is dialled down hard relative to the cool half. Coral and
-     violet added to a blue ground read as pink long before green and cyan read
-     as anything, so at equal weight the spill turned the whole left side mauve
-     — measured, and visible as a haze across the copy. */
+  mix-blend-mode:plus-lighter;opacity:.24;
+  /* FOUR HUES, NO BLUE BASE. There used to be a fifth, central blue radial
+     holding the others together — but adding blue light to an already blue
+     ground is the one thing that cannot show, so all it did was raise the
+     brightness and make the whole spill read as a blue blob.
+
+     Each stop sits where its stroke actually is in the element: green upper
+     left, violet upper right, cyan lower left, coral lower right. The warm
+     pair stays a little under the cool pair — coral and violet on blue read as
+     pink much faster than green and cyan read as anything, which is what
+     turned the copy side mauve before — but not so far under that the glow
+     loses its colour, which is what happened when they were halved. */
   background:
-    radial-gradient(34% 38% at 42% 30%, rgba(107,254,150,.20), transparent 66%),
-    radial-gradient(30% 32% at 66% 24%, rgba(182,108,241,.12), transparent 68%),
-    radial-gradient(36% 40% at 34% 70%, rgba(31,225,254,.22), transparent 68%),
-    radial-gradient(34% 36% at 72% 72%, rgba(255,138,102,.13), transparent 68%),
-    radial-gradient(54% 54% at 50% 50%, rgba(60,130,255,.18), transparent 72%);
-  filter:blur(46px) saturate(1.1);
+    radial-gradient(37% 41% at 41% 27%, rgba(107,254,150,.30), transparent 67%),
+    radial-gradient(34% 37% at 69% 23%, rgba(182,108,241,.24), transparent 68%),
+    radial-gradient(39% 43% at 32% 69%, rgba(31,225,254,.30), transparent 68%),
+    radial-gradient(37% 40% at 73% 71%, rgba(255,138,102,.25), transparent 68%);
+  filter:blur(42px) saturate(1.28);
 }
-@media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(46px)} }
-@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:76%;opacity:.15} }
+@media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(42px) saturate(1.28)} }
+@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:76%;opacity:.20} }
 
 #hero canvas{
   /* Still full-bleed, NOT confined to the right column. The element is framed
@@ -331,10 +337,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
 .hm-sub{font-size:clamp(10px,1vw,14px);letter-spacing:.17em;text-transform:uppercase;
   color:rgba(246,241,230,.72)}
 .hm-when{font-family:"Cabinet Grotesk","General Sans",sans-serif;
-  font-size:clamp(22px,2.75vw,40px);letter-spacing:-.02em;color:var(--cream);line-height:1.05}
+  font-size:clamp(25px,3.25vw,47px);letter-spacing:-.02em;color:var(--cream);line-height:1.05}
 .hm-when b{font-weight:800}
 .hm-when span{font-weight:400;color:rgba(246,241,230,.76)}
-.hm-where{font-size:clamp(12px,1.25vw,18px);letter-spacing:.12em;text-transform:uppercase;
+.hm-where{font-size:clamp(13px,1.5vw,21px);letter-spacing:.12em;text-transform:uppercase;
   color:rgba(246,241,230,.76)}
 /* gradient on the last beat only — STATIC, because an animated
    background-clip:text fill was the measured scroll stutter */
