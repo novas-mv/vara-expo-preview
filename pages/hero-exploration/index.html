@@ -1,0 +1,230 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hero exploration — VARA Expo 2026</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../system/tw.css">
+<script src="../../system/icons.js"></script>
+<style>
+/* ---- Hero exploration board ----------------------------------------------
+   An INTERNAL review page: the nine hero layouts we went through, on the site
+   so they can be looked at on a real screen instead of in a screenshot.
+
+   Each variant is shown in an IFRAME of its original file, not re-implemented
+   here. That is deliberate. All three exploration files style `.stage`, `.el`,
+   `.d` and `.grad` differently; merged into one document the selectors would
+   collide and every variant would end up wearing the last one's CSS. Framed,
+   each one renders in exactly the CSS it was designed in, byte-for-byte —
+   which is the only way a comparison means anything.
+
+   Each `.stage` in those files is `min-height:100vh`, so inside a fixed-height
+   frame one variant fills the frame exactly and the fragment (#a, #c3, …)
+   lands on it precisely. Switching tabs is a fragment navigation, not a
+   reload, so the frame does not flash and the image is not re-fetched. */
+
+.hx-bar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-sm) var(--gap-md);
+  max-width:var(--maxw);margin:0 auto var(--gap-md)}
+.hx-group{display:flex;align-items:center;gap:var(--gap-xs)}
+.hx-group > .lbl{font-family:var(--f-mono);font-size:10.5px;letter-spacing:var(--ls-label);
+  text-transform:uppercase;color:var(--ink-56);margin-right:6px}
+
+/* the tabs themselves are the system's .chip — one selected state, not two */
+.hx-bar .chip[aria-selected="true"]{background:var(--cream);color:var(--ink-on-light);
+  box-shadow:none}
+.hx-bar .chip .n{font-family:var(--f-mono);font-weight:700}
+
+.hx-note{max-width:var(--maxw);margin:0 auto var(--gap-md);display:flex;gap:var(--gap-sm);
+  align-items:flex-start;color:var(--ink-84);font-size:var(--t-body-sm);line-height:1.5}
+.hx-note .icowell{margin-top:-2px}
+.hx-note b{color:var(--cream)}
+
+/* the frame. A hairline + radius so it reads as a device, not as the page. */
+.hx-frame{max-width:var(--maxw);margin:0 auto;position:relative;
+  border-radius:var(--r-card);overflow:hidden;background:var(--navy-900);
+  box-shadow:inset 0 0 0 1px var(--ink-hairline),var(--sh-lg);
+  transition:max-width var(--d-base) var(--e-enter)}
+.hx-frame iframe{display:block;width:100%;height:min(82vh,860px);border:0}
+.hx-frame[data-w="tablet"]{max-width:768px}
+.hx-frame[data-w="mobile"]{max-width:370px}
+.hx-frame[data-w="mobile"] iframe,.hx-frame[data-w="tablet"] iframe{height:min(82vh,820px)}
+
+.hx-meta{max-width:var(--maxw);margin:var(--gap-md) auto 0;display:flex;flex-wrap:wrap;
+  gap:var(--gap-sm) var(--gap-lg);align-items:baseline}
+.hx-meta .ttl{font-family:var(--f-display);font-weight:800;
+  letter-spacing:var(--ls-display-tight);font-size:var(--t-display-sm);color:var(--cream)}
+.hx-meta p{margin:0;color:var(--ink-84);font-size:var(--t-body-sm);max-width:64ch;line-height:1.55}
+.hx-open{margin-left:auto}
+
+@media (max-width:760px){
+  .hx-bar{gap:var(--gap-xs) var(--gap-sm)}
+  .hx-group{flex-wrap:wrap}
+  .hx-open{margin-left:0}
+}
+</style>
+</head>
+<body data-zone="navy">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+
+<nav class="nav">
+  <a class="home" href="../home/" aria-label="VARA Expo 2026 — home"><img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async"></a>
+  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+  <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+</nav>
+
+  <header class="pagehead">
+    <div class="wrap">
+      <div class="crumb"><a href="../home/">Home</a><span aria-hidden="true">/</span><span>Hero exploration</span></div>
+      <p class="eyebrow">Internal &middot; design record</p>
+      <h1>Hero exploration</h1>
+      <p class="lede">The nine hero layouts, each in the CSS it was designed in. &ldquo;C refined&rdquo; is the one that shipped.</p>
+    </div>
+  </header>
+
+  <div class="band ctl ctl-end">
+    <div class="wrap">
+      <div class="hx-note">
+        <span class="icowell sm"><i class="ico sm" data-lucide="info" aria-hidden="true"></i></span>
+        <p>Not part of the public site &mdash; it is <b>not linked from the navigation and is marked <span class="mono">noindex</span></b>.
+        The element is the same still image in every variant, so what differs is
+        only the <b>layout</b>: where the element sits, what leads, and how the date is carried.</p>
+      </div>
+
+      <div class="hx-bar" role="tablist" aria-label="Hero variants">
+        <div class="hx-group">
+          <span class="lbl">Layouts</span>
+          <button class="chip" role="tab" type="button" data-v="a" aria-selected="true"><span class="n">A</span></button>
+          <button class="chip" role="tab" type="button" data-v="b" aria-selected="false"><span class="n">B</span></button>
+          <button class="chip" role="tab" type="button" data-v="c" aria-selected="false"><span class="n">C</span></button>
+          <button class="chip" role="tab" type="button" data-v="d" aria-selected="false"><span class="n">D</span></button>
+        </div>
+        <div class="hx-group">
+          <span class="lbl">C variations</span>
+          <button class="chip" role="tab" type="button" data-v="c1" aria-selected="false"><span class="n">C1</span></button>
+          <button class="chip" role="tab" type="button" data-v="c2" aria-selected="false"><span class="n">C2</span></button>
+          <button class="chip" role="tab" type="button" data-v="c3" aria-selected="false"><span class="n">C3</span></button>
+          <button class="chip" role="tab" type="button" data-v="c4" aria-selected="false"><span class="n">C4</span></button>
+        </div>
+        <div class="hx-group">
+          <span class="lbl">Refined</span>
+          <button class="chip" role="tab" type="button" data-v="cref" aria-selected="false"><span class="n">C</span>&nbsp;refined&nbsp;&middot;&nbsp;shipped</button>
+        </div>
+        <div class="hx-group hx-open">
+          <span class="lbl">Width</span>
+          <button class="chip" type="button" data-w="desktop" aria-pressed="true">Desktop</button>
+          <button class="chip" type="button" data-w="tablet" aria-pressed="false">Tablet</button>
+          <button class="chip" type="button" data-w="mobile" aria-pressed="false">Mobile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+  <section class="band tight-top" aria-labelledby="vttl">
+    <div class="hx-frame" id="frame" data-w="desktop">
+      <iframe id="stage" title="Hero variant" src="variants/layouts.html#a" loading="lazy"></iframe>
+    </div>
+    <div class="hx-meta">
+      <span class="ttl" id="vttl"></span>
+      <p id="vnote"></p>
+      <a class="pill ghost sm hx-open" id="vopen" href="variants/layouts.html#a" target="_blank" rel="noopener">
+        <i class="ico sm" data-lucide="maximize-2" aria-hidden="true"></i>Open full size
+      </a>
+    </div>
+  </section>
+  </main>
+
+<footer class="foot">
+  <div class="cols">
+    <div>
+      <p class="eyebrow">VARA Expo 2026</p>
+      <p class="muted">6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="../about/">About</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../venue/">Venue</a></li><li><a href="../gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../register/">Register</a></li><li><a href="../information-kit/">Exhibitor Information</a></li><li><a href="../exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="../news/">News</a></li><li><a href="../sponsors/">Sponsors</a></li><li><a href="../faq/">FAQ</a></li><li><a href="../contact/">Contact</a></li><li><a href="../information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Higher Education, Labour and Skills Development</span></div>
+</footer>
+</div>
+
+<script>
+/* One table, GENERATED FROM THE EXPLORATION FILES so the labels cannot drift:
+   every title and note below is the <div class="note"> text from the variant's
+   own source, verbatim. Do not rewrite these by hand — re-run
+   tools/sync-hero-labels.py after editing a variant. */
+var V = {
+  a:     ["variants/layouts.html", "a", "A · Colossal centre", "Element is the hero. Headline demoted to a supporting line, date at display scale beneath."],
+  b:     ["variants/layouts.html", "b", "B · Split", "Element holds one half at scale; headline, date and venue stack in the other."],
+  c:     ["variants/layouts.html", "c", "C · Element behind the date", "Biggest element of the four — it sits behind, the date reads over it at display scale."],
+  d:     ["variants/layouts.html", "d", "D · Baseline band", "Element and headline centred up top; date, venue and CTAs as one information bar across the base."],
+  c1:    ["variants/c-variations.html", "c1", "C1 · One lockup", "Date and place stacked as a single centred lockup over the element. Title, CTAs and countdown pushed to the corners."],
+  c2:    ["variants/c-variations.html", "c2", "C2 · The place is the headline", "Location at full display scale, date reduced to a line above it. The most spaced of the four."],
+  c3:    ["variants/c-variations.html", "c3", "C3 · Corners hold the utility", "Centre is date + place only. Everything functional lives in a corner, nothing crowds the element."],
+  c4:    ["variants/c-variations.html", "c4", "C4 · Element between", "Date above the element, place below it — the logo sits inside the lockup rather than behind it."],
+  cref:  ["variants/c-refined.html", "", "C refined", "One title · place is the biggest element · statement and CTAs at the base · countdown moved below the fold."]
+};
+
+var frame = document.getElementById('frame');
+var stage = document.getElementById('stage');
+var ttl   = document.getElementById('vttl');
+var note  = document.getElementById('vnote');
+var open  = document.getElementById('vopen');
+var tabs  = [].slice.call(document.querySelectorAll('.chip[data-v]'));
+var wbtns = [].slice.call(document.querySelectorAll('.chip[data-w]'));
+
+function show(key, push){
+  var row = V[key]; if (!row) return;
+  var url = row[0] + (row[1] ? '#' + row[1] : '');
+  /* Assigning src with only the fragment changed is a fragment navigation, not
+     a reload — no flash, no re-fetch of the element image. */
+  stage.src = url;
+  open.href = url;
+  ttl.textContent = row[2];
+  note.textContent = row[3];
+  tabs.forEach(function(t){ t.setAttribute('aria-selected', String(t.dataset.v === key)); });
+  if (push) history.replaceState(null, '', '#' + key);
+}
+
+/* Belt and braces: if the frame was already on this document, the fragment
+   change alone may not scroll it (same-document navigation is throttled while
+   the frame is still loading). Same origin, so just scroll it ourselves. */
+stage.addEventListener('load', function(){
+  try {
+    var hash = (stage.src.split('#')[1] || '');
+    var doc  = stage.contentDocument;
+    var el   = hash ? doc.getElementById(hash) : null;
+    if (el) el.scrollIntoView();
+    else doc.scrollingElement.scrollTop = 0;
+  } catch (e) { /* cross-origin only, which cannot happen here */ }
+}, {passive:true});
+
+tabs.forEach(function(t){ t.addEventListener('click', function(){ show(t.dataset.v, true); }); });
+
+/* arrow keys walk the whole set, in the order they are laid out */
+var order = tabs.map(function(t){ return t.dataset.v; });
+document.querySelector('.hx-bar').addEventListener('keydown', function(e){
+  var i = order.indexOf(document.activeElement.dataset && document.activeElement.dataset.v);
+  if (i < 0) return;
+  var j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : -1;
+  if (j < 0 || j >= order.length) return;
+  e.preventDefault(); tabs[j].focus(); show(order[j], true);
+});
+
+wbtns.forEach(function(b){
+  b.addEventListener('click', function(){
+    frame.dataset.w = b.dataset.w;
+    wbtns.forEach(function(o){ o.setAttribute('aria-pressed', String(o === b)); });
+  });
+});
+
+/* deep-linkable: /hero-exploration/#c3 opens on C3 */
+show((location.hash || '#a').slice(1) in V ? location.hash.slice(1) : 'a', false);
+lucide.createIcons({attrs:{'stroke-width':1.75}});
+</script>
+</body></html>

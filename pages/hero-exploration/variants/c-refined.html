@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VARA — C refined</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001D61; --cream:#F3EDDF; --ink:#F6F1E6; --coral:#FF8A66;
+  --gut:clamp(20px,4.6vw,72px);
+  /* layered, directional, tinted — see the shadow note in hero-layouts */
+  --sh-sm:
+    0 1px 1px rgba(0,9,30,.30), 0 2px 4px rgba(0,9,30,.22),
+    0 4px 10px rgba(0,9,30,.18), 0 9px 22px rgba(0,9,30,.13),
+    0 18px 44px rgba(0,9,30,.09);
+  --sh-lg:
+    0 1px 2px rgba(0,9,30,.26), 0 4px 8px rgba(0,9,30,.20),
+    0 9px 22px rgba(0,9,30,.16), 0 20px 48px rgba(0,9,30,.12),
+    0 38px 78px rgba(0,9,30,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#00133F;color:var(--ink);font-family:"General Sans",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.d{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.04em;line-height:.88}
+
+.note{position:sticky;top:0;z-index:70;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;
+  padding:12px var(--gut);background:rgba(0,10,32,.95);border-bottom:1px solid rgba(246,241,230,.13);
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+.note b{color:var(--ink);font-weight:600}
+.note span{color:rgba(246,241,230,.52);text-transform:none;letter-spacing:0;font-size:13px}
+
+#hero{
+  position:relative;min-height:100vh;min-height:100lvh;overflow:hidden;isolation:isolate;
+  padding:clamp(70px,9vh,104px) var(--gut) clamp(34px,6vh,64px);
+  display:grid;grid-template-rows:auto 1fr auto;align-items:center;
+  background:
+    radial-gradient(38% 30% at 14% 26%, rgba(107,254,150,.20), transparent 70%),
+    radial-gradient(34% 28% at 86% 22%, rgba(182,108,241,.20), transparent 72%),
+    radial-gradient(40% 32% at 70% 78%, rgba(31,225,254,.15), transparent 74%),
+    radial-gradient(30% 26% at 24% 84%, rgba(255,138,102,.16), transparent 74%),
+    linear-gradient(180deg,#001A52 0%,#002273 44%,#001347 100%);
+}
+.el{position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+  width:min(58vw,600px);z-index:0;opacity:.96;
+  filter:drop-shadow(0 30px 70px rgba(0,0,0,.42))}
+
+/* ONE title. The descriptor line and the wordmark said the same thing twice;
+   the wordmark is the name, so the descriptor moves below the fold. */
+.title{justify-self:center;z-index:2;font-family:"Cabinet Grotesk";font-weight:800;
+  letter-spacing:-.01em;font-size:clamp(16px,1.6vw,22px);text-shadow:var(--sh-sm)}
+.title i{font-style:normal;color:var(--coral)}
+
+/* The DATE leads — it is the single biggest thing in the hero. The place
+   sits under it, set large enough to read as a feature but clearly second.
+   (An earlier pass made the place bigger than the date; the brief was that
+   the place needed to beat the tracked micro-caps it replaced, not the date.) */
+.lock{position:relative;z-index:1;display:grid;justify-items:center;text-align:center;
+  gap:clamp(6px,1.1vh,16px)}
+.lock .day{font-size:clamp(48px,9.4vw,150px);text-shadow:var(--sh-lg)}
+.lock .day i{font-style:normal;color:var(--coral)}
+.lock .place{font-size:clamp(20px,2.5vw,36px);color:var(--cream);letter-spacing:-.02em;
+  text-shadow:var(--sh-sm)}
+.lock .sub{font-size:clamp(13px,1.2vw,16.5px);color:rgba(246,241,230,.84);
+  text-shadow:var(--sh-sm)}
+
+/* statement + actions sit at the base of the viewport, clear of the element */
+.base{position:relative;z-index:2;display:grid;justify-items:center;gap:clamp(14px,2vh,24px)}
+/* S2 — solid cream, gradient on the LAST BEAT only.
+   A full-width gradient fill read as decorative; carrying it on one phrase
+   makes it emphasis instead. The gradient is STATIC — an animated
+   background-clip:text fill was the scroll stutter measured earlier, because
+   a moving gradient forces a per-glyph re-raster every frame.
+   Separation comes from layered drop-shadow on the h1 (which follows glyph
+   alpha, so it works for both the solid and the clipped span); text-shadow
+   cannot be used here because it ghosts through transparent-filled text. */
+.base h1{font-size:clamp(22px,2.7vw,40px);margin:0;text-align:center;max-width:24ch;
+  color:var(--cream);
+  filter:
+    drop-shadow(0 1px 1px rgba(0,9,30,.30))
+    drop-shadow(0 3px 8px rgba(0,9,30,.22))
+    drop-shadow(0 8px 20px rgba(0,9,30,.16))
+    drop-shadow(0 18px 42px rgba(0,9,30,.10));
+}
+.base h1 .grad{
+  background-image:linear-gradient(94deg,var(--coral) 0%,#FB85E5 46%,#61FFF1 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  .base h1 .grad{color:var(--coral);-webkit-text-fill-color:var(--coral);background-image:none}
+}
+}
+.cta{display:flex;gap:11px;flex-wrap:wrap;justify-content:center}
+.pill{display:inline-flex;align-items:center;text-decoration:none;padding:14px 24px;border-radius:999px;
+  font-weight:600;font-size:14.5px;background:var(--cream);color:#04101F;
+  box-shadow:0 1px 2px rgba(0,9,30,.22),0 6px 16px rgba(0,9,30,.16),0 16px 40px rgba(0,9,30,.10)}
+.pill.ghost{background:transparent;color:var(--ink);
+  box-shadow:inset 0 0 0 1.5px rgba(246,241,230,.55)}
+
+/* ---- the band BELOW the hero: countdown + the descriptor that used to
+        duplicate the title ---- */
+.after{position:relative;padding:clamp(30px,6vh,64px) var(--gut);
+  background:linear-gradient(180deg,#001347 0%,#001A52 100%);
+  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.after .who{font-size:clamp(14px,1.3vw,18px);color:rgba(246,241,230,.86);max-width:40ch}
+.cd{display:flex;align-items:stretch;gap:clamp(10px,1.5vw,20px)}
+.cd .u{text-align:center}
+.cd .n{font-family:"JetBrains Mono",monospace;font-weight:700;font-variant-numeric:tabular-nums;
+  line-height:.9;font-size:clamp(22px,2.4vw,34px);color:var(--cream)}
+.cd .k{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(246,241,230,.56);margin-top:8px}
+.cd .sep{width:1px;background:rgba(246,241,230,.2);margin-bottom:18px}
+</style>
+</head>
+<body>
+
+<div class="note"><b>C refined</b> <span>One title · place is the biggest element · statement and CTAs at the base · countdown moved below the fold.</span></div>
+
+<section id="hero">
+  <div class="title">VARA EXPO <i>2026</i></div>
+
+  <img class="el" src="./element.png" alt="">
+
+  <div class="lock">
+    <div class="d day">6&ndash;8 <i>NOV</i> 2026</div>
+    <div class="d place">Central Park, Hulhumalé</div>
+  </div>
+
+  <div class="base">
+    <h1 class="d">Show up. Skill up. <span class="grad">Stand out.</span></h1>
+    <div class="cta">
+      <a class="pill" href="#">Register Now</a>
+      <a class="pill ghost" href="#">Exhibit with us</a>
+    </div>
+  </div>
+</section>
+
+<section class="after">
+  <div class="who">The National Skills &amp; Career Expo · Free entry — three days where every college, employer and trade in the Maldives is standing in one park.</div>
+  <div class="cd" data-cd></div>
+</section>
+
+<script>
+(function(){
+  var T=Date.UTC(2026,10,6,4,0,0);
+  var U=[['Days',864e5],['Hours',36e5],['Minutes',6e4],['Seconds',1e3]];
+  var boxes=[].slice.call(document.querySelectorAll('[data-cd]'));
+  boxes.forEach(function(b){b.innerHTML=U.map(function(u,i){
+    return (i?'<div class="sep"></div>':'')+'<div class="u"><div class="n" data-u="'+u[0]+'">--</div><div class="k">'+u[0]+'</div></div>';}).join('');});
+  function pad(n){return n<10?'0'+n:''+n}
+  function tick(){var l=Math.max(0,T-Date.now()),r=l,v={};
+    U.forEach(function(u){v[u[0]]=Math.floor(r/u[1]);r-=v[u[0]]*u[1]});
+    boxes.forEach(function(b){U.forEach(function(u){
+      var e=b.querySelector('[data-u="'+u[0]+'"]');
+      var s=u[0]==='Days'?String(v[u[0]]):pad(v[u[0]]);
+      if(e.textContent!==s)e.textContent=s;});});}
+  var iv=null;function go(){if(!iv){tick();iv=setInterval(tick,1000)}}
+  function stop(){if(iv){clearInterval(iv);iv=null}}
+  document.addEventListener('visibilitychange',function(){document.hidden?stop():go()},{passive:true});
+  go();
+})();
+</script>
+</body>
+</html>
