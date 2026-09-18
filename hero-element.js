@@ -174,7 +174,7 @@ function init(){
        edge, so it is framed LARGER than it was when it sat behind a centred
        poster stack (0.889 wide / 0.778 narrow). Narrow screens stack the copy
        above it and keep the smaller framing. */
-    const fit = span / (wide ? 0.97 : 0.86);
+    const fit = span / (wide ? 0.97 : 1.14);
     const dist = fit / (2 * Math.tan(cam.fov * Math.PI / 360) * (cam.aspect < 1 ? cam.aspect : 1));
     REST.z = Math.max(1.15, dist);
     cam.position.set(0, 0, REST.z);

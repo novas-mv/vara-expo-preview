@@ -620,7 +620,7 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
      framing follows the new shape on its own — no change to the module. */
   #hero{grid-template-columns:1fr;grid-template-rows:auto auto;
     align-items:start;justify-items:center;
-    gap:clamp(16px,2.6vh,30px);
+    gap:clamp(4px,0.8vh,12px);
     padding-top:clamp(78px,11vh,112px)}
   #hero canvas{position:relative;inset:auto;grid-row:1;
     width:100%;height:min(44svh,360px)}
@@ -653,7 +653,14 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
   .cd .sep{margin-bottom:20px}
   /* mobile raster budget: phone GPUs are the one case this machine cannot
      measure, so shadows drop further and the nav blur radius halves. */
-  #hero h1,h2,.fig .n{text-shadow:0 0 10px rgba(0,8,28,.5)}
+  /* NOT #hero h1. Its payoff line is filled by background-clip:text with
+     -webkit-text-fill-color:transparent, and a text-shadow under transparent
+     glyphs shows THROUGH them — a centred 0-offset blur paints a dark halo
+     inside each letter, which reads as an inner glow rather than a gradient
+     fill. Mobile-only, because this rule is. The h1 already carries layered
+     drop-shadow() filters, which apply to the rendered result and composite
+     correctly with a clipped background. */
+  h2,.fig .n{text-shadow:0 0 10px rgba(0,8,28,.5)}
   header.scrolled::before{-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
 }
 
