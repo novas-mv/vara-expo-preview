@@ -928,7 +928,12 @@ header.scrolled::before{opacity:1}
 #zones .zpanel{position:relative}
 #zones .zhead{display:flex;align-items:center;gap:clamp(12px,1.3vw,18px);
   margin-bottom:clamp(14px,1.6vh,22px)}
-#zones .zhead .ztag{margin-top:0}
+/* The tag carries `align-self:start` from the rule above, which was written
+   when it was a grid item that had to hug its text instead of stretching. In
+   this flex row the 60px icon well sets the line height, so `start` pinned the
+   pill to the top — measured 14.8px above the icon's centre. Both properties
+   are reset here; the grid rule still applies everywhere else it is used. */
+#zones .zhead .ztag{margin-top:0;align-self:center;justify-self:auto}
 .icowell{display:grid;place-items:center;width:52px;height:52px;flex:none;
   border-radius:20px;color:var(--accent);
   background:color-mix(in oklab, var(--accent) 14%, transparent);
