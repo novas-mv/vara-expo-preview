@@ -1008,7 +1008,7 @@ header.scrolled::before{opacity:1}
 
 <header id="topbar">
   <a class="brand" href="./" aria-label="VARA Expo 2026">
-    <img class="mark" src="system/assets/vara-mark.png" srcset="system/assets/vara-mark.png 1x, system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async">
+    <img class="mark" src="./system/assets/vara-mark.png" srcset="./system/assets/vara-mark.png 1x, ./system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async">
     <span class="wordmark" aria-hidden="true">VARA EXPO <i>2026</i></span>
   </a>
   <!-- The SITE nav, not a list of this page's own anchors. The landing page
@@ -1708,7 +1708,7 @@ window.__varaSample = function(x,y){ return _readPx(x,y); };
 <!-- ====================== the line system (everything below the hero) ====================== -->
 <script type="module">
 import { STROKES } from './data/strokes.js';
-import { paintTube, paintStack, TUBE, STACK } from 'system/tube.js';
+import { paintTube, paintStack, TUBE, STACK } from './system/tube.js';
 
 /* ---- WHICH lines get the shaded tube surface --------------------------
    Not all of them. A tube is ~125 DOM nodes against a flat stroke's 2, and
@@ -2190,8 +2190,8 @@ window.__varaLines = drawables;
   });
 })();
 </script>
-<script src="system/lines.js"></script>
-<script src="system/icons.js"></script>
+<script src="./system/lines.js"></script>
+<script src="./system/icons.js"></script>
 <script>lucide.createIcons({attrs:{"stroke-width":1.9}});</script>
 </body>
 </html>
