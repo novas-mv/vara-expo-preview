@@ -442,8 +442,14 @@ section.zone{min-height:100svh;display:grid;align-content:center}
 #lineLayer{position:absolute;left:0;top:0;width:100%;z-index:0;pointer-events:none;
   overflow-x:clip;overflow-y:visible;overflow-clip-margin:100vh}
 .lines{position:absolute;left:0;width:100%;pointer-events:none;overflow:visible}
-.lines svg{position:absolute;overflow:visible;will-change:transform;
-  transition:opacity .5s ease}
+/* will-change lists BOTH properties the rAF loop writes. Promoting for
+   transform alone left the per-frame opacity write repainting the layer.
+   The opacity TRANSITION is gone on purpose: paint() writes opacity every
+   frame, so a 500ms transition was being restarted sixty times a second and
+   never completing — the browser interpolating a value that had already
+   changed again. Together with the SVG mask that used to wrap these ribbons,
+   that was the stutter. The fade it provided is already in the easing. */
+.lines svg{position:absolute;overflow:visible;will-change:transform,opacity}
 .lines path{fill:none;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---------- COPY SHIELD ----------
@@ -1168,7 +1174,7 @@ header.scrolled::before{opacity:1}
   </div>
 </section>
 
-<section id="sponsors-home" class="calm" data-zone="violet" data-lines="3" data-lines-edge>
+<section id="sponsors-home" class="calm" data-zone="violet">
   <div class="lines"></div>
   <div class="sinner">
     <div class="num">With the support of</div>
@@ -1702,6 +1708,35 @@ window.__varaSample = function(x,y){ return _readPx(x,y); };
 <!-- ====================== the line system (everything below the hero) ====================== -->
 <script type="module">
 import { STROKES } from './data/strokes.js';
+import { paintTube, paintStack, TUBE, STACK } from '../../system/tube.js';
+
+/* ---- WHICH lines get the shaded tube surface --------------------------
+   Not all of them. A tube is ~125 DOM nodes against a flat stroke's 2, and
+   below about 0.5 opacity the across-tube shading is not perceptible — so
+   spending 60x the nodes on the supporting strokes buys nothing you can see.
+   Each zone's DOMINANT stroke (alpha >= .8) is the only one large and opaque
+   enough to earn it: 5 of the 18 lines on this page.
+     ?tubes=all  every line          ?tubes=off  none (the flat original)
+   ?segs=N overrides the tessellation so the quality/weight trade can be felt
+   on a real device rather than argued about. */
+const TQ = new URLSearchParams(location.search);
+const TUBE_MODE = (TQ.get('tubes') || 'hero').toLowerCase();
+if (+TQ.get('segs') > 3) TUBE.segs = Math.min(64, +TQ.get('segs'));
+/* Threshold lowered from .8 to .5: at 50px and .58 opacity the supporting
+   stroke is now big enough to show the shading, and leaving it flat next to a
+   shaded one reads as a mistake rather than as a hierarchy. Strokes below .5
+   still stay flat — there the surface genuinely is not perceptible. */
+/* Every layout entry is a tube now. The threshold stays as a guard: anything
+   added below it would render flat, which is the thing being removed here. */
+const wantsTube = alpha => TUBE_MODE === 'off' ? false : alpha >= 0.5;
+/* The segmented surface is the approved one — per-segment gradients across
+   the tube, ~820 nodes a ribbon plus a mask. ?tubes=stack swaps in the cheap
+   concentric-band version (~226 a ribbon, no mask) if the weight ever has to
+   come down; ?tubes=off is the flat original. */
+const STACK_MODE = TUBE_MODE === 'stack';
+/* ?px=N sets the dominant stroke weight and scales the rest with it, so the
+   weight can be dialled on the page instead of through an edit. */
+const PX = +TQ.get('px') || 0;
 
 const VB = STROKES._viewBox;                 // "0 0 1000.0 878.5"
 const VBW = 1000;
@@ -1720,34 +1755,35 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
    ribbons 30–40px in the SAME composition is what stops this reading as a
    logo dropped in; the brand film flies strokes through frame at many scales
    at once, and that is the reference. 6–10 lines per section. */
+/* KEYED BY SECTION ID. Four of these keys — career, education, skills,
+   market — went dead in 755ec98 ("home: zones become a stepped tab panel"),
+   which replaced the four full-height zone SECTIONS with a single #zones
+   section holding a tab panel. The sections those layouts named stopped
+   existing, so `LAYOUTS[sec.id]` came back undefined and sixteen of the
+   eighteen lines on this page silently stopped drawing. Only `scale` still
+   matched an id, which is why the page had exactly two ribbons on it.
+
+   Resolved by giving the section that actually exists its own set rather than
+   restoring four sets for four sections that do not. #zones holds all four
+   zones at once, so its set carries all four hues — one per zone, dominant
+   first — instead of following the selected tab. Following the tab would mean
+   rebuilding the shaded geometry on every tab click, which is real work for a
+   colour change nobody asked for.
+
+   Weights are the approved 80px dominant, supporting strokes stepped down. */
 const LAYOUTS = {
-  career: [
-    ['coral', 128,  76,  56,  22, 38, .95,  1.00],
-    ['violet', 74,  10,  92, -16, 34, .50,  0.55],
-    ['cyan',   40,  34, 106,  12, 34, .42,  0.85],
-    ['green',  88, 108,  86,  30, 32, .34,  0.45],
-  ],
-  education: [
-    ['cyan',  134,  24,  76, -26, 40, .95, -1.00],
-    ['green',  68,  90,  86,  30, 34, .52, -0.55],
-    ['violet', 38, 102,  52, -40, 36, .40, -0.85],
-    ['violet', 84,  -8,  94,  18, 30, .34,  0.48],
-  ],
-  skills: [
-    ['violet',130,  78,  30,  28, 38, .95,  1.05],
-    ['cyan',   72,  12,  16, -22, 34, .50,  0.60],
-    ['green',  36,  -6,  46,  18, 36, .42,  0.88],
-    ['cyan',   88, 108,  70,  26, 30, .32,  0.44],
-  ],
-  market: [
-    ['green', 132,  22,  28, -20, 38, .95, -1.02],
-    ['cyan',   70,  88,  14,  34, 34, .52, -0.58],
-    ['coral',  40, 104,  46, -36, 36, .44, -0.86],
-    ['coral',  86,  -8,   6,  16, 30, .32,  0.46],
+  /* Only strokes that get the shaded surface are listed. The two faint ones
+     that used to sit here (.42 and .34) fell under the tube threshold and so
+     rendered as FLAT ribbons next to shaded ones — which read as unfinished
+     rather than as a hierarchy. Hierarchy now comes from weight and opacity
+     between two shaded strokes, not from mixing two different materials. */
+  zones: [
+    ['coral', 128,  76,  56,  22, 80, .95,  1.00],
+    ['green',  74,  10,  92, -16, 68, .50,  0.55],
   ],
   scale: [
-    ['coral', 120, -14,  30, -30, 36, .82,  0.90],
-    ['cyan',   78, 110,  22,  40, 32, .58, -0.66],
+    ['coral', 120, -14,  30, -30, 80, .82,  0.90],
+    ['cyan',   78, 110,  22,  40, 68, .58, -0.66],
   ],
 };
 
@@ -1790,13 +1826,56 @@ function makeLine(host, spec){
   return { svg, p };
 }
 
-/* on-screen px -> viewBox units, so hairline vs ribbon survives any viewport */
-function widthUnits(sizeVW, targetPx){
-  const boxPx = (sizeVW/100) * innerWidth;
-  return (targetPx * VBW / Math.max(1, boxPx)).toFixed(2);
+/* Same placement and transform as makeLine, but the stroke is replaced by a
+   shaded tube. The returned `p` is the tube's mask path, so the draw-on below
+   animates it identically — one stroke-dashoffset write per line per frame,
+   whichever kind of line it is. */
+function makeTube(host, spec){
+  const [name, sizeVW, xPct, yPct, rot, targetPx, alpha] = spec;
+  const S = STROKES[name];
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox', VB);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.setAttribute('aria-hidden','true');
+  svg.style.width = sizeVW + 'vw';
+  svg.style.left  = xPct + '%';
+  svg.style.top   = yPct + '%';
+  svg.style.opacity = alpha;
+  svg.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+  /* one light for the whole page, held steady as each svg is rotated */
+  const La = (150 - rot) * Math.PI / 180;
+  const w = parseFloat(widthUnits(sizeVW, targetPx));
+  if (STACK_MODE){
+    const bands = paintStack(svg, S.d, w, S.colors, La);
+    host.appendChild(svg);
+    return { svg, p: bands[0], extra: bands.slice(1),
+             tube:{ d:S.d, colors:S.colors, La, stack:true } };
+  }
+  const t = paintTube(svg, S.d, w, S.colors, La);
+  host.appendChild(svg);
+  return { svg, seg:t, tube:{ d:S.d, colors:S.colors, La } };
 }
 
+/* on-screen px -> viewBox units, so hairline vs ribbon survives any viewport */
+function widthUnits(sizeVW, targetPx){
+  /* Math.max(1, boxPx) was a divide-by-zero guard that quietly produced a
+     catastrophe instead: a viewport reporting 0 (a hidden tab, a frame laid
+     out before it has a size) made boxPx 1, and an 80px stroke came back as
+     80000 viewBox units. Clamp the VIEWPORT to a sane floor instead, so a
+     degenerate measurement yields a slightly wrong width rather than one a
+     thousand times too big. */
+  const boxPx = (sizeVW/100) * Math.max(320, innerWidth);
+  return (targetPx * VBW / boxPx).toFixed(2);
+}
+
+if (PX > 8) for (const k in LAYOUTS){
+  const top = Math.max(...LAYOUTS[k].map(l => l[5]));
+  for (const l of LAYOUTS[k]) l[5] = Math.round(l[5] * PX / top);
+}
 const drawables = [];
+window.__varaLineNodes = () => [...document.querySelectorAll('#lineLayer svg')]
+  .reduce((n,v) => n + v.querySelectorAll('*').length + 1, 0);
 const zoneSections = [...document.querySelectorAll('[data-zone]')].filter(s => s.id !== 'hero');
 
 /* One layer spanning the whole document; each section's lines are parented
@@ -1829,21 +1908,52 @@ for (const sec of zoneSections){
   if (dead) dead.remove();
   const specs = LAYOUTS[sec.id] || [];
   specs.forEach((spec, i)=>{
-    const { svg, p } = makeLine(host, spec);
-    p.setAttribute('stroke-width', widthUnits(spec[1], spec[5]));
-    const len = p.getTotalLength();
-    p.style.strokeDasharray = len;
-    p.style.strokeDashoffset = REDUCED ? 0 : len;
+    const { svg, p, tube, extra, seg } = wantsTube(spec[6]) ? makeTube(host, spec) : makeLine(host, spec);
+    let len;
+    if (seg){
+      len = seg.len;
+      if (REDUCED) seg.reveal(1, 1);
+    } else {
+      if (!tube) p.setAttribute('stroke-width', widthUnits(spec[1], spec[5]));
+      len = p.getTotalLength();
+      for (const e of [p, ...(extra||[])]){
+        e.style.strokeDasharray = len;
+        e.style.strokeDashoffset = REDUCED ? 0 : len;
+      }
+    }
     /* i is the line's rank inside its zone. LAYOUTS already orders each zone
        dominant-first (alpha .95 / par 1.00, then the supporting strokes), so
        rank is a ready-made stagger order and a ready-made draw hierarchy. */
-    drawables.push({ svg, el:p, len, sec, spec, i, n:specs.length,
+    drawables.push({ svg, el:p, extra, seg, len, sec, spec, i, n:specs.length, tube,
                      rot:spec[4], par:spec[7], alpha:spec[6] });
   });
 }
 
 addEventListener('resize', ()=>{
-  for (const d of drawables) d.el.setAttribute('stroke-width', widthUnits(d.spec[1], d.spec[5]));
+  for (const d of drawables){
+    const w = widthUnits(d.spec[1], d.spec[5]);
+    if (d.tube){
+      /* the tube radius is in viewBox units and depends on the viewport, so
+         the shaded geometry is rebuilt — on resize only, never per frame.
+         The reveal state is carried over or the line snaps back to undrawn. */
+      const off = d.el ? d.el.style.strokeDashoffset : '';
+      if (d.tube.stack){
+        const bands = paintStack(d.svg, d.tube.d, parseFloat(w), d.tube.colors, d.tube.La);
+        d.el = bands[0]; d.extra = bands.slice(1);
+        d.len = d.el.getTotalLength();
+        for (const e of [d.el, ...(d.extra||[])]){
+          e.style.strokeDasharray = d.len;
+          e.style.strokeDashoffset = REDUCED ? 0 : (off || d.len);
+        }
+      } else {
+        d.seg = paintTube(d.svg, d.tube.d, parseFloat(w), d.tube.colors, d.tube.La);
+        d.len = d.seg.len;
+        d.el = null; d.extra = null;
+      }
+      continue;
+    }
+    d.el.setAttribute('stroke-width', w);
+  }
   schedule();
 }, {passive:true});
 
@@ -1858,7 +1968,13 @@ const inOutQuint = t => t<0.5 ? 16*t**5 : 1 - Math.pow(-2*t+2,5)/2;
    SCRUBBED by scroll it fights the input: the finger moves linearly while the
    line stalls at both ends, which is the "mechanical" feel. Expo-out moves
    with the scroll immediately and decelerates into place. */
-const expoOut = t => t >= 1 ? 1 : 1 - Math.pow(2, -9*t);
+/* The exponent was -9, which front-loads the gesture brutally: 46% of the
+   stroke is drawn in the first tenth of the travel, so the line appears to
+   snap in and the rest of the scroll window has nothing left to show.
+   system/lines.js hit this on the subpages and settled on -4.2 over a window
+   roughly twice as long; this is the same correction, so the two systems draw
+   at the same speed. */
+const expoOut = t => t >= 1 ? 1 : 1 - Math.pow(2, -4.2*t);
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 
 /* ?motion=a shows the original for comparison; default is the house language. */
@@ -1878,15 +1994,22 @@ const EASE = MOTION === 'a' ? inOutQuint : expoOut;
    Everything is complete by ~.56 of the zone's scroll window and HOLDS for
    the rest of it. The payoff lands late and then sits; motion is the minority
    of the time the zone is on screen. */
-const HERO_WIN  = [0.00, 0.34];
-const WAVE_AT   = 0.20;          // fires while the hero is still drawing
-const WAVE_JIT  = 0.03;          // near-unison, not a ladder
-const WAVE_SPAN = 0.32;
+/* Windows widened to match system/lines.js: the hero completes at .58 of the
+   zone's scroll window rather than .34, and the response runs .26 -> .86. The
+   gesture now occupies most of the time the band is on screen instead of being
+   over before you have finished scrolling into it.
+   ?draw=N scales both windows — 1.4 slower again, 0.7 back toward the old
+   snap — so the speed can be dialled on the page. */
+const DRAW = Math.min(3, Math.max(0.3, +TQ.get('draw') || 1));
+const HERO_WIN  = [0.00, Math.min(1, 0.58 * DRAW)];
+const WAVE_AT   = 0.26;          // fires while the hero is still drawing
+const WAVE_JIT  = 0.05;          // near-unison, not a ladder
+const WAVE_SPAN = 0.60;
 function windowFor(d){
   if (MOTION === 'a') return [0, 1];
   if (d.i === 0) return HERO_WIN;
   const start = WAVE_AT + (d.i - 1) * WAVE_JIT;
-  return [start, Math.min(1, start + WAVE_SPAN)];
+  return [start, Math.min(1, start + WAVE_SPAN * DRAW)];
 }
 
 /* resolved once, not per frame */
@@ -1897,6 +2020,78 @@ for (const d of drawables){
   d.dir = (MOTION !== 'a' && d.i > 0 && d.i % 2 === 0) ? -1 : 1;
 }
 
+/* ---------- PLAY ONCE, THEN STOP ----------------------------------------
+   This used to be a permanent scroll-scrubbed rig: a rAF loop that ran for as
+   long as you kept scrolling, and every frame it read four bounding rects and
+   wrote a transform, an opacity and a reveal for each line. Scrubbing is the
+   right idea for a value that should track the finger, but it means the most
+   expensive thing on the page does work on EVERY scroll frame, forever.
+
+   The lines do not need to track the finger. They need to arrive once. So each
+   band now draws itself on a clock the first time it comes into view, over
+   about a second and a half, and is then finished — the loop stops, the
+   observer disconnects, and scrolling past it afterwards costs nothing at all.
+   There is no scroll listener.
+
+   What is deliberately given up: the parallax drift and the scroll-velocity
+   nudge, both of which only existed because a per-frame loop was already
+   running. The resting transform is written once at build.
+
+   ?motion=scroll restores the old scrubbed rig for comparison. */
+const SCRUB = MOTION === 'scroll';
+const DUR = 1500 * DRAW;                 // ms for a band's full gesture
+const STAGGER = 260 * DRAW;              // hero leads, the response answers
+
+/* the resting pose, written once — there is nothing left to animate it */
+for (const d of drawables){
+  d.svg.style.transform = `translate(-50%,-50%) rotate(${d.rot}deg)`;
+  d.svg.style.opacity = d.alpha;
+}
+
+function setReveal(d, e){
+  if (d.seg){ d.seg.reveal(e, d.dir); return; }
+  const off = d.len * (1 - e);
+  const dv = (d.dir < 0 ? -off : off).toFixed(1);
+  d.el.style.strokeDashoffset = dv;
+  if (d.extra) for (const x of d.extra) x.style.strokeDashoffset = dv;
+}
+
+function playOnce(){
+  const bySec = new Map();
+  for (const d of drawables){
+    if (!bySec.has(d.sec)) bySec.set(d.sec, []);
+    bySec.get(d.sec).push(d);
+  }
+  for (const d of drawables) setReveal(d, 0);
+
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries){
+      if (!en.isIntersecting) continue;
+      io.unobserve(en.target);                     // once only
+      const set = bySec.get(en.target);
+      if (!set) continue;
+      const t0 = performance.now();
+      let live = true;
+      (function step(now){
+        if (!live) return;
+        let done = true;
+        for (const d of set){
+          const t = (now - t0 - d.i * STAGGER) / DUR;
+          const e = EASE(clamp(t, 0, 1));
+          setReveal(d, e);
+          d.svg.style.opacity = (d.alpha * (0.55 + 0.45*e)).toFixed(3);
+          if (e < 1) done = false;
+        }
+        if (done){ live = false; return; }         // finished: the loop ENDS
+        requestAnimationFrame(step);
+      })(performance.now());
+    }
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0 });
+
+  for (const sec of bySec.keys()) io.observe(sec);
+}
+
+/* ---------- the old scrubbed rig, kept behind ?motion=scroll ---------- */
 let lastY = scrollY, lastT = performance.now(), vel = 0, raf = 0, idle = 0;
 
 function paint(){
@@ -1904,60 +2099,46 @@ function paint(){
   for (const d of drawables){
     const r = d.sec.getBoundingClientRect();
     if (r.bottom < -vh*0.4 || r.top > vh*1.4) continue;   // cheap cull
-
-    // 1 — draw-on, on this line's own slice of the zone's window
     const t = clamp(1 - (r.top - vh*0.08) / (vh*0.82), 0, 1);
     const w = d.win;
     const e = EASE(clamp((t - w[0]) / (w[1] - w[0]), 0, 1));
-
-    // 3 — velocity nudges the offset a little and settles back to rest
     const vN = clamp(vel/2600, -1, 1);
     const off = clamp(d.len*(1-e) + d.len*0.035*vN*d.par, 0, d.len);
-    /* A negative dashoffset reveals from the opposite end. Alternating it by
-       rank means the strokes in a zone grow toward each other instead of all
-       sweeping the same way, which is what made four lines read as one gesture. */
-    d.el.style.strokeDashoffset = (d.dir < 0 ? -off : off).toFixed(1);
-
-    // 2 — parallax: position of the section centre relative to the viewport
+    setReveal(d, 1 - off/d.len);
     const rel = (r.top + r.height/2 - vh/2) / vh;
-    const dy = -rel * d.par * 46;
-    const dx = rel * d.par * 12;
     d.svg.style.transform =
-      `translate(-50%,-50%) translate3d(${dx.toFixed(1)}px,${dy.toFixed(1)}px,0) rotate(${d.rot}deg)`;
-
-    /* ink-in: a stroke arrives faint and gains its full weight as it completes,
-       so the leading edge reads as drawn rather than uncovered.
-       Velocity also lifts opacity slightly, then it settles. */
+      `translate(-50%,-50%) translate3d(${(rel*d.par*12).toFixed(1)}px,${(-rel*d.par*46).toFixed(1)}px,0) rotate(${d.rot}deg)`;
     const ink = (MOTION === 'a') ? 1 : 0.55 + 0.45*e;
     d.svg.style.opacity = (d.alpha * ink * (1 + 0.16*Math.abs(vN))).toFixed(3);
   }
 }
-
 function frame(now){
   const dt = Math.max(1, now - lastT);
   const raw = (scrollY - lastY) / dt * 1000;
   lastY = scrollY; lastT = now;
-  vel += (raw - vel) * 0.18;                 // damped, so one spiky frame never sticks
+  vel += (raw - vel) * 0.18;
   paint();
   if (Math.abs(vel) < 4){ idle++; } else { idle = 0; }
-  if (idle > 24){ raf = 0; return; }         // settled: stop the loop entirely
+  if (idle > 24){ raf = 0; return; }
   raf = requestAnimationFrame(frame);
 }
 function schedule(){
-  if (REDUCED) return;
+  if (REDUCED || !SCRUB) return;
   idle = 0;
   if (!raf){ lastT = performance.now(); lastY = scrollY; raf = requestAnimationFrame(frame); }
 }
-if (!REDUCED){
+
+if (REDUCED){
+  for (const d of drawables) setReveal(d, 1);
+} else if (SCRUB){
   addEventListener('scroll', schedule, {passive:true});
   document.addEventListener('visibilitychange', ()=>{
     if (document.hidden){ if (raf) cancelAnimationFrame(raf); raf = 0; }
-    else { lastT = performance.now(); lastY = scrollY; vel = 0; schedule(); }  // re-base the clock
+    else { lastT = performance.now(); lastY = scrollY; vel = 0; schedule(); }
   }, {passive:true});
   paint(); schedule();
 } else {
-  // reduced motion: lines simply sit drawn, at rest, no loop at all
-  for (const d of drawables){ d.el.style.strokeDashoffset = 0; }
+  playOnce();
 }
 window.__varaLines = drawables;
 </script>
