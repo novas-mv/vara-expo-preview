@@ -333,13 +333,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
    Two hairlines group it into "what this is" and "when and where". They are
    the only rules in the hero; everything else is type. */
 .hero-meta{display:grid;justify-items:start;gap:clamp(5px,.8vh,9px);width:100%}
-.hero-meta .hrule{width:100%;height:1px;border:0;
-  background:linear-gradient(90deg,rgba(246,241,230,.34),rgba(246,241,230,.06));
-  margin:clamp(6px,1.2vh,14px) 0}
+/* ONE rule, and a quieter one. There were two, bracketing the name line; with
+   that line gone a second rule had nothing left to separate, and at .34 the
+   pair read as structure the block does not need. This is the single break
+   between the statement and the facts under it. */
+.hero-meta .hrule{width:min(62%,330px);height:1px;border:0;
+  background:linear-gradient(90deg,rgba(246,241,230,.20),rgba(246,241,230,.02));
+  margin:clamp(4px,.8vh,10px) 0 clamp(8px,1.4vh,16px)}
+/* the date needs the air the second rule used to give it */
+.hero-meta .hm-when{margin-top:clamp(10px,1.7vh,20px)}
 .hero-meta p{margin:0;text-shadow:var(--sh-sm)}
-.hm-name{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
-  font-size:clamp(16px,1.75vw,25px);letter-spacing:.02em;color:var(--cream)}
-.hm-name i{font-style:normal;color:var(--coral)}
+/* The VARA EXPO 2026 line is GONE from the hero. The wordmark sits in the nav
+   beside the mark, the <title> carries it, and repeating it under a headline
+   this size was the page saying its own name twice. */
 .hm-sub{font-size:clamp(10px,1vw,14px);letter-spacing:.17em;text-transform:uppercase;
   color:rgba(246,241,230,.72)}
 .hm-when{font-family:"Cabinet Grotesk","General Sans",sans-serif;
@@ -597,8 +603,8 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
   .hero-copy{grid-column:1;justify-items:center;text-align:center;
     max-width:min(30ch,100%);margin:0 auto}
   .hero-meta{justify-items:center}
-  .hero-meta .hrule{background:linear-gradient(90deg,rgba(246,241,230,.04),
-    rgba(246,241,230,.32),rgba(246,241,230,.04));width:min(240px,80%)}
+  .hero-meta .hrule{background:linear-gradient(90deg,rgba(246,241,230,.02),
+    rgba(246,241,230,.20),rgba(246,241,230,.02));width:min(200px,64%)}
   .cta{justify-content:center}
 }
 @media (max-width:1000px){
@@ -1023,9 +1029,7 @@ header.scrolled::before{opacity:1}
     <h1 class="d"><span class="say">Show up. Skill up.</span><span class="grad">Stand out</span></h1>
     <div class="hero-meta">
       <div class="hrule" aria-hidden="true"></div>
-      <p class="hm-name">VARA EXPO <i>2026</i></p>
       <p class="hm-sub">National Skills &amp; Career Expo &middot; Maldives</p>
-      <div class="hrule" aria-hidden="true"></div>
       <p class="hm-when"><b>6&ndash;8 November</b> <span>2026</span></p>
       <p class="hm-where">Central Park, Hulhumal&eacute;</p>
     </div>
