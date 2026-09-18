@@ -228,8 +228,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
 .ambilight{
   position:absolute;z-index:0;pointer-events:none;
   left:var(--amb-x,72.5%);top:var(--amb-y,53%);
-  width:var(--amb-w,44%);aspect-ratio:1;transform:translate(-50%,-50%);
-  mix-blend-mode:plus-lighter;opacity:.24;
+  width:var(--amb-w,58%);aspect-ratio:1;transform:translate(-50%,-50%);
+  mix-blend-mode:plus-lighter;opacity:.55;
   /* FOUR HUES, NO BLUE BASE. There used to be a fifth, central blue radial
      holding the others together — but adding blue light to an already blue
      ground is the one thing that cannot show, so all it did was raise the
@@ -241,15 +241,21 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
      pink much faster than green and cyan read as anything, which is what
      turned the copy side mauve before — but not so far under that the glow
      loses its colour, which is what happened when they were halved. */
+  /* Re-tuned for the DARK ground. These alphas were set against a much
+     brighter blue ramp; on #001D61 with a #0B2A7A bloom the whole layer was
+     adding a peak of RGB(7,18,10) — luma 15 against a ground of RGB(11,42,122),
+     which is to say nothing at all. Roughly 3x now, which is what it takes for
+     additive light to read as colour on a dark ground rather than as a faint
+     lift in brightness. */
   background:
-    radial-gradient(37% 41% at 41% 27%, rgba(107,254,150,.30), transparent 67%),
-    radial-gradient(34% 37% at 69% 23%, rgba(182,108,241,.24), transparent 68%),
-    radial-gradient(39% 43% at 32% 69%, rgba(31,225,254,.30), transparent 68%),
-    radial-gradient(37% 40% at 73% 71%, rgba(255,138,102,.25), transparent 68%);
-  filter:blur(42px) saturate(1.28);
+    radial-gradient(37% 41% at 41% 27%, rgba(107,254,150,.42), transparent 67%),
+    radial-gradient(34% 37% at 69% 23%, rgba(182,108,241,.36), transparent 68%),
+    radial-gradient(39% 43% at 32% 69%, rgba(31,225,254,.42), transparent 68%),
+    radial-gradient(37% 40% at 73% 71%, rgba(255,138,102,.38), transparent 68%);
+  filter:blur(56px) saturate(1.3);
 }
-@media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(42px) saturate(1.28)} }
-@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:76%;opacity:.20} }
+@media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(56px) saturate(1.3)} }
+@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:96%;opacity:.46} }
 
 #hero canvas{
   /* Still full-bleed, NOT confined to the right column. The element is framed
