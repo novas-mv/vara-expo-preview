@@ -946,7 +946,14 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
   transition:border-color .32s cubic-bezier(.215,.61,.355,1),opacity .32s cubic-bezier(.215,.61,.355,1)}
 #zones .zstep:hover{border-left-color:rgba(246,241,230,.4)}
 #zones .zstep:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
-#zones .zstep .sn{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;
+/* The row label IS the chip — the zone's colour as a filled pill, the same
+   language as .ztag, so a collapsed row reads as its zone at a glance. This is
+   what "add the colour to the collapsed state, maybe a chip" asked for; a 9px
+   dot was my wrong first reading of it. align-self:start so the pill hugs its
+   text instead of stretching the grid column. */
+#zones .zstep .sn{display:inline-flex;align-items:center;align-self:start;width:auto;
+  background:var(--accent);color:var(--tag-ink,#06122C);
+  padding:5px 12px;border-radius:var(--r-pill);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;
   letter-spacing:.17em;color:rgba(246,241,230,.56)}
 #zones .zstep .st{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.03em;
   font-size:clamp(17px,1.6vw,23px);line-height:1.12;color:rgba(246,241,230,.72);
@@ -955,7 +962,7 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
   max-width:40ch}
 /* only the selected step is expanded and carries the accent — one marker, not two */
 #zones .zstep[aria-selected="true"]{border-left-color:var(--accent)}
-#zones .zstep[aria-selected="true"] .sn{color:var(--accent)}
+#zones .zstep[aria-selected="true"] .sn{color:var(--tag-ink,#06122C)}
 #zones .zstep[aria-selected="true"] .st{color:var(--cream)}
 #zones .zstep[aria-selected="true"] .sd{display:block}
 
@@ -1266,7 +1273,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
     transition:border-color .32s cubic-bezier(.215,.61,.355,1),
                background-color .18s linear}
   #zones .zstep:nth-of-type(1){border-top:0}
-  #zones .zstep .sn{display:flex;align-items:center;gap:8px;grid-column:1;grid-row:1}
+  #zones .zstep .sn{grid-column:1;grid-row:1;justify-self:start}
   #zones .zstep .st{grid-column:1;grid-row:2}
 
   /* A zone-hue dot on every index key was tried here and removed: with a
@@ -1293,7 +1300,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
      were losing their edge against the bright passages. Raised here only —
      the desktop rail sits over a much narrower range of the field. */
   #zones .zstep .st{color:rgba(246,241,230,.9)}
-  #zones .zstep .sn{display:flex;align-items:center;gap:8px;color:rgba(246,241,230,.72)}
+  #zones .zstep .sn{color:var(--tag-ink,#06122C)}
   /* a truncated teaser is worse than no teaser — the open row says it in full */
   #zones .zstep .sd{display:none!important}
 
@@ -1318,7 +1325,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
     -webkit-backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
     backdrop-filter:blur(22px) saturate(1.35) brightness(1.02)}
   #zones .zstep[aria-expanded="true"] .sn,
-  #zones .zstep[aria-selected="true"] .sn{color:var(--accent)}
+  #zones .zstep[aria-selected="true"] .sn{color:var(--tag-ink,#06122C)}
   #zones .zstep[aria-expanded="true"] .st,
   #zones .zstep[aria-selected="true"] .st{color:var(--cream)}
   #zones .zstep[aria-expanded="true"] .zchev,
@@ -1585,7 +1592,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
         <button class="zstep" id="zt-career" role="tab" type="button"
                 aria-selected="true" aria-controls="zp-career"
                 tabindex="0" data-zone="coral" data-target="zp-career">
-          <span class="sn"><span class="zdot" aria-hidden="true"></span>01 &middot; CAREER</span>
+          <span class="sn">01 &middot; CAREER</span>
           <span class="st">The people who are actually hiring.</span>
           <span class="sd">Not a jobs board. Recruiters from resorts, ports, banks, construction, health and the public service take meetings on the floor —&hellip;</span>
           <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
@@ -1593,7 +1600,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
         <button class="zstep" id="zt-education" role="tab" type="button"
                 aria-selected="false" aria-controls="zp-education"
                 tabindex="-1" data-zone="green" data-target="zp-education">
-          <span class="sn"><span class="zdot" aria-hidden="true"></span>02 &middot; EDUCATION</span>
+          <span class="sn">02 &middot; EDUCATION</span>
           <span class="st">Every route, laid out side by side.</span>
           <span class="sd">Diploma, degree, certificate, apprenticeship, overseas. See them next to each other, with the cost, the length and the job at the&hellip;</span>
           <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
@@ -1601,7 +1608,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
         <button class="zstep" id="zt-skills" role="tab" type="button"
                 aria-selected="false" aria-controls="zp-skills"
                 tabindex="-1" data-zone="cyan" data-target="zp-skills">
-          <span class="sn"><span class="zdot" aria-hidden="true"></span>03 &middot; SKILLS EXPERIENCE</span>
+          <span class="sn">03 &middot; SKILLS EXPERIENCE</span>
           <span class="st">Try the job before you choose it.</span>
           <span class="sd">The loudest, busiest corner of the park — and the point of the whole expo. You don't watch a trade here, you do one. Ten minutes&hellip;</span>
           <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
@@ -1609,7 +1616,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
         <button class="zstep" id="zt-market" role="tab" type="button"
                 aria-selected="false" aria-controls="zp-market"
                 tabindex="-1" data-zone="violet" data-target="zp-market">
-          <span class="sn"><span class="zdot" aria-hidden="true"></span>04 &middot; MARKET</span>
+          <span class="sn">04 &middot; MARKET</span>
           <span class="st">Small businesses, out in the open.</span>
           <span class="sd">Island enterprises, makers and graduates selling what they build. Proof that a skill is a livelihood — plus the desks that get a&hellip;</span>
           <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
