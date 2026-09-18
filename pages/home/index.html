@@ -96,7 +96,7 @@ if (location.search.includes('probe')){
    of raw colour field below the footer that reads as unfinished deadspace.
    Two guards: stop the bounce, and paint the root the footer's own ground so
    even a browser that bounces anyway has nothing alien to show. */
-html{scroll-behavior:smooth;background:#0A2FA8;overscroll-behavior-y:none}
+html{scroll-behavior:smooth;background:#0C34B6;overscroll-behavior-y:none}
 body{overscroll-behavior-y:none}
 body{
   background:var(--navy-950);color:var(--ink);
@@ -228,18 +228,22 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
 .ambilight{
   position:absolute;z-index:0;pointer-events:none;
   left:var(--amb-x,72.5%);top:var(--amb-y,53%);
-  width:var(--amb-w,54%);aspect-ratio:1;transform:translate(-50%,-50%);
-  mix-blend-mode:plus-lighter;opacity:.28;
+  width:var(--amb-w,44%);aspect-ratio:1;transform:translate(-50%,-50%);
+  mix-blend-mode:plus-lighter;opacity:.17;
+  /* The warm half is dialled down hard relative to the cool half. Coral and
+     violet added to a blue ground read as pink long before green and cyan read
+     as anything, so at equal weight the spill turned the whole left side mauve
+     — measured, and visible as a haze across the copy. */
   background:
-    radial-gradient(38% 42% at 42% 30%, rgba(107,254,150,.20), transparent 68%),
-    radial-gradient(34% 36% at 66% 24%, rgba(182,108,241,.22), transparent 70%),
-    radial-gradient(40% 44% at 34% 70%, rgba(31,225,254,.20), transparent 70%),
-    radial-gradient(42% 44% at 72% 72%, rgba(255,138,102,.22), transparent 70%),
-    radial-gradient(58% 58% at 50% 50%, rgba(60,110,255,.16), transparent 74%);
+    radial-gradient(34% 38% at 42% 30%, rgba(107,254,150,.20), transparent 66%),
+    radial-gradient(30% 32% at 66% 24%, rgba(182,108,241,.12), transparent 68%),
+    radial-gradient(36% 40% at 34% 70%, rgba(31,225,254,.22), transparent 68%),
+    radial-gradient(34% 36% at 72% 72%, rgba(255,138,102,.13), transparent 68%),
+    radial-gradient(54% 54% at 50% 50%, rgba(60,130,255,.18), transparent 72%);
   filter:blur(46px) saturate(1.1);
 }
 @media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(46px)} }
-@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:86%;opacity:.24} }
+@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:76%;opacity:.15} }
 
 #hero canvas{
   /* Still full-bleed, NOT confined to the right column. The element is framed
@@ -279,9 +283,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
           0 9px 22px rgba(0,9,30,.16),0 20px 48px rgba(0,9,30,.12),
           0 38px 78px rgba(0,9,30,.08);
 }
+/* BALANCE. Measured against the reference: its "STAND OUT" spans 34.6% of the
+   viewport, mine spanned 26.7% — the copy was ~1.3x too small for the half it
+   sits in, which left a dead vertical band between the text and the element
+   and made the element look oversized. Everything here is scaled to close
+   that, and the block is allowed to run to ~530px so the rules reach across
+   the column instead of stopping a third of the way.
+
+   The left edge deliberately stays on --gut, where every other page starts.
+   The reference insets it a little further; matching the site's own gutter is
+   worth more than matching that. */
 .hero-copy{position:relative;z-index:2;grid-column:1;
   display:grid;justify-items:start;text-align:left;
-  gap:clamp(20px,3.4vh,40px);max-width:min(46ch,100%)}
+  gap:clamp(18px,2.8vh,32px);max-width:min(530px,100%)}
 
 /* The statement is the hero now. Two beats: the setup at one size, the payoff
    bigger and uppercase, on its own line. */
@@ -289,11 +303,11 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
   display:grid;gap:clamp(2px,.6vh,8px);
   filter:drop-shadow(0 1px 1px rgba(0,9,30,.30)) drop-shadow(0 3px 8px rgba(0,9,30,.22))
          drop-shadow(0 8px 20px rgba(0,9,30,.16)) drop-shadow(0 18px 42px rgba(0,9,30,.10))}
-#hero h1 .say{font-size:clamp(28px,3.9vw,56px);font-weight:700;letter-spacing:-.035em}
+#hero h1 .say{font-size:clamp(30px,5.05vw,72px);font-weight:700;letter-spacing:-.035em}
 /* ONE LINE, always. Wrapped onto two it stopped being a payoff and the
    gradient restarted on the second line, so "OUT" came back round to coral
    instead of finishing on cyan. nowrap + a size that fits the column. */
-#hero h1 .grad{font-size:clamp(38px,5.5vw,80px);font-weight:800;text-transform:uppercase;
+#hero h1 .grad{font-size:clamp(40px,7.1vw,102px);font-weight:800;text-transform:uppercase;
   letter-spacing:-.045em;line-height:.96;white-space:nowrap}
 
 /* gradient on the payoff only — STATIC, because an animated
@@ -307,20 +321,20 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
    Two hairlines group it into "what this is" and "when and where". They are
    the only rules in the hero; everything else is type. */
 .hero-meta{display:grid;justify-items:start;gap:clamp(5px,.8vh,9px);width:100%}
-.hero-meta .hrule{width:min(300px,100%);height:1px;border:0;
+.hero-meta .hrule{width:100%;height:1px;border:0;
   background:linear-gradient(90deg,rgba(246,241,230,.34),rgba(246,241,230,.06));
   margin:clamp(6px,1.2vh,14px) 0}
 .hero-meta p{margin:0;text-shadow:var(--sh-sm)}
 .hm-name{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
-  font-size:clamp(15px,1.5vw,21px);letter-spacing:.02em;color:var(--cream)}
+  font-size:clamp(16px,1.75vw,25px);letter-spacing:.02em;color:var(--cream)}
 .hm-name i{font-style:normal;color:var(--coral)}
-.hm-sub{font-size:clamp(10px,.85vw,12px);letter-spacing:.17em;text-transform:uppercase;
+.hm-sub{font-size:clamp(10px,1vw,14px);letter-spacing:.17em;text-transform:uppercase;
   color:rgba(246,241,230,.72)}
 .hm-when{font-family:"Cabinet Grotesk","General Sans",sans-serif;
-  font-size:clamp(20px,2.3vw,33px);letter-spacing:-.02em;color:var(--cream);line-height:1.05}
+  font-size:clamp(22px,2.75vw,40px);letter-spacing:-.02em;color:var(--cream);line-height:1.05}
 .hm-when b{font-weight:800}
 .hm-when span{font-weight:400;color:rgba(246,241,230,.76)}
-.hm-where{font-size:clamp(12px,1.05vw,15px);letter-spacing:.12em;text-transform:uppercase;
+.hm-where{font-size:clamp(12px,1.25vw,18px);letter-spacing:.12em;text-transform:uppercase;
   color:rgba(246,241,230,.76)}
 /* gradient on the last beat only — STATIC, because an animated
    background-clip:text fill was the measured scroll stutter */
@@ -586,7 +600,7 @@ footer{background:var(--navy-900);padding:clamp(56px,9vh,110px) var(--gut) clamp
 @media (max-width:640px){
   .figs{grid-template-columns:1fr 1fr;gap:26px 16px}
   #hero h1 .say{font-size:clamp(23px,6.6vw,34px)}
-  #hero h1 .grad{font-size:clamp(34px,11.2vw,56px)}
+  #hero h1 .grad{font-size:clamp(34px,11.6vw,58px)}
   .eyebrow hr{display:none}
   .eyebrow{gap:0;font-size:10px;letter-spacing:.16em}
   header{padding:14px var(--gut)}
@@ -1353,10 +1367,19 @@ function weightsInto(dst, key, s, key2){
        0.22 keeps the ground unmistakably #001D61 with the hues reading as
        distinct pools over it, so the 3D element is the most saturated thing
        in frame instead of competing with an equally colourful background. */
-    /* 0.22 measured as #1c5284 / #3871ac on the ground — the pools were
-       adding so much green and red that the navy read as pastel steel.
-       0.14 keeps them as pools and lets the saturated blue dominate. */
-    var HW = 0.14;
+    /* HERO COLOUR COVERAGE. 0.22 measured as #1c5284 / #3871ac on the ground —
+       pastel steel. 0.14 was still too much: a 30-point grid over the hero came
+       back with hues of 310-346 and saturation 15-33 across the whole centre
+       left, i.e. a pale PINK wash sitting exactly where the copy sits. Screen
+       blending is why — screening coral over navy lifts coral's blue channel
+       and lands on salmon, which the pass-A comment already warns about.
+
+       0.06 makes the hero ground essentially the blue ramp. The coloured spill
+       the reference has comes from the AMBILIGHT instead, which is localised to
+       the element — a glow around the logo rather than a wash over the page,
+       which is the actual brief. Below the hero the pools return to full
+       strength; this constant only governs the `all` (hero) key. */
+    var HW = 0.06;
     var a = (key==='all') ? HW : ((k===key)?1:0.30);
     var b = (key2==='all') ? HW : ((k===key2)?1:0.30);
     dst[k] = a + (b-a)*s;
@@ -1434,7 +1457,7 @@ function draw(t){
      stop — the same family, more chroma and more light. The 3D element is
      still the most saturated thing in frame; this only stops the GROUND from
      being the least. */
-  g.addColorStop(0,'#0A2FA8'); g.addColorStop(0.42,'#1740CE'); g.addColorStop(1,'#07225F');
+  g.addColorStop(0,'#0C34B6'); g.addColorStop(0.42,'#1B47DC'); g.addColorStop(1,'#08205C');
   octx.globalCompositeOperation='source-over'; octx.globalAlpha=1;
   octx.fillStyle=g; octx.fillRect(0,0,OW,OH);
 
@@ -1475,6 +1498,26 @@ function draw(t){
     rg.addColorStop(1,rgba(c,0));
     octx.fillStyle=rg; octx.fillRect(0,0,OW,OH);
   }
+  /* pass C — VIGNETTE. The reference's blue is not one flat tone: it is bright
+     through the upper-middle and falls away to a deep, saturated navy at the
+     edges and the bottom, and that range is most of what reads as "rich".
+     Measured, the reference runs about L46 in the light to L25 in the corners;
+     without this the field sat in a flat L35-47 band and looked like one
+     colour with things painted on it.
+
+     Multiply, not a black overlay: multiplying by a deep BLUE deepens the hue
+     it already has, where black would just grey it down — which is how the
+     ground got desaturated in the first place. */
+  octx.globalCompositeOperation='multiply';
+  var vg = octx.createRadialGradient(OW*0.46, OH*0.30, 0,
+                                     OW*0.46, OH*0.30, Math.max(OW,OH)*0.92);
+  vg.addColorStop(0,   'rgba(255,255,255,0)');
+  vg.addColorStop(0.46,'rgba(190,205,255,0.10)');
+  vg.addColorStop(0.78,'rgba(96,126,220,0.30)');
+  vg.addColorStop(1,   'rgba(46,72,170,0.52)');
+  octx.fillStyle=vg; octx.fillRect(0,0,OW,OH);
+  octx.globalCompositeOperation='source-over';
+
   mctx.globalCompositeOperation='source-over'; mctx.globalAlpha=1;
   mctx.drawImage(off,0,0,OW,OH,0,0,W,H);
 }
