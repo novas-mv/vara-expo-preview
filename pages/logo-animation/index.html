@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VARA Expo 2026 — logo animation</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+
+<!-- Same pinned three, same integrity, as pages/home/index.html. -->
+<script type="importmap">
+{
+  "imports": { "three": "https://unpkg.com/three@0.184.0/build/three.module.min.js" },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
+    "https://unpkg.com/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6"
+  }
+}
+</script>
+
+<style>
+/* ---------------------------------------------------------------------
+   THE LOGO ANIMATION, ON ITS OWN.
+
+   This page exists to judge the element's motion without the hero copy,
+   the nav, the field or the rest of the home page competing for the eye.
+   It is a LAB PAGE, not a designed page.
+
+   It mounts the SAME module the real hero mounts — ../home/hero-element.js —
+   so there is exactly one copy of the animation. Nothing here re-implements
+   it, and nothing here can drift from it.
+
+   Two deliberate differences from the real hero:
+     * the ground is painted flat here, rather than by the shared #field
+       canvas, so this page owes nothing to the rest of the system;
+     * everything else — the framing, the camera, the frustum shift into the
+       right half, the ambilight placement — is left EXACTLY as the hero has
+       it, including the off-centre framing that exists to make room for copy
+       that this page does not have. Centring it here would flatter the
+       animation and tell you nothing about the page you are shipping.
+   --------------------------------------------------------------------- */
+:root{
+  --navy:#001D61; --navy-deep:#00113B; --cream:#FFF6EC;
+  --gut:clamp(18px,4vw,56px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--navy-deep);color:var(--cream);
+  font-family:'General Sans',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+
+#hero{
+  position:relative;min-height:100svh;overflow:clip;isolation:isolate;
+  display:grid;place-items:center;
+  /* The navy family, as the hero's own ground. */
+  background:
+    radial-gradient(120% 90% at 74% 46%, #0B2A7A 0%, transparent 62%),
+    linear-gradient(180deg, #001D61 0%, #001A52 58%, #00113B 100%);
+}
+/* Verbatim from pages/home/index.html — the element's own hues spilled onto
+   the ground behind it. --amb-x / --amb-y are written by the module. */
+.ambilight{
+  position:absolute;z-index:0;pointer-events:none;
+  left:var(--amb-x,72.5%);top:var(--amb-y,53%);
+  width:var(--amb-w,54%);aspect-ratio:1;transform:translate(-50%,-50%);
+  mix-blend-mode:plus-lighter;opacity:.28;
+  background:
+    radial-gradient(38% 42% at 42% 30%, rgba(107,254,150,.20), transparent 68%),
+    radial-gradient(34% 36% at 66% 24%, rgba(182,108,241,.22), transparent 70%),
+    radial-gradient(40% 44% at 34% 70%, rgba(31,225,254,.20), transparent 70%),
+    radial-gradient(42% 44% at 72% 72%, rgba(255,138,102,.22), transparent 70%),
+    radial-gradient(58% 58% at 50% 50%, rgba(60,110,255,.16), transparent 74%);
+  filter:blur(46px) saturate(1.1);
+}
+@media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(46px)} }
+@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:86%;opacity:.24} }
+
+#hero canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+
+/* ---- the lab chrome: deliberately plain, and out of the element's way ---- */
+.bar{
+  position:fixed;z-index:5;left:var(--gut);bottom:clamp(14px,3vh,26px);
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  font-size:12px;letter-spacing:.02em;
+}
+.bar a{
+  display:inline-block;padding:7px 13px;border-radius:999px;text-decoration:none;
+  color:var(--cream);background:rgba(255,246,236,.08);
+  border:1px solid rgba(255,246,236,.16);backdrop-filter:blur(8px);
+}
+.bar a[aria-current]{background:var(--cream);color:#00113B;border-color:var(--cream);font-weight:600}
+.bar .note{opacity:.5;margin-left:4px}
+.tag{
+  position:fixed;z-index:5;left:var(--gut);top:clamp(14px,3vh,26px);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.45;
+}
+</style>
+</head>
+<body>
+
+<p class="tag">VARA Expo 2026 · element motion</p>
+
+<section id="hero">
+  <div class="ambilight" aria-hidden="true"></div>
+  <canvas id="stage" aria-hidden="true"></canvas>
+</section>
+
+<nav class="bar">
+  <a href="./" data-q="">Fly</a>
+  <a href="./?loop=draw" data-q="loop=draw">Draw</a>
+  <a href="./?noloop" data-q="noloop">No loop</a>
+  <span class="note">the modes the hero module already ships</span>
+</nav>
+
+<!-- THE SAME MODULE THE REAL HERO MOUNTS. One copy of the animation, ever. -->
+<script type="module" src="../home/hero-element.js"></script>
+<script>
+  /* Mark the mode that is actually running, read off the url the module reads. */
+  var q = location.search.replace(/^\?/, '');
+  document.querySelectorAll('.bar a').forEach(function(a){
+    if (a.dataset.q === q) a.setAttribute('aria-current', 'page');
+  });
+</script>
+</body>
+</html>
