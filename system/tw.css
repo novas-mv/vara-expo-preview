@@ -1117,6 +1117,17 @@
   .ico.xl {
     --ico: 44px;
   }
+  .zdot {
+    width: 9px;
+    height: 9px;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    flex: none;
+  }
+  .zdot.lg {
+    width: 11px;
+    height: 11px;
+  }
   .icowell {
     display: grid;
     place-items: center;

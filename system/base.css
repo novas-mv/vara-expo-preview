@@ -211,6 +211,13 @@ p{margin:0 0 1em}
 .ico.lg{--ico:28px}
 .ico.xl{--ico:44px}
 /* an icon in its own soft well, for zone marks and feature rows */
+/* The zone dot: the smallest way to carry a zone's identity. It was page CSS
+   on Schedule only, and every other surface that needed one re-invented it or
+   went without — the homepage's collapsed accordion rows had no colour at all,
+   which is what made them hard to scan. One component, coloured by --accent,
+   so a row's data-zone is the only thing that has to be right. */
+.zdot{width:9px;height:9px;border-radius:var(--r-pill);background:var(--accent);flex:none}
+.zdot.lg{width:11px;height:11px}
 .icowell{display:grid;place-items:center;width:52px;height:52px;flex:none;
   border-radius:var(--r-card);color:var(--accent);
   background:color-mix(in oklab, var(--accent) 14%, transparent);
