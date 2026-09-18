@@ -21,7 +21,20 @@
      dropped the `auto` and stopped the footer wordmark centring. This file
      defines custom properties and nothing else, so it cannot restyle the
      page — it only makes the variables exist. -->
-<link rel="stylesheet" href="./system/tokens.css">
+<!-- THE SAME BUNDLE THE OTHER SEVENTEEN PAGES LOAD. Home linked only
+     tokens.css, so it had the variables but none of the components — which is
+     why its footer, bands, tags and icon wells were re-implemented inline and
+     then drifted. The sponsors gutter going missing was that drift: a bespoke
+     `#news-home,#sponsors-home{padding:… var(--gut)}` got narrowed to news and
+     nothing in the system was left holding the page gutter.
+
+     Safe to add, by construction rather than by luck: tw.css imports base.css
+     into the COMPONENTS layer, and this page's own <style> below is UNLAYERED.
+     Unlayered rules beat every layered one, so where the two define the same
+     thing home still wins and nothing here restyles. The bundle only makes the
+     system's components available — the duplicates can then be deleted one at
+     a time against a geometry check, instead of the page drifting further. -->
+<link rel="stylesheet" href="./system/tw.css">
 
 <script type="importmap">
 {
@@ -108,6 +121,14 @@ if (location.search.includes('probe')){
 html{scroll-behavior:smooth;background:#001D61;overscroll-behavior-y:none}
 body{overscroll-behavior-y:none}
 body{
+  /* Pinned, not inherited. Linking the bundle brought base.css's
+     `body{font-size:17.5px}` — the system's body size, which the other
+     seventeen pages use — and home had been on the UA default 16px. That one
+     inherited property moved 4,279 of 4,329 elements in the geometry
+     fingerprint. Adopting the system's type scale on this page is a real
+     design decision, not a side effect of a stylesheet link, so the size is
+     held here and the question is raised separately. */
+  font-size:16px;line-height:normal;
   background:var(--navy-950);color:var(--ink);
   font-family:"General Sans",system-ui,-apple-system,sans-serif;
   -webkit-font-smoothing:antialiased;overflow-x:hidden;
@@ -968,7 +989,13 @@ header.scrolled::before{opacity:1}
       sponsors sections were added later and inherited none of it,
 so they sat
       flush against their neighbours. */
-#news-home{
+/* #sponsors-home belongs here too. This rule read
+   `#news-home,#sponsors-home` and was narrowed to news alone during the
+   sponsors rebuild — one of the four narrowings its handover flagged as worth
+   checking. It is the rule that carries the page gutter, so sponsors lost it
+   and ran edge to edge: measured 0px side padding against 20px on every other
+   section at 370, with the rounded band's corners cut off at the viewport. */
+#news-home,#sponsors-home{
   position:relative;isolation:isolate;
   padding:clamp(96px,14vh,170px) var(--gut);
 }
