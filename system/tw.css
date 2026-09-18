@@ -172,9 +172,6 @@
   .visible {
     visibility: visible;
   }
-  .visible\! {
-    visibility: visible !important;
-  }
   .sr-only {
     position: absolute;
     width: 1px;
@@ -197,9 +194,6 @@
   }
   .static {
     position: static;
-  }
-  .static\! {
-    position: static !important;
   }
   .sticky {
     position: sticky;
@@ -305,9 +299,6 @@
   }
   .hidden {
     display: none;
-  }
-  .hidden\! {
-    display: none !important;
   }
   .inline {
     display: inline;
@@ -494,6 +485,9 @@
     --tw-tracking: var(--ls-label);
     letter-spacing: var(--ls-label);
   }
+  .text-wrap {
+    text-wrap: wrap;
+  }
   .tab-0 {
     tab-size: 0;
   }
@@ -567,9 +561,6 @@
   }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
-  .filter\! {
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,) !important;
   }
   .backdrop-filter {
     -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);

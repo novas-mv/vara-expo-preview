@@ -238,6 +238,16 @@ function init(){
   /* ?noloop pins the old behaviour (draw on once, then hold) so the two can
      be compared on the same build. Reduced-motion never loops. */
   const LOOP_ON = !reduce && !location.search.includes('noloop');
+  /* Seconds the finished mark HOLDS before the loop takes over, measured from
+     the end of the entrance. The entrance is the hero's first impression and
+     it earns a beat to be read as a finished mark, at rest, before anything
+     starts moving again — without this the element arrives and immediately
+     begins dismantling itself, which undercuts the thing it just built.
+     ?loopwait=N overrides it for tuning. */
+  const LOOP_AFTER = (() => {
+    const m = /loopwait=([\d.]+)/.exec(location.search);
+    return m ? parseFloat(m[1]) : 5.0;
+  })();
 
   /* ---- LOOP MODE ---------------------------------------------------------
      'fly' (default): each stroke travels in from off-frame, the four settle
@@ -647,10 +657,12 @@ function init(){
 
   function pose(now){
     const T = clock(now);
-    /* The entrance owns the clock until it is finished; after that the loop
-       takes over. clamp on dt so a long pause (off-screen, hidden tab) cannot
+    /* The entrance owns the clock until it is finished, and then the mark
+       holds for LOOP_AFTER seconds before the loop takes over. T is in
+       entrance-lengths, so (T - 1) * MT is seconds since it finished.
+       clamp on dt so a long pause (off-screen, hidden tab) cannot
        fast-forward the breath on the frame we come back. */
-    const looping = LOOP_ON && T >= 1;
+    const looping = LOOP_ON && (T - 1) * MT >= LOOP_AFTER;
     if (looping){
       if (lastNow) loopT += Math.min(0.1, now - lastNow);
       lastNow = now;
@@ -820,7 +832,11 @@ function init(){
   }
   function resume(){
     if (dead || raf || document.hidden || !onScreen) return;
-    if (started) t0 = performance.now()/1000 - MT*2;   // re-base, or it jumps
+    /* Re-base past BOTH the entrance and the hold, not just the entrance —
+       otherwise scrolling the hero out of view and back re-serves the full
+       LOOP_AFTER wait every time, and the element sits dead on return. loopT
+       is an accumulator, so the loop picks up mid-cycle where it left off. */
+    if (started) t0 = performance.now()/1000 - (MT + LOOP_AFTER);
     raf = requestAnimationFrame(frame);
   }
   new IntersectionObserver(es=>{
