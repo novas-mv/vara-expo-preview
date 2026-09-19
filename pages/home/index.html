@@ -2272,11 +2272,9 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
    x/y are the CENTRE of the line's box, so a shape sits half off-frame
    deliberately rather than by accident. targetPx is the on-screen stroke
    thickness — converted to viewBox units at build time and on resize, so the
-   hairline/ribbon contrast holds at every viewport. The ladder is the system's
-   one scale, rank 0 first: 68 / 56 / 44 (ILLUSTRATION.md, Tier 1.5). 80px is
-   retired — at that weight a ribbon stops being a line through a composition
-   and becomes a slab across it. There is no second ladder for a second
-   context, and no mobile step-down has been ruled on: do not invent one. Hairlines 6–10px against
+   hairline/ribbon contrast holds at every viewport. For the weights themselves see the
+   note on LAYOUTS below; no mobile step-down has been ruled on, so there is
+   no responsive weight here and one should not be invented. Hairlines 6–10px against
    ribbons 30–40px in the SAME composition is what stops this reading as a
    logo dropped in; the brand film flies strokes through frame at many scales
    at once, and that is the reference. 6–10 lines per section. */
@@ -2304,6 +2302,12 @@ const LAYOUTS = {
      rendered as FLAT ribbons next to shaded ones — which read as unfinished
      rather than as a hierarchy. Hierarchy now comes from weight and opacity
      between two shaded strokes, not from mixing two different materials. */
+  /* Weights come from the ONE tube scale — 68 / 56 / 44, rank 0 first. There is
+     no second ladder for a second context. 80px was the previous dominant and
+     is retired: at that weight the ribbon stops being a line through a
+     composition and becomes a slab across it, which is unmistakable at phone
+     width. See ILLUSTRATION.md Tier 1.5, and the ladder rendered at true size
+     in explorations/perf/tube-weights.html. */
   zones: [
     ['coral', 128,  76,  56,  22, 68, .95,  1.00],
     ['green',  74,  10,  92, -16, 56, .50,  0.55],
