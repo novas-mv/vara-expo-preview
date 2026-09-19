@@ -25,6 +25,7 @@
    utilities, so putting base.css in `components` lets a utility override a
    component while the component still beats bare element styles. */
 @import "./base.css" layer(components);
+@import "./nav.css" layer(components);      /* the nav component */
 @import "./graphics.css" layer(components);  /* rhythm + punctuation */
 
 @theme inline {
