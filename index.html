@@ -1484,9 +1484,8 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
 
 
 
-  @media (prefers-reduced-motion:reduce){
-    .nt-bars,.nt-bars::before,.nt-bars::after{transition:none}
-  }
+  /* the hamburger's reduced-motion rule is system/base.css's, like the rest
+     of the nav — this was the last nav declaration still living on the page */
 
   /* THE SHEET — full screen, bottom-anchored, one indexed line per
      destination. Not a dropdown: at this size the nav IS the screen, so the
