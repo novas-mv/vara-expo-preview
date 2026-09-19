@@ -2244,13 +2244,23 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
    Weights are the ONE tube scale — 68 / 56 / 44, rank 0 first. 80px is retired:
    at that weight a ribbon stops being a line through a composition and becomes
    a slab across it. See ILLUSTRATION.md Tier 1.5. */
-/* PLACEMENT RULE, from Mufhim: the ribbons belong in the space between
-   bands and in the gutters, and may intrude into the column people read
-   by about a tenth — no more — and only at a weight that does not
-   compete with the words. So the x centres move outward and every alpha
-   comes down. This is placement, not masking: a mask was tried and it
-   removed the lines entirely, because mask-image covers only the host's
-   own box and these strokes are positioned far outside it. */
+/* PLACEMENT RULE, from Mufhim: a ribbon belongs in the space between bands and
+   in the gutters, may intrude into the column people read by about a tenth,
+   and only at a weight that does not compete with the words.
+
+   ZONES AND SCALE ARE AN AGREED EXCEPTION AND ARE NOT TO BE MOVED. Their
+   ribbons cross their own section and that was signed off — they read as part
+   of those two compositions rather than as something laid over them. I pulled
+   them out once while fixing the news band and was told to put them back;
+   these four rows are the originals, restored exactly.
+
+   The rule was written for the SPONSORS band, whose ribbons were bleeding up
+   out of their own section and across the news headlines three bands away.
+   That is what moved. See the RIBBONS array at the foot of this file.
+
+   Placement, not masking: a mask was tried and removed the lines entirely,
+   because mask-image covers only the host's own box and these strokes are
+   positioned far outside it. */
 const LAYOUTS = {
   /* Only strokes that get the shaded surface are listed. The two faint ones
      that used to sit here (.42 and .34) fell under the tube threshold and so
@@ -2264,12 +2274,12 @@ const LAYOUTS = {
      width. See ILLUSTRATION.md Tier 1.5, and the ladder rendered at true size
      in explorations/perf/tube-weights.html. */
   zones: [
-    ['coral', 128,  94,  56,  22, 68, .70,  1.00],
-    ['green',  74,  -8,  92, -16, 56, .38,  0.55],
+    ['coral', 128,  76,  56,  22, 68, .95,  1.00],
+    ['green',  74,  10,  92, -16, 56, .50,  0.55],
   ],
   scale: [
-    ['coral', 120, -34,  30, -30, 68, .58,  0.90],
-    ['cyan',   78, 126,  22,  40, 56, .44, -0.66],
+    ['coral', 120, -14,  30, -30, 68, .82,  0.90],
+    ['cyan',   78, 110,  22,  40, 56, .58, -0.66],
   ],
 };
 
