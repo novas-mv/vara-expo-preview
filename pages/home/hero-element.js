@@ -696,6 +696,24 @@ function init(){
     m.name = d.name;
     m.position.z = d.baseZ;
     m.userData.baseZ = d.baseZ;
+    /* Break the depth tie BETWEEN STROKES, by the layer they were authored on.
+
+       The four strokes sit 0.075 apart in z, but the tubes are thicker than
+       that: green/violet overlap by 0.0067 and green/coral by 0.0153. Where
+       they run parallel — most of the lockup — their surfaces are near-tangent
+       over a long strip, and two nearly-coincident surfaces z-fight. The fight
+       steps along the traced mesh's facets, which is the dotted staircase.
+
+       This is why nothing aimed at the end caps ever touched it: the seam is
+       on the SETTLED mark too, where no cap is drawn and nothing is revealed.
+
+       A depth bias per layer makes the ordering deterministic — the nearer
+       layer always wins — without moving any geometry, so the composition and
+       the approved occlusion are untouched. Separating the layers in z would
+       also work and would be wrong: it would change how the ribbons sit. */
+    m.material.polygonOffset = true;
+    m.material.polygonOffsetFactor = -d.baseZ * 60;
+    m.material.polygonOffsetUnits  = -d.baseZ * 240;
     m.userData.pivot = m.geometry.boundingSphere.center.clone();
     m.castShadow = m.receiveShadow = true;
     if (!group.userData.offset){
