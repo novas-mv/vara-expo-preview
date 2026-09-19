@@ -92,41 +92,63 @@
      These sit BEHIND the content (.lineset is z-index 0, everything else 1),
      so they can pass under copy without blocking it. */
   const LAYOUTS = [
-    /* Placement is the whole job now that the forms are complete. A curl that
-       sits through a heading is obtrusive however pretty it is, so these are
-       biased LOW (yPct 60+) and to the RIGHT, because every one of these pages
-       sets its copy left and ranged. Rank 0 leads on the right; the smaller
-       two fill the opposite corner and the band below. */
-    [['loopA', 'coral',  52, 'R', 74,  14, 68, 1,  0.50],
-     ['coilB', 'violet', 38, 'L', 96, -12, 56, 1,  0.28],
-     ['loopB', 'cyan',   28, 'R', 34,  18, 44, 1,  0.42]],
+    /* Eight shapes, no repeat inside a set, a different leader every time.
+       Biased LOW (yPct 60+) and RIGHT: these pages set their copy left and
+       ranged, so the right margin is the empty one. */
+    [['el-coral',  52, 'R', 74,  14, 68, 1,  0.50],
+     ['loopB',     38, 'L', 96, -12, 56, 1,  0.28],
+     ['el-cyan',   28, 'R', 34,  18, 44, 1,  0.42]],
 
-    [['coilA', 'cyan',   52, 'R', 68, -18, 68, 1, -0.50],
-     ['loopB', 'green',  38, 'L', 98,  22, 56, 1, -0.28],
-     ['coilB', 'violet', 28, 'L', 30, -14, 44, 1, -0.42]],
+    [['el-cyan',   52, 'R', 68, -18, 68, 1, -0.50],
+     ['coilA',     38, 'L', 98,  22, 56, 1, -0.28],
+     ['el-violet', 28, 'L', 30, -14, 44, 1, -0.42]],
 
-    [['loopB', 'violet', 52, 'R', 78,  20, 68, 1,  0.53],
-     ['loopA', 'coral',  38, 'L', 94, -16, 56, 1,  0.30],
-     ['coilA', 'green',  28, 'R', 28,  12, 44, 1,  0.40]],
+    [['el-violet', 52, 'R', 78,  20, 68, 1,  0.53],
+     ['el-green',  38, 'L', 94, -16, 56, 1,  0.30],
+     ['coilB',     28, 'R', 28,  12, 44, 1,  0.40]],
 
-    [['coilB', 'green',  52, 'R', 70, -22, 68, 1, -0.50],
-     ['coilA', 'cyan',   38, 'L', 92,  16, 56, 1, -0.29],
-     ['loopA', 'coral',  28, 'L', 32, -10, 44, 1, -0.41]],
+    [['el-green',  52, 'R', 70, -22, 68, 1, -0.50],
+     ['loopA',     38, 'L', 92,  16, 56, 1, -0.29],
+     ['el-coral',  28, 'L', 32, -10, 44, 1, -0.41]],
 
-    [['loopA', 'coral',  52, 'R', 66,  18, 68, 1,  0.47],
-     ['coilB', 'violet', 38, 'L', 90, -14, 56, 1,  0.29],
-     ['loopB', 'green',  28, 'R', 26,  10, 44, 1,  0.39]],
+    [['loopA',     52, 'R', 66,  18, 68, 1,  0.47],
+     ['el-violet', 38, 'L', 90, -14, 56, 1,  0.29],
+     ['el-green',  28, 'R', 26,  10, 44, 1,  0.39]],
 
-    [['coilA', 'cyan',   52, 'R', 80, -16, 68, 1, -0.49],
-     ['loopA', 'coral',  38, 'L', 95,  20, 56, 1, -0.28],
-     ['coilB', 'violet', 28, 'L', 24, -12, 44, 1, -0.40]],
+    [['coilB',     52, 'R', 80, -16, 68, 1, -0.49],
+     ['el-coral',  38, 'L', 95,  20, 56, 1, -0.28],
+     ['loopB',     28, 'R', 24, -12, 44, 1, -0.40]],
   ];
 ;
+;
 
-  /* Where each shape's INK actually lies inside its 1000x800 viewBox. The box
-     is mostly empty; anchoring by it would put the drawn form somewhere
-     different for every shape. */
-  const INK = { loopA:[200,760], loopB:[260,820], coilA:[140,700], coilB:[300,860] };
+  /* THE SHAPE POOL. Four of these are the REAL traced model spines, the same
+     ones the homepage draws — each a genuinely different curl of the element,
+     each with its own 36-stop ramp. Four more are the self-contained curls
+     from the library above. Eight shapes, so a set of three can be built
+     without the page reading as one gesture repeated, which is exactly what
+     four near-identical hand curls looked like.
+
+     The model spines carry their OWN colour, as on the homepage. The element
+     is four hues; tinting a traced coral spine with a section's green accent
+     throws away the ramp that makes it read as the element at all. The hand
+     curls have no ramp of their own and still take the section accent. */
+  let POOL = null;
+  function inkOf(d){
+    const n = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+    const xs = n.filter((_, i) => i % 2 === 0);
+    return [Math.min.apply(null, xs), Math.max.apply(null, xs)];
+  }
+  const HAND_INK = { loopA:[200,760], loopB:[260,820], coilA:[140,700], coilB:[300,860] };
+  function buildPool(ST){
+    const P = {};
+    if (ST) for (const k of ['coral','green','violet','cyan']){
+      const S = ST[k];
+      if (S && S.d) P['el-' + k] = { d:S.d, vb:ST._viewBox, stops:S.colors, ink:inkOf(S.d) };
+    }
+    for (const k in HAND_INK) P[k] = { d:SHAPES[k], vb:VB, stops:null, ink:HAND_INK[k] };
+    return P;
+  }
 
   /* how far the drawn form sits from the page edge, % of viewport width */
   const EDGE = (() => {
@@ -151,7 +173,7 @@
      the ribbon walks straight through the copy. One lever, already decided —
      --rung-scale — rather than a second breakpoint of its own. */
   const xFor = (shape, side, sizeVW) => {
-    const ink = INK[shape] || [0,1000];
+    const ink = (POOL[shape] && POOL[shape].ink) || [0,1000];
     const fL = ink[0]/1000, fR = ink[1]/1000;
     /* A phone has no empty margin to put anything in — the copy is the full
        width. Below 640 the form is pushed a third of its own width back out
@@ -236,9 +258,8 @@
     return [f(h+1/3)*255, f(h)*255, f(h-1/3)*255];
   }
   const cl01 = v => v<0?0:v>1?1:v;
-  function rampFor(sec, hue){
-    const name = sec.dataset.linesHue === 'mixed' ? hue : 'accent';
-    const v = getComputedStyle(sec).getPropertyValue('--' + name).trim();
+  function rampFor(sec){
+    const v = getComputedStyle(sec).getPropertyValue('--accent').trim();
     const base = /^#[0-9a-f]{6}$/i.test(v) ? hx(v) : [140,150,190];
     const [h,sa,l] = hsl(base);
     return [ hex(rgbOf([h, cl01(sa-.10), cl01(l+.10)])),
@@ -259,14 +280,16 @@
       sec.prepend(host);
 
       set.forEach((spec, i) => {
-        const shape = spec[0], hue = spec[1];
-        const sizeVW = spec[2], strokePx = spec[6], alpha = spec[7];
-        const xPct = xFor(shape, spec[3], spec[2]), yPct = spec[4], rot = spec[5], par = spec[8];
-        const d = SHAPES[shape];
+        const shape = spec[0], sizeVW = spec[1], strokePx = spec[5], alpha = spec[6];
+        const yPct = spec[3], rot = spec[4], par = spec[7];
+        const SH = POOL[shape];
+        if (!SH) return;
+        const xPct = xFor(shape, spec[2], sizeVW);
+        const d = SH.d;
         if (!d) return;
 
         const svg = document.createElementNS(NS,'svg');
-        svg.setAttribute('viewBox', VB);
+        svg.setAttribute('viewBox', SH.vb);
         svg.setAttribute('preserveAspectRatio','xMidYMid meet');
         svg.setAttribute('aria-hidden','true');
         svg.style.width = sizeVW + 'vw';
@@ -292,7 +315,9 @@
         }
 
         if (TUBE && !FLAT){
-          const stops = rampFor(sec, hue);
+          /* the model spines bring their own 36-stop ramp; the hand curls
+             take the section's accent */
+          const stops = SH.stops || rampFor(sec);
           const La = (150 - rot) * Math.PI / 180;   // one light, held as each svg rotates
           const bands = (SEGMENTED ? null : TUBE.paintStack(svg, d, parseFloat(w), stops, La));
           let first, extra, len;
@@ -412,10 +437,14 @@
   if (SCRIPT_SRC){
     import(new URL('./tube.js', SCRIPT_SRC).href)
       .then(m => { TUBE = (m && m.paintStack && m.paintTube) ? m : null; })
+      .then(() => import(new URL('../pages/home/data/strokes.js', SCRIPT_SRC).href)
+                    .then(sm => sm.STROKES)
+                    .catch(() => null))
+      .then(ST => { POOL = buildPool(ST); })
       .catch(e => { console.warn('VARA lines: tube surface unavailable, drawing flat.', e); })
       .then(start);
   } else {
-    start();                       // no script src to resolve against: flat
+    POOL = buildPool(null);        // no script src to resolve against: flat, hand curls only
   }
 
   window.__varaSectionLines = drawables;     // probe for verification
