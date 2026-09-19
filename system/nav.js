@@ -61,3 +61,22 @@
   if (MQ.addEventListener) MQ.addEventListener('change', sync);
   else MQ.addListener(sync);
 })();
+
+/* ---- the scrolled frost ---------------------------------------------------
+   `.nav.scrolled` is what turns the bar's tint and blur on. This used to be a
+   three-line inline script copied into each page's markup, and five of the
+   sixteen shared-shell pages simply did not have it — exhibitors,
+   information-kit, news-detail, register and sponsors. On those the bar never
+   frosted at all, so the nav looked different on a page for no reason anyone
+   could see in the CSS.
+
+   It belongs with the rest of the nav's behaviour, in the one file every
+   shared-shell page already loads. Guarded so it is harmless on a page
+   without the bar. */
+(function(){
+  var bar = document.getElementById('topbar') || document.querySelector('.nav');
+  if (!bar) return;
+  function frost(){ bar.classList.toggle('scrolled', (window.scrollY || 0) > 10); }
+  addEventListener('scroll', frost, {passive:true});
+  frost();   /* a page restored mid-scroll must start frosted, not bare */
+})();

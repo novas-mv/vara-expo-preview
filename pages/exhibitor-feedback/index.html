@@ -388,10 +388,7 @@ fieldset.rating{border:0;padding:0;margin:0 0 var(--gap-md);min-width:0}
   addEventListener('scroll',tick,{passive:true}); addEventListener('resize',tick); tick();
 })();
 </script>
-<script>
-  var n=document.querySelector('.nav');
-  addEventListener('scroll',function(){n.classList.toggle('scrolled',scrollY>10)},{passive:true});
-</script>
+<!-- the scrolled frost is system/nav.js's, not this page's -->
 <script>lucide.createIcons({attrs:{'stroke-width':1.75}});</script>
 </div>
   <script src="../../system/nav.js" defer></script>

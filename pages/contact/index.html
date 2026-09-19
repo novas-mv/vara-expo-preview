@@ -187,10 +187,7 @@
   var sel=document.getElementById('a-type'), out=document.querySelector('[data-route-email]');
   sel.addEventListener('change',function(){ out.textContent=ROUTES[sel.value]||ROUTES.general; });
 </script>
-<script>
-  var n=document.querySelector('.nav');
-  addEventListener('scroll',function(){n.classList.toggle('scrolled',scrollY>10)},{passive:true});
-</script>
+<!-- the scrolled frost is system/nav.js's, not this page's -->
 <script>lucide.createIcons({attrs:{'stroke-width':1.75}});</script>
 </div>
   <script src="../../system/nav.js" defer></script>
