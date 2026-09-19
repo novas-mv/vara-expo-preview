@@ -143,12 +143,58 @@ body{
      held here and the question is raised separately. */
   font-size:16px;line-height:normal;
   background:var(--navy-950);color:var(--ink);
-  font-family:"General Sans",system-ui,-apple-system,sans-serif;
+  font-family:"General Sans","General Sans fallback",system-ui,-apple-system,sans-serif;
   -webkit-font-smoothing:antialiased;overflow-x:hidden;
 }
+
+/* ---------- METRIC-MATCHED FALLBACKS ----------------------------------------
+   The page's last layout shift was a font swap. Measured in a 4x trace: at
+   1,233ms the hero copy block went 1092x1002 -> 1060x871 and the nav and
+   wordmark narrowed 7-14px, all at once, as the real faces replaced the
+   system fallback. CLS 0.0041 — every remaining bit of it.
+
+   These three faces are the SAME system fonts the stack already falls back to,
+   re-declared with their metrics bent to match the real ones, so the fallback
+   occupies the space the webfont will occupy and the swap moves nothing.
+
+   The numbers are measured, not copied from a generator: each real face and
+   its fallback were rendered to a canvas at 100px and compared on advance
+   width and fontBoundingBox ascent/descent.
+
+     Cabinet Grotesk  vs Arial          3264.90 / 3444.19 -> 94.79%
+     General Sans     vs Arial          3293.20 / 3444.19 -> 95.62%
+     JetBrains Mono   vs ui-monospace   4259.93 / 3225.24 -> 132.08%
+
+   Cabinet was then tuned by measurement, not left at the computed figure:
+   94.79% still rendered the statement 14.5px wide against the real face, so
+   it went to 92.10% (and its overrides with it), which lands it at -1.1px.
+   The residual on the copy BLOCK is -8px of height and does not come from
+   line boxes — line-gap-override at 8%, 12% and 16% all measured identically,
+   so it is not worth overfitting to one viewport.
+
+   ascent/descent overrides are expressed against the ADJUSTED em (the real
+   metric divided by size-adjust), which is what the spec measures them
+   against. If `local()` finds nothing — a Linux or Android device with no
+   Arial — the face simply has no source, the family drops out, and the stack
+   falls through exactly as it does today. */
+@font-face{
+  font-family:"Cabinet Grotesk fallback";
+  src:local("Arial"),local("Helvetica"),local("Liberation Sans");
+  size-adjust:92.10%; ascent-override:94.46%; descent-override:30.40%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"General Sans fallback";
+  src:local("Arial"),local("Helvetica"),local("Liberation Sans");
+  size-adjust:95.62%; ascent-override:105.63%; descent-override:25.10%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"JetBrains Mono fallback";
+  src:local("Menlo"),local("Consolas"),local("DejaVu Sans Mono");
+  size-adjust:132.08%; ascent-override:77.23%; descent-override:22.71%; line-gap-override:0%;
+}
 img{max-width:100%;display:block}
-.d{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;letter-spacing:-.035em;line-height:.93}
-.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+.d{font-family:"Cabinet Grotesk","Cabinet Grotesk fallback","General Sans",sans-serif;font-weight:800;letter-spacing:-.035em;line-height:.93}
+.mono{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,SFMono-Regular,Menlo,monospace}
 
 /* ---------- nav ----------
    Flush at the hero — no background, no blur. The frost only arrives once
@@ -241,6 +287,37 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
    `plus-lighter` adds light rather than replacing colour, so the navy shows
    through the glow instead of being covered by it — `screen` at this alpha
    flattened the ground to a flat mauve. */
+/* Positioned from layout()'s own framing constants, not by eye: the element's
+   on-screen centre is 72% / 48% above 900px and 50% / 38% below it — the exact
+   values hero-element.js computes — and it is framed at about 52% of the hero
+   width. The ambilight is anchored to the same point, because the glow is
+   anchored to the element. */
+.hero-still{
+  display:none;position:absolute;z-index:0;pointer-events:none;
+  /* The art is cropped to its own alpha bounds, so this box IS the mark — no
+     invisible padding to reason about. aspect-ratio reserves the height before
+     the file arrives, so the still cannot introduce a shift of its own. */
+  left:72%;top:48%;width:42%;aspect-ratio:1400/1378;height:auto;
+  transform:translate(-50%,-50%);
+}
+html.no-3d .hero-still{display:block}
+html.no-3d #stage{display:none}
+/* Narrow: MIRROR `#hero canvas` exactly rather than guess a percentage.
+   Below 900px the hero is a two-row grid (`auto auto`) and the canvas is a
+   grid ITEM in row 1 at `height:min(42svh,360px)` — that row is what reserves
+   space above the copy. An absolutely positioned still is out of flow, so it
+   ignored the row entirely and landed on top of the statement whatever
+   percentage it was given; 86% and 66% were both wrong for the same reason.
+   Taking the same box means the still sits where the element sits, at every
+   aspect ratio, with no numbers to re-tune. `contain` keeps the art centred in
+   that box without distorting it. */
+@media (max-width:900px){
+  .hero-still{
+    position:relative;inset:auto;grid-row:1;transform:none;
+    width:100%;height:min(42svh,360px);aspect-ratio:auto;object-fit:contain;
+  }
+}
+
 .ambilight{
   position:absolute;z-index:0;pointer-events:none;
   left:var(--amb-x,72.5%);top:var(--amb-y,53%);
@@ -368,7 +445,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
    this size was the page saying its own name twice. */
 .hm-sub{font-size:clamp(10px,1vw,14px);letter-spacing:.17em;text-transform:uppercase;
   color:rgba(246,241,230,.72)}
-.hm-when{font-family:"Cabinet Grotesk","General Sans",sans-serif;
+.hm-when{font-family:"Cabinet Grotesk","Cabinet Grotesk fallback","General Sans",sans-serif;
   font-size:clamp(25px,3.25vw,47px);letter-spacing:-.02em;color:var(--cream);line-height:1.05}
 .hm-when b{font-weight:800}
 .hm-when span{font-weight:400;color:rgba(246,241,230,.76)}
@@ -434,12 +511,22 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offs
    JetBrains Mono 700/800, tabular-nums: fixed digit advance, so a ticking
    second never reflows. Hairline rules instead of colons. No shadow, no
    filter. Writes only on change; the interval stops on visibilitychange. */
-.cd{display:flex;justify-content:center;align-items:stretch;gap:clamp(7px,1.3vw,22px);margin-top:4px}
+/* `contain:paint` is not decoration. The countdown writes new digits once a
+   second INSIDE .glass.cdwrap, which carries
+   backdrop-filter:blur(22px) saturate(1.75) brightness(0.52). A text change
+   inside a backdrop-filtered element makes Chrome re-read its backdrop, and
+   the backdrop here is the fixed full-viewport #field — so every tick
+   invalidated the WHOLE DOCUMENT. Measured in a 31s idle trace: two Paint
+   events every second, each with a clip of 3420x9962, i.e. the entire page,
+   for as long as the tab is open. Paint containment cuts the invalidation off
+   at this box, which holds four two-digit figures and three separators and
+   overflows nothing. */
+.cd{display:flex;justify-content:center;align-items:stretch;gap:clamp(7px,1.3vw,22px);margin-top:4px;contain:paint}
 .cd .u{text-align:center}
-.cd .n{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+.cd .n{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,SFMono-Regular,Menlo,monospace;
   font-weight:800;font-variant-numeric:tabular-nums;
   font-size:clamp(28px,4.6vw,62px);line-height:.94;letter-spacing:-.03em;color:var(--cream)}
-.cd .k{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+.cd .k{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,SFMono-Regular,Menlo,monospace;
   font-weight:700;font-size:clamp(8.5px,.78vw,11px);letter-spacing:.17em;
   text-transform:uppercase;color:rgba(246,241,230,.94);margin-top:9px}
 .cd .sep{width:1px;flex:0 0 1px;background:rgba(246,241,230,.32);align-self:stretch;margin-bottom:24px}
@@ -619,7 +706,7 @@ section.zone{min-height:100svh;display:grid;align-content:center}
   color:#06122C;background:var(--accent)}
 .rule{display:block;height:1px;border:0;margin-top:20px;width:clamp(56px,9vw,120px);
   background:rgba(246,241,230,.5)}
-h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
+h2{font-family:"Cabinet Grotesk","Cabinet Grotesk fallback","General Sans",sans-serif;font-weight:800;
   letter-spacing:-.035em;line-height:.95;
   font-size:clamp(30px,4.4vw,64px);max-width:14ch;margin-top:18px;
   text-shadow:0 0 14px rgba(0,8,28,.5)}
@@ -802,7 +889,13 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
      so the framing follows without the module being told. */
   #hero{grid-template-columns:1fr;grid-template-rows:auto auto;align-items:start;justify-items:center;gap:clamp(4px,0.8vh,12px);
     padding-top:clamp(96px,16vh,150px)}
-  #hero canvas{position:relative;inset:auto;grid-row:1;width:100%;height:min(52svh,430px)}
+  /* 52svh/430px made the hero 906px tall in an 844px viewport: the copy ran to
+     856px and BOTH CTAs were cut off the bottom of the screen — on the 3D path
+     as well as the still, since they share this row. The hero is
+     min-height:100svh, so the one thing it must do is fit in one. 42svh/360px
+     is the largest row that keeps the statement, the date, the place and both
+     buttons inside the first screen at 370x844. */
+  #hero canvas{position:relative;inset:auto;grid-row:1;width:100%;height:min(42svh,360px)}
   .hero-copy{grid-row:2}
   .hero-copy{grid-column:1;justify-items:center;text-align:center;
     max-width:min(30ch,100%);margin:0 auto}
@@ -893,7 +986,7 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
   background:linear-gradient(150deg,color-mix(in oklab,var(--accent) 24%,#0A3080),#001D61 58%,#00133F);
   box-shadow:inset 0 0 0 1px rgba(246,241,230,.14)}
 #news-home .nmedia svg{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
-#news-home .ndate{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+#news-home .ndate{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;font-variant-numeric:tabular-nums;
   font-size:12px;color:rgba(246,241,230,.56)}
 #news-home .ntile h3{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.035em;
   font-size:clamp(17px,1.5vw,21px);line-height:1.16;margin:0;color:var(--cream)}
@@ -936,7 +1029,7 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
    what "add the colour to the collapsed state, maybe a chip" asked for; a 9px
    dot was my wrong first reading of it. align-self:start so the pill hugs its
    text instead of stretching the grid column. */
-#zones .zstep .sn{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10.5px;
+#zones .zstep .sn{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;font-size:10.5px;
   letter-spacing:.17em;color:rgba(246,241,230,.56)}
 #zones .zstep .st{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.03em;
   font-size:clamp(17px,1.6vw,23px);line-height:1.12;color:rgba(246,241,230,.72);
@@ -1478,6 +1571,15 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
 <section id="hero" data-zone="all">
   <div class="ambilight" aria-hidden="true"></div>
   <canvas id="stage" aria-hidden="true"></canvas>
+  <!-- THE STATIC HERO. Until now a WebGL failure hid #stage and put nothing in
+       its place, so the hero's right half went blank — the "fallback" was an
+       empty half screen. This is that fallback, and it is also what a
+       prefers-reduced-motion visitor gets, which means those visitors no
+       longer download 183 KB of three.js and wait on a mesh build to arrive at
+       a pose that does not move anyway. Hidden unless <html class="no-3d">. -->
+  <img class="hero-still" aria-hidden="true" alt="" decoding="async"
+       src="../../system/assets/hero-static.webp"
+       srcset="../../system/assets/hero-static.webp 1x, ../../system/assets/hero-static@2x.webp 2x">
   <div class="hero-copy">
     <h1 class="d"><span class="say">Show up. Skill up.</span><span class="grad">Stand out</span></h1>
     <div class="hero-meta">
@@ -1938,9 +2040,23 @@ function resize(){
      ramp's own #001D61. The follower exists to smooth CHANGES, not to animate
      the first frame in from a value nobody chose. */
   for (var _k in mixT) mix[_k] = mixT[_k];
-  draw(0);
+  /* NOT draw(0): after the field has settled, t=0 would redraw a fully
+     breathing frame and the ground would visibly pop on every resize. */
+  draw(clock());
 }
 function rgba(c,a){ return 'rgba('+c.r+','+c.g+','+c.b+','+a.toFixed(4)+')'; }
+/* Hold the breathing through the hero entrance, then fade its amplitude out.
+   Smoothstepped, so the wobble shrinks to nothing instead of stopping dead. */
+var BREATHE_HOLD = 5.0, BREATHE_FADE = 3.0;
+var FOREVER = /[?&]breathe=1/.test(location.search);
+function breatheAt(t){
+  if (REDUCED) return 0;
+  if (FOREVER) return 1;
+  var u = (t - BREATHE_HOLD) / BREATHE_FADE;
+  if (u <= 0) return 1;
+  if (u >= 1) return 0;
+  return 1 - u*u*(3-2*u);
+}
 function blobPos(b,t){
   /* every blob leans toward the (damped) anchor in proportion to its own
      (damped) dominance — continuous, so nothing can jump at a boundary */
@@ -1969,7 +2085,15 @@ function draw(t){
   octx.globalCompositeOperation='source-over'; octx.globalAlpha=1;
   octx.fillStyle=g; octx.fillRect(0,0,OW,OH);
 
-  var breathe = REDUCED ? 0 : 1, i,b,c,w,br,ab,p,rad,peak,rg;
+  /* THE FIELD SETTLES. It used to breathe on sin(t) forever, which meant a
+     full-viewport canvas was redrawn 60 times a second for the life of the
+     page — visible as the whole viewport flashing under Rendering > Paint
+     flashing. The wobble now eases to nothing over BREATHE_FADE seconds once
+     the entrance is done, after which the composed frame is CONSTANT and the
+     loop parks itself (see frame() below). Scroll still recolours the field;
+     what stops is time-driven motion nobody asked for. ?breathe=1 restores
+     the old behaviour for an A/B. */
+  var breathe = breatheAt(t), i,b,c,w,br,ab,p,rad,peak,rg;
 
   /* pass A — atmosphere: wide low-alpha halo, screen blend, so neighbouring
      hues genuinely meet instead of abutting */
@@ -2114,15 +2238,38 @@ function stepColour(dt){
    and re-bases its clock on resume, so a hidden tab never resumes with one
    giant dt. */
 var raf = 0, prev = 0, t0 = performance.now();
+function clock(){ return (performance.now() - t0)/1000; }
+/* Is anything still moving? The follower is critically damped, so it never
+   exactly reaches its target — these are the thresholds below which another
+   frame cannot change a pixel. */
+var lastPan = 0;
+function settled(t){
+  if (breatheAt(t) > 0) return false;
+  for (var i=0;i<ORDER.length;i++){ var k=ORDER[i]; if (Math.abs(mixT[k]-mix[k]) > 0.0006) return false; }
+  if (Math.abs(anchorT.x-anchor.x) > 0.0004 || Math.abs(anchorT.y-anchor.y) > 0.0004) return false;
+  if (Math.abs(pan.y - lastPan) > 0.0002) return false;
+  return true;
+}
 function frame(now){
   var dt = (now - prev)/1000; prev = now;
   updateTarget();
   stepColour(dt);
-  draw((now - t0)/1000);
+  var t = (now - t0)/1000;
+  draw(t);
+  lastPan = pan.y;
+  /* PARK. Once the breathing has faded out and the follower has arrived, the
+     next frame would be identical to this one, so there is no next frame. A
+     scroll, a resize or a tab return kicks it awake. This is what takes the
+     page to zero repaints at rest. */
+  if (settled(t)){ raf = 0; return; }
   raf = requestAnimationFrame(frame);
 }
 function start(){ if (!raf && !REDUCED){ prev = performance.now(); raf = requestAnimationFrame(frame); } }
 function stop(){ if (raf){ cancelAnimationFrame(raf); raf = 0; } }
+/* The loop polls scroll inside updateTarget() rather than listening, so once
+   it has parked something has to wake it. Passive, and it only ever calls
+   start(), which is a no-op while the loop is already running. */
+addEventListener('scroll', start, {passive:true});
 
 collectAccents();
 resize();
@@ -2647,7 +2794,44 @@ window.__varaLines = drawables;
      was authored against THIS composition (copy left, element right above
      900px) and its framing constants match layout() here exactly.
      ?noloop pins the earlier one-shot entrance. -->
-<script type="module" src="./hero-element.js"></script>
+<script>
+/* THE 3D GATE. Runs before the module below, so when the answer is "no",
+   three.js is never fetched at all — 183 KB gzip and a mesh build that would
+   only have produced a pose that never moves.
+
+   Two reasons to say no, and deliberately NOT a third:
+     1. the device cannot make a WebGL context. This used to fail LATE, inside
+        safeInit, after three.js had been downloaded and parsed, and it left
+        the hero's right half blank;
+     2. the visitor asked for reduced motion — hero-element.js already honours
+        that by pinning the element at its finished pose, so the still IS that
+        state, minus the download.
+   There is no device sniffing. deviceMemory and hardwareConcurrency are wrong
+   in both directions and would take the animated hero away from machines that
+   run it perfectly well. ?static=1 forces the still for review; ?static=0
+   forces the 3D path. */
+(function(){
+  var q = location.search;
+  if (/[?&]static=0/.test(q)) return;
+  var force = /[?&]static=1/.test(q);
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var webgl = false;
+  if (!force && !reduce){
+    try { var c = document.createElement('canvas');
+          webgl = !!(c.getContext('webgl2') || c.getContext('webgl')); }
+    catch (e){ webgl = false; }
+  }
+  if (force || reduce || !webgl){
+    document.documentElement.classList.add('no-3d');
+    window.__varaStaticHero = force ? 'forced' : (reduce ? 'reduced-motion' : 'no-webgl');
+  }
+})();
+</script>
+<script type="module">
+  /* Imported dynamically so the gate above can stop it. A plain src= module
+     tag is fetched whatever the gate decides. */
+  if (!document.documentElement.classList.contains('no-3d')) import('./hero-element.js');
+</script>
 
 <script>
 /* ---- zone tabs (home) ---------------------------------------------------

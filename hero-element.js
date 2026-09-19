@@ -4,7 +4,7 @@
    against this module instead of the host document.
 
    It mounts itself on load and expects two elements in the page:
-     #hero    the section it lives in (it writes --amb-x / --amb-y on it)
+     #hero    the section it lives in (it transforms the .ambilight inside it)
      #stage   the canvas it renders into
    and an import map providing "three".
 
@@ -15,6 +15,7 @@ import * as THREE from 'three';
 import { buildElement, studioEnv, drawOn } from './vara-element.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 const canvas = document.getElementById('stage');
 const heroEl = document.getElementById('hero');
 
@@ -77,6 +78,11 @@ function colorAt(stops, t){
 
 /* The approved gummy finish, rebuilt here because a MeshPhysicalMaterial
    cannot cross a postMessage boundary. Values are the handoff's, verbatim. */
+/* Transmission is the most expensive thing in this shader and Mufhim compared
+   both builds on the real hero at full size — no difference on an isolated cap,
+   and none where strokes cross, which is the only place it can show. Off by
+   default; ?transmission=1 restores it for a re-check. */
+const TRANSMISSION = /[?&]transmission=1/.test(location.search) ? 0.3 : 0;
 function gummyMaterial(name, colors){
   const mid = srgb(colors[Math.floor(colors.length / 2)]);
   const mat = new THREE.MeshPhysicalMaterial({ vertexColors:true, color:0xffffff, metalness:0 });
@@ -84,7 +90,7 @@ function gummyMaterial(name, colors){
   mat.userData.mid = mid;
   Object.assign(mat, {
     roughness:0.22, clearcoat:0.75, clearcoatRoughness:0.14, ior:1.45,
-    transmission:0.3, thickness:0.07, attenuationDistance:0.1,
+    transmission:TRANSMISSION, thickness:0.07, attenuationDistance:0.1,
     sheen:0.2, sheenRoughness:0.6, emissiveIntensity:0.05, envMapIntensity:0.7
   });
   mat.attenuationColor = mid;
@@ -201,11 +207,32 @@ function init(){
        always under the element and never beside it. The x centre is the
        frustum shift expressed as a percentage, mirrored: shifting the window
        left by 23.5% puts the element's centre at 50 + 23.5 = 73.5%. */
+    /* Moved with a TRANSFORM, not with left/top.
+
+       Writing --amb-x/--amb-y drove `left` and `top`, and this runs after the
+       glow has already painted at its CSS default — so every load moved a
+       laid-out element and booked a layout shift. It was the only shift on the
+       page (CLS 0.0163, DIV.ambilight, confirmed by four independent
+       instruments). Worse on narrow than the number suggests: the media query
+       parks it at top:62% and this wrote 38%, a 24-point jump.
+
+       Transform moves never count as layout shift, so the offset is applied as
+       one instead. It is measured rather than computed because `left`
+       resolves its percentage against #hero while `translate` resolves against
+       the element's own box, and .ambilight's width differs by breakpoint —
+       so the only exact conversion is to read where it actually landed and
+       carry the difference. Reset first so repeated layout() calls do not
+       accumulate. */
     const hero = canvas.parentElement;
-    if (hero){
+    const amb = hero && hero.querySelector('.ambilight');
+    if (amb){
       const sx = wide ? 22.0 : 0, sy = wide ? -2.0 : -12.0;
-      hero.style.setProperty('--amb-x', (50 + sx) + '%');
-      hero.style.setProperty('--amb-y', (50 + sy) + '%');
+      const BASE = 'translate(-50%,-50%)';
+      amb.style.transform = BASE;
+      const hr = hero.getBoundingClientRect(), ar = amb.getBoundingClientRect();
+      const dx = hr.width  * (50 + sx) / 100 - (ar.left + ar.width  / 2 - hr.left);
+      const dy = hr.height * (50 + sy) / 100 - (ar.top  + ar.height / 2 - hr.top);
+      amb.style.transform = BASE + ' translate(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px)';
     }
   }
   layout();
@@ -571,9 +598,25 @@ function init(){
      One sphere is geometrically sufficient there — the sliver of stroke
      between the two bounds is far shorter than the cap's own radius — so the
      far cap simply stays hidden until they have genuinely separated. */
-  const CAP_PROUD = 1.02;   // see cap(); polygonOffset does most of the work now
+  /* The cap matches the tube's radius EXACTLY. It has to: any clearance big
+     enough to stop the tube's facets poking through (the Surface Nets grid is
+     0.0038, so up to half a cell — 0.0019 — of error) is also big enough to
+     read as a collar, because that is 5-7% of a stroke's radius. Tried at
+     0.0026 and it showed immediately as bulbs sitting proud of the tube where
+     the caps were. There is no value that is both sufficient and invisible, so
+     matching exactly is the right call and the seam is dealt with in DEPTH
+     instead — polygonOffset, below, biases the cap toward the camera without
+     changing its size at all.
+     ?capm=N adds absolute clearance back, for testing only. */
+  const CAP_MARGIN = (() => { const m=/capm=([\d.]+)/.exec(location.search); return m?parseFloat(m[1]):0; })();
+  const CAP_PROUD  = (() => { const m=/capp=([\d.]+)/.exec(location.search); return m?parseFloat(m[1]):1.0; })();
+  /* Below this much growth a stroke's two end caps are still effectively the
+     same sphere — the gap between them is exactly `grow` in arc units — and two
+     coincident spheres cannot be ordered by a depth buffer. The far one waits
+     until they have genuinely separated. */
   const CAP_SPLIT = 0.10;
-  /* Below this the stroke is a bare sphere, not a stroke — so it is not drawn. */
+  /* Below this a stroke is a bare sphere, not a stroke, so it is not drawn at
+     all: no lone spheres on first load. */
   const STROKE_MIN = 0.035;
   const capGeo = new THREE.SphereGeometry(1, 32, 24);
   const heads = {};
@@ -613,8 +656,12 @@ function init(){
       mat.vertexColors = false;
       mat.color = colorAt(colors, t);
       mat.polygonOffset = true;
-      mat.polygonOffsetFactor = -2;
-      mat.polygonOffsetUnits = -2;
+      /* Stronger than a token bias: this is now the ONLY thing separating two
+         surfaces that are deliberately in the same place. Depth units are
+         coarse here (a 0.1/40 frustum spends most of its precision before the
+         model), so it takes a large number to move the cap a useful amount. */
+      mat.polygonOffsetFactor = -4;
+      mat.polygonOffsetUnits = -24;
       return mat;
     };
     const lo = new THREE.Mesh(capGeo, matOf(birth));
@@ -627,6 +674,16 @@ function init(){
     /* The master clock starts on the FIRST arrival, not at page boot — the
        handoff's phase offsets then still read as designed instead of being
        eaten by however long the build took. */
+    /* Compile and link this stroke's programs NOW, while it is still hidden
+       and the clock has not started. The first draw of a MeshPhysicalMaterial
+       with transmission is expensive, and a trace on a 4x-throttled machine
+       caught a single 1,050ms frame inside `frame` with GPU work hanging off
+       it — the shape of a first-draw compile. The cost does not disappear,
+       but it lands here, on a blank canvas, instead of on the entrance's
+       first visible frame. compile() walks VISIBLE objects, hence the flip. */
+    m.visible = true;
+    try { renderer.compile(scene, cam); } catch (e){ /* never block the hero on a warm-up */ }
+    m.visible = false;
     if (!started){ started = true; t0 = performance.now() / 1000; }
     if (window.__varaProbe && !window.__varaProbe.done)
       window.__varaProbe.done = performance.now();
@@ -700,7 +757,7 @@ function init(){
        cap 4% outside puts it strictly in front everywhere, so it simply wins.
        4% of a ~0.04 radius is under two thousandths of a world unit — far
        below anything the eye can pick out against the tube's own silhouette. */
-    mesh.scale.setScalar((a[3]+(b[3]-a[3])*k) * CAP_PROUD);
+    mesh.scale.setScalar((a[3]+(b[3]-a[3])*k) * CAP_PROUD + CAP_MARGIN);
   }
 
   /* Before the first stroke lands the clock is held at T=0, so the element
