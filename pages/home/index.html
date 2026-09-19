@@ -2295,7 +2295,9 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
    rebuilding the shaded geometry on every tab click, which is real work for a
    colour change nobody asked for.
 
-   Weights are the approved 80px dominant, supporting strokes stepped down. */
+   Weights are the ONE tube scale — 68 / 56 / 44, rank 0 first. 80px is retired:
+   at that weight a ribbon stops being a line through a composition and becomes
+   a slab across it. See ILLUSTRATION.md Tier 1.5. */
 const LAYOUTS = {
   /* Only strokes that get the shaded surface are listed. The two faint ones
      that used to sit here (.42 and .34) fell under the tube threshold and so
@@ -2866,8 +2868,15 @@ if (sec && host) {
      so only the outer flank of a curve enters frame and carries on out the
      far edge. A ribbon that ENDS inside the frame shows a round cap, and a
      visible cap is what "stops abruptly" looks like.
-     Weight is 80px on the dominant stroke, stepped down. Every stroke is
-     >= .5 opacity because one composition never mixes flat and shaded. */
+     Weights are the ONE tube scale — 68 / 56 / 44, rank 0 first (ILLUSTRATION.md
+     Tier 1.5; the ladder at true size is explorations/perf/tube-weights.html).
+     Not a second ladder for a second context: a ribbon is a ribbon whether it
+     leads a hero band or sits behind this grid. 80px is RETIRED — at that
+     weight it stops being a line through a composition and becomes a slab
+     across it. Weight is a constant px at every viewport; the 0.6x mobile
+     step-down in the bench is deliberately NOT adopted yet.
+     Every stroke is >= .5 opacity because one composition never mixes flat
+     and shaded. */
   const RIBBONS = [
     { k:'violet', x:-16, y:38,  rot:-14, w:150, px:68, alpha:.68 },
     { k:'cyan',   x:114, y:58,  rot:10,  w:142, px:56, alpha:.56 },
