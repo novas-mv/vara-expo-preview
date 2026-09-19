@@ -154,16 +154,7 @@ img{max-width:100%;display:block}
    Flush at the hero — no background, no blur. The frost only arrives once
    .scrolled is toggled, and that toggle comes from ONE IntersectionObserver
    on a sentinel, never a scroll listener. Re-measured as free on this page. */
-header{
-  position:fixed;isolation:isolate;inset:0 0 auto 0;z-index:40;
-  display:flex;align-items:center;gap:clamp(14px,3vw,40px);
-  padding:18px var(--gut);
-  background:transparent;border-bottom:0;
-  /* NO contain:paint — it would clip the over-tall ::before back to the bar,
-     which is exactly the hard edge this design removes. */
-  transition:background .34s ease,border-color .34s ease,
-             -webkit-backdrop-filter .34s ease,backdrop-filter .34s ease;
-}
+
 /* The bar's entire visual treatment — tint AND blur — lives on one pseudo
    element that is TALLER than the fade, so its hard edge sits where the mask
    has already reached zero and can never be seen.
@@ -171,39 +162,21 @@ header{
    first the backdrop-filter on the header box, then (after moving the blur to
    a pseudo) the header's own background gradient, which still stopped dead at
    77px. Measured as the sharpest transition on the page both times. */
-header::before{
-  content:"";position:absolute;left:0;right:0;top:0;
-  /* SAME RECIPE AS system/base.css .nav::before — the nav must read identically
-     on the landing page and on every subpage. Home had its own weaker tint and
-     blur, so moving between pages changed the bar. Keep these four values in
-     step with base.css if either changes. */
-  height:170%;                       /* extends well past the fade */
-  pointer-events:none;z-index:-1;
-  background:linear-gradient(180deg,
-    rgba(0,16,47,.78) 0%, rgba(0,16,47,.70) 46%, rgba(0,16,47,0) 100%);
-  -webkit-backdrop-filter:blur(20px) saturate(1.4);
-  backdrop-filter:blur(20px) saturate(1.4);
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
-}
-.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+
+
 /* The hero used to carry a VARA EXPO 2026 title of its own. With the statement
    leading the hero that line has nowhere to sit, so the name moves into the
    nav beside the mark — where a wordmark belongs — instead of being dropped. */
-.wordmark{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
-  font-size:14px;letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
-.wordmark i{font-style:normal;color:var(--coral)}
-@media (max-width:420px){ .wordmark{display:none} }
+
+
+
 /* 96x92, not square - a fixed 34x34 squashed it 4% (matches system/base.css) */
-.brand img{height:34px;width:auto;display:block}
-.brand:hover{opacity:.78}
-.brand{transition:opacity .18s ease}
-nav.links{display:flex;gap:clamp(12px,1.9vw,28px)}
-nav.links a{
-  color:rgba(246,241,230,.90);text-decoration:none;font-size:13.5px;font-weight:500;
-  padding:6px 0;border-bottom:1px solid transparent;transition:color .3s,border-color .3s;
-}
-nav.links a:hover,nav.links a:focus-visible{color:var(--ink);border-color:currentColor}
+
+
+
+
+
+
 .pill{
   display:inline-flex;align-items:center;gap:9px;
   padding:11px 21px;border-radius:999px;text-decoration:none;
@@ -839,7 +812,11 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
   .cta{justify-content:center}
 }
 @media (max-width:1000px){
-  nav.links{display:none}
+  /* nav.links{display:none} was here. It is the nav component's rule and now
+     lives in system/base.css — held here it was UNLAYERED, so it beat
+     `header.navopen nav.links{display:flex}` from the bundle whatever the
+     specificity, and the sheet opened empty: the trigger flipped to a close
+     X, the header took .navopen, but the links stayed display:none. */
   .inner{grid-template-columns:1fr}
   .zone.flip .col-a{order:1}.zone.flip .col-b{order:2}
   section.zone{min-height:auto;padding:clamp(80px,11vh,120px) var(--gut)}
@@ -850,7 +827,9 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
   #hero h1 .grad{font-size:clamp(34px,11.6vw,58px)}
   .eyebrow hr{display:none}
   .eyebrow{gap:0;font-size:10px;letter-spacing:.16em}
-  header{padding:14px var(--gut)}
+  /* The bar's own small-screen refinement moved to system/base.css with the
+     rest of the nav — it is the component's, not this page's. Held here it
+     made the same nav 72px on home and 80px everywhere else. */
   .pill{padding:10px 16px;font-size:12.5px}
   .cd{gap:6px}
   .cd .n{font-size:clamp(25px,8vw,36px)}
@@ -994,8 +973,8 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
 /* 1. The frost was abrupt because header.scrolled::before CREATED the layer —
       there was nothing to transition from. The layer now always exists and
       only its opacity moves. */
-header::before{opacity:0;transition:opacity 520ms cubic-bezier(.215,.61,.355,1)}
-header.scrolled::before{opacity:1}
+
+
 /* 4. SPACING: section.zone and #scale carried the section rhythm; the news and
       sponsors sections were added later and inherited none of it,
 so they sat
@@ -1390,17 +1369,12 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
    The trigger is inert above 1000px — `display:none` outside the query — so
    the desktop header flex row is untouched. */
 
-.navtoggle,.navfoot{display:none}
+
 
 @media (max-width:1000px){
-  .navtoggle{
-    display:inline-flex;align-items:center;justify-content:center;
-    appearance:none;background:none;border:0;cursor:pointer;
-    min-width:44px;min-height:44px;margin-right:-10px;   /* optical, not spatial */
-    padding:0;border-radius:14px;color:var(--ink);
-    transition:background .22s ease}
-  .navtoggle:active{background:rgba(246,241,230,.1)}
-  .navtoggle:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+
+
+
   /* The bars are DRAWN, not an icon. `system/icons.js` is a curated 70-icon
      subset and it has no `menu` glyph — the <i data-lucide="menu"> rendered
      as an empty 24x24 box, which is why the trigger looked blank while the
@@ -1408,22 +1382,15 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
      a text-align glyph with uneven bars, and adding `Menu` would mean
      editing system/icons.js. Three CSS bars cost nothing, need no bundle,
      and give a real morph into the X instead of swapping two glyphs. */
-  .navtoggle{position:relative}
-  .nt-bars{
-    position:absolute;top:50%;left:50%;
-    width:20px;height:2px;margin:-1px 0 0 -10px;
-    border-radius:2px;background:currentColor;
-    transition:background-color .2s linear}
-  .nt-bars::before,.nt-bars::after{
-    content:"";position:absolute;left:0;width:100%;height:2px;
-    border-radius:2px;background:currentColor;
-    transition:transform .32s cubic-bezier(.215,.61,.355,1)}
-  .nt-bars::before{top:-6px}
-  .nt-bars::after{top:6px}
+
+
+
+
+
   /* open: the middle bar goes, the outer two cross */
-  header.navopen .nt-bars{background:transparent}
-  header.navopen .nt-bars::before{transform:translateY(6px) rotate(45deg)}
-  header.navopen .nt-bars::after{transform:translateY(-6px) rotate(-45deg)}
+
+
+
   @media (prefers-reduced-motion:reduce){
     .nt-bars,.nt-bars::before,.nt-bars::after{transition:none}
   }
@@ -1437,64 +1404,29 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
      out of step with the list, and adding or removing a link renumbers it
      for free. They use the page's mono-meta register, the same one `.sn`
      and `.hm-sub` use. */
-  header.navopen nav.links{
-    display:flex;flex-direction:column;gap:0;
-    position:fixed;inset:0;z-index:0;overflow-y:auto;
-    padding:clamp(78px,11vh,96px) var(--gut)
-            max(26px,env(safe-area-inset-bottom));
-    background:rgba(0,19,63,.74);
-    -webkit-backdrop-filter:blur(26px) saturate(1.3);
-    backdrop-filter:blur(26px) saturate(1.3);
-    counter-reset:navi}
+
   /* the bar's own controls stay above the sheet and keep working */
-  header.navopen .brand,header.navopen .navtoggle{position:relative;z-index:1}
+
   /* one Register, never two: the bar's pill stands down while the sheet is up */
-  header.navopen > .pill{display:none}
+
 
   /* pushes the list to the bottom but still scrolls if the viewport is short,
      which `justify-content:flex-end` would not */
-  header.navopen nav.links > a:first-of-type{margin-top:auto}
 
-  header.navopen nav.links a:not(.pill){
-    counter-increment:navi;
-    display:flex;align-items:baseline;gap:clamp(14px,4vw,20px);
-    padding:clamp(11px,1.7vh,17px) 0;
-    border-top:1px solid rgba(246,241,230,.14);border-bottom:0;
-    font-family:"Cabinet Grotesk","General Sans",sans-serif;
-    font-weight:700;letter-spacing:-.02em;
-    font-size:clamp(28px,8.6vw,40px);line-height:1.12;
-    color:rgba(246,241,230,.86)}
-  header.navopen nav.links a:not(.pill):last-of-type{
-    border-bottom:1px solid rgba(246,241,230,.14)}
-  header.navopen nav.links a:not(.pill)::before{
-    content:counter(navi,decimal-leading-zero);
-    flex:none;width:2.4em;
-    font-family:"JetBrains Mono",ui-monospace,monospace;
-    font-size:11px;font-weight:400;letter-spacing:.17em;
-    color:rgba(246,241,230,.42)}
-  header.navopen nav.links a:not(.pill):active{color:var(--ink)}
+
+
+
+
+
   /* the page you are on reads brighter — NOT a zone hue. The four accents are
      zone identities; a nav state is not one of them. */
-  header.navopen nav.links a[aria-current="page"]{color:var(--cream)}
-  header.navopen nav.links a[aria-current="page"]::before{
-    color:rgba(246,241,230,.8)}
+
+
 
   /* the foot: the one action, then the standing detail */
-  header.navopen .navfoot{
-    display:flex;flex-direction:column;align-items:stretch;
-    gap:clamp(14px,2.2vh,20px);margin-top:clamp(22px,4vh,34px)}
-  header.navopen .navcta{
-    justify-content:center;width:100%;min-height:56px;font-size:15px;
-    /* `nav.links a` (0,0,1,2) outranks `.pill` (0,0,1,0), so the pill's own
-       dark ink lost to the nav's cream link colour and the label went
-       cream-on-cream — invisible. Restating .pill's ink at a specificity that
-       wins. The real fix is a --pill-ink token in the system layer; logged. */
-    color:#04143C}
-  header.navopen .navmeta{
-    margin:0;text-align:center;
-    font-family:"JetBrains Mono",ui-monospace,monospace;
-    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-    white-space:nowrap;color:rgba(246,241,230,.45)}
+
+
+
 }
 </style>
 </head>
@@ -1503,7 +1435,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
 <!-- ONE colour field for the whole document. See the #field comment in CSS. -->
 <canvas id="field" aria-hidden="true"></canvas>
 
-<header id="topbar">
+<header id="topbar" class="nav">
   <a class="brand" href="./" aria-label="VARA Expo 2026">
     <img class="mark" src="./system/assets/vara-mark.png" srcset="./system/assets/vara-mark.png 1x, ./system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async">
     <span class="wordmark" aria-hidden="true">VARA EXPO <i>2026</i></span>

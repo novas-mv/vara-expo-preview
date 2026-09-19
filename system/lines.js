@@ -68,57 +68,101 @@
      bleed off their box without overflowing the page.
      No shape repeats inside a set, and no two sets share a hero shape — that
      repetition is exactly what read as "the same line over and over". */
+  /* [shape, hue, sizeVW, side, yPct, rotDeg, strokePx, alpha, parallax]
+
+     COMPLETE FORMS, NOT CROPPED ONES. These used to be enormous ribbons
+     anchored in a gutter with most of the shape off-frame, so what you saw was
+     a fragment chopped by the viewport edge — an abrupt ending into a bleed,
+     which reads as a mistake rather than as a graphic. A ribbon that leaves
+     the frame has to be going somewhere; one that just stops has not earned
+     the crop.
+
+     So the whole form is now on the page. Only four shapes in the library are
+     self-contained — loopA, loopB, coilA, coilB. The rest (sweeps, arches,
+     rises, crests, drift, and the hooks) are authored to bleed: their paths
+     run past the viewBox on purpose, which is right for a band that spans a
+     hero and wrong for a deliberate object. They stay in the library, unused
+     here.
+
+     Placement is computed from each shape's own INK bounds rather than from
+     its box, so the drawn form sits EDGE% from the page edge whatever its
+     size — the box is mostly empty space and anchoring by it put the ink in a
+     different place for every shape.
+
+     These sit BEHIND the content (.lineset is z-index 0, everything else 1),
+     so they can pass under copy without blocking it. */
   const LAYOUTS = [
-/* STROKE WEIGHT — the system's one ladder, rank 0 first: 68 / 56 / 44.
-   (ILLUSTRATION.md, Tier 1.5; rendered at true pixel size in
-   explorations/perf/tube-weights.html.) A ribbon is a ribbon whether it leads
-   a hero band or sits behind body copy — two scales only ever produced drift,
-   which is why these seventeen pages ran 48/34/27/20 while home ran 80/68.
-   80px is retired: at that weight a ribbon reads as a slab, not a line.
+    /* Placement is the whole job now that the forms are complete. A curl that
+       sits through a heading is obtrusive however pretty it is, so these are
+       biased LOW (yPct 60+) and to the RIGHT, because every one of these pages
+       sets its copy left and ranged. Rank 0 leads on the right; the smaller
+       two fill the opposite corner and the band below. */
+    [['loopA', 'coral',  52, 'R', 74,  14, 68, 1,  0.50],
+     ['coilB', 'violet', 38, 'L', 96, -12, 56, 1,  0.28],
+     ['loopB', 'cyan',   28, 'R', 34,  18, 44, 1,  0.42]],
 
-   THREE RUNGS, THREE LINES. These sets used to carry four. When the ladder came
-   in the fourth had nowhere to sit — it shared 44 with rank 2, so a set was
-   four ribbons of near-identical weight and the hierarchy rested entirely on
-   opacity. The fourth is dropped rather than given an invented weight: a
-   three-rung scale draws three lines. It was 20px before the ladder, which is
-   what read as a different, thinner family of line on the same page; nothing
-   on this site is now thinner than the bottom rung.
+    [['coilA', 'cyan',   52, 'R', 68, -18, 68, 1, -0.50],
+     ['loopB', 'green',  38, 'L', 98,  22, 56, 1, -0.28],
+     ['coilB', 'violet', 28, 'L', 30, -14, 44, 1, -0.42]],
 
-   SURFACE: these stay FLAT, and that is the guidance working, not a gap. The
-   shaded tube (ILLUSTRATION.md Tier 1.5) is for ribbons at opacity >= .5,
-   where the across-tube shading can actually be seen. Every ribbon here runs
-   .40 / .22 / .16, and at those values it cannot — while the cost is real:
-   42 ribbons across these pages would go from 84 DOM nodes to ~9,500 with
-   paintStack, or ~34,000 with paintTube. Home shades its bands because they
-   are the subject at full opacity; these sit behind body copy.
+    [['loopB', 'violet', 52, 'R', 78,  20, 68, 1,  0.53],
+     ['loopA', 'coral',  38, 'L', 94, -16, 56, 1,  0.30],
+     ['coilA', 'green',  28, 'R', 28,  12, 44, 1,  0.40]],
 
-   MOBILE: the ladder takes a responsive step through --rung-scale
-   (system/tokens.css) — 0.6 below 640px, so the rungs keep their ratios
-   instead of becoming a second set of numbers. */
-    [['sweepA', 'coral', 96, 70, 52, 16, 68, .40, 0.50],
-     ['hookB', 'violet', 62, 12, 88, -14, 56, .22, 0.28],
-     ['loopA', 'cyan', 38, 30, 105, 10, 44, .16, 0.42]],
+    [['coilB', 'green',  52, 'R', 70, -22, 68, 1, -0.50],
+     ['coilA', 'cyan',   38, 'L', 92,  16, 56, 1, -0.29],
+     ['loopA', 'coral',  28, 'L', 32, -10, 44, 1, -0.41]],
 
-    [['archA', 'cyan', 96, 26, 72, -22, 68, .40, -0.50],
-     ['riseB', 'green', 58, 88, 84, 26, 56, .22, -0.28],
-     ['coilB', 'violet', 36, 92, 50, -34, 44, .16, -0.42]],
+    [['loopA', 'coral',  52, 'R', 66,  18, 68, 1,  0.47],
+     ['coilB', 'violet', 38, 'L', 90, -14, 56, 1,  0.29],
+     ['loopB', 'green',  28, 'R', 26,  10, 44, 1,  0.39]],
 
-    [['loopB', 'violet', 96, 74, 34, 24, 68, .40, 0.53],
-     ['crestA', 'coral', 66, 16, 82, -18, 56, .22, 0.30],
-     ['driftA', 'green', 40, 92, 104, 14, 44, .16, 0.40]],
-
-    [['crestB', 'green', 96, 24, 60, -26, 68, .40, -0.50],
-     ['sweepB', 'cyan', 64, 86, 32, 20, 56, .22, -0.29],
-     ['riseA', 'coral', 38, 8, 94, -12, 44, .16, -0.41]],
-
-    [['coilA', 'coral', 96, 68, 44, 20, 68, .40, 0.47],
-     ['archB', 'violet', 60, 10, 80, -16, 56, .22, 0.29],
-     ['sweepC', 'green', 40, 92, 102, 12, 44, .16, 0.39]],
-
-    [['driftA', 'cyan', 96, 30, 66, -20, 68, .40, -0.49],
-     ['loopB', 'coral', 62, 84, 86, 22, 56, .22, -0.28],
-     ['crestB', 'violet', 38, 92, 48, -32, 44, .16, -0.40]],
+    [['coilA', 'cyan',   52, 'R', 80, -16, 68, 1, -0.49],
+     ['loopA', 'coral',  38, 'L', 95,  20, 56, 1, -0.28],
+     ['coilB', 'violet', 28, 'L', 24, -12, 44, 1, -0.40]],
   ];
+;
+
+  /* Where each shape's INK actually lies inside its 1000x800 viewBox. The box
+     is mostly empty; anchoring by it would put the drawn form somewhere
+     different for every shape. */
+  const INK = { loopA:[200,760], loopB:[260,820], coilA:[140,700], coilB:[300,860] };
+
+  /* how far the drawn form sits from the page edge, % of viewport width */
+  const EDGE = (() => {
+    const m = /[?&]lines=in:(-?\d+(?:\.\d+)?)/.exec(location.search);
+    return m ? Math.min(40, Math.max(-10, parseFloat(m[1]))) : 3;
+  })();
+;
+
+  /* How far the ribbon's BOX reaches into the page, as % of viewport width.
+     Note it is the box, not the ink: these shapes do not fill their own
+     viewBox, so at 38 the painted ribbon reads as roughly a tenth of the page,
+     which is the intent. Tune by eye with ?lines=in:N — at 28 the curl falls
+     off the edge and you get a faint sliver; past 45 it walks into the copy. */
+  const GUTTER_IN = (() => {
+    const m = /[?&]lines=in:(\d+(?:\.\d+)?)/.exec(location.search);
+    return m ? Math.min(60, Math.max(2, parseFloat(m[1]))) : 38;
+  })();
+  /* the box is centred, so anchoring its INNER edge at GUTTER_IN puts the rest
+     of the ribbon off-frame and lets the curl crop against the gutter */
+  /* The intrusion takes the same responsive step the weight does. 38% of a
+     1440 desktop is a gutter; 38% of a 370 phone is a third of the screen, and
+     the ribbon walks straight through the copy. One lever, already decided —
+     --rung-scale — rather than a second breakpoint of its own. */
+  const xFor = (shape, side, sizeVW) => {
+    const ink = INK[shape] || [0,1000];
+    const fL = ink[0]/1000, fR = ink[1]/1000;
+    /* A phone has no empty margin to put anything in — the copy is the full
+       width. Below 640 the form is pushed a third of its own width back out
+       of the page, so a curl reads as something passing behind the column
+       rather than sitting on it. */
+    const edge = innerWidth < 640 ? EDGE - sizeVW*0.34 : EDGE;
+    return side === 'L' ? edge - fL*sizeVW + sizeVW/2
+                        : 100 - edge - fR*sizeVW + sizeVW/2;
+  };
+
+;
 
   const clamp = (v,a,b) => (v<a?a:v>b?b:v);
   /* expo-out: moves with the scroll immediately, decelerates into place.
@@ -217,7 +261,7 @@
       set.forEach((spec, i) => {
         const shape = spec[0], hue = spec[1];
         const sizeVW = spec[2], strokePx = spec[6], alpha = spec[7];
-        const xPct = spec[3], yPct = spec[4], rot = spec[5], par = spec[8];
+        const xPct = xFor(shape, spec[3], spec[2]), yPct = spec[4], rot = spec[5], par = spec[8];
         const d = SHAPES[shape];
         if (!d) return;
 

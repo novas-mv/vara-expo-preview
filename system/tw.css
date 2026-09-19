@@ -873,6 +873,16 @@
     gap: clamp(14px,3vw,40px);
     padding: 18px var(--gut);
     background: transparent;
+    line-height: 1.2;
+  }
+  @media (max-width:640px) {
+    .nav {
+      padding: 14px var(--gut);
+    }
+    .nav .pill {
+      padding: 10px 16px;
+      font-size: 12.5px;
+    }
   }
   .nav::before {
     content: "";
