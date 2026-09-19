@@ -412,7 +412,14 @@ nav.links a[aria-current="page"]{color:var(--cream)}
    above the page. */
 .ncard::after{
   content:"";position:absolute;z-index:-1;pointer-events:none;
-  inset:calc(var(--gap-sm) * -1) -20px -18px;
+  /* Sides are the tight axis: two adjacent panes have to clear each other
+     inside the grid's column gap. A fixed bleed cannot — at --gap-md (28px at
+     1440) two panes overlapped by 12px and the raised card ran into its
+     neighbour. Deriving it from the SAME token the gap uses makes that
+     impossible: a quarter of --gap-lg each side always leaves half the gap
+     between panes, at every viewport. Vertical is free, nothing sits beside
+     the card there. */
+  inset:calc(var(--gap-sm) * -1) calc(var(--gap-lg) / -4) -16px;
   border-radius:var(--r-panel);
   background:rgba(10,30,80,.26);
   -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));

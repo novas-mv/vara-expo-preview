@@ -1368,7 +1368,7 @@
     position: absolute;
     z-index: -1;
     pointer-events: none;
-    inset: calc(var(--gap-sm) * -1) -20px -18px;
+    inset: calc(var(--gap-sm) * -1) calc(var(--gap-lg) / -4) -16px;
     border-radius: var(--r-panel);
     background: rgba(10,30,80,.26);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
