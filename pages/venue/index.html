@@ -102,11 +102,25 @@
 </head><body data-zone="cyan">
 <div class="field" aria-hidden="true"></div>
 <div class="page">
-<nav class="nav">
-  <a class="home" href="../home/" aria-label="VARA Expo 2026 — home"><img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async"></a>
-  <ul><li><a href="../about/">About</a></li><li><a href="../exhibitors/">Exhibitors</a></li><li><a href="../schedule/">Schedule</a></li><li><a href="../gallery/">Gallery</a></li><li><a href="../interview-lounge/">Interview Lounge</a></li><li><a href="../news/">News</a></li><li><a href="../venue/" aria-current="page">Venue</a></li><li><a href="../faq/">FAQ</a></li></ul>
+<header id="topbar" class="nav">
+  <a class="brand" href="../home/" aria-label="VARA Expo 2026 — home"><img class="mark" src="../../system/assets/vara-mark.png" srcset="../../system/assets/vara-mark.png 1x, ../../system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async"><span class="wordmark" aria-hidden="true">VARA EXPO <i>2026</i></span></a>
+  <nav class="links" id="sitenav" aria-label="Primary">
+    <a href="../about/">About</a>
+    <a href="../exhibitors/">Exhibitors</a>
+    <a href="../schedule/">Schedule</a>
+    <a href="../gallery/">Gallery</a>
+    <a href="../interview-lounge/">Interview Lounge</a>
+    <a href="../news/">News</a>
+    <a href="../venue/" aria-current="page">Venue</a>
+    <a href="../faq/">FAQ</a>
+    <div class="navfoot">
+      <a class="pill navcta" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
+      <p class="navmeta">6&ndash;8 Nov 2026 &middot; Central Park</p>
+    </div>
+  </nav>
   <a class="pill" href="../register/"><span class="dot" aria-hidden="true"></span>Register Now</a>
-</nav>
+  <button class="navtoggle" id="navtoggle" type="button" aria-expanded="false" aria-controls="sitenav" aria-label="Menu"><span class="nt-bars" aria-hidden="true"></span></button>
+</header>
 
   <header class="pagehead" data-lines="3">
     <div class="wrap">
@@ -286,4 +300,5 @@
 </script>
 </div>
 <script src="../../system/lines.js"></script>
+  <script src="../../system/nav.js" defer></script>
 </body></html>

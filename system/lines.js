@@ -147,122 +147,231 @@
   const drawables = [];
   let cycle = 0;
 
-  document.querySelectorAll('[data-lines]').forEach(sec => {
-    const pin = parseInt(sec.dataset.lines, 10);
-    const set = LAYOUTS[Number.isFinite(pin) ? pin % LAYOUTS.length
-                                             : cycle++ % LAYOUTS.length];
-    const host = document.createElement('div');
-    host.className = 'lineset';
-    host.setAttribute('aria-hidden','true');
-    sec.prepend(host);
+  /* ---- THE SHADED SURFACE ------------------------------------------------
+     These ribbons are the brand element, so they get the same tube surface the
+     homepage bands do (ILLUSTRATION.md, Tier 1.5) rather than a flat stroke.
 
-    set.forEach((spec, i) => {
-      const shape = spec[0], hue = spec[1];
-      const sizeVW = spec[2], strokePx = spec[6], alpha = spec[7];
-      const xPct = spec[3], yPct = spec[4], rot = spec[5], par = spec[8];
-      const d = SHAPES[shape];
-      if (!d) return;
+     paintStack, not paintTube: concentric full-length strokes rather than 72
+     per-ribbon segments. ~226 DOM nodes a ribbon against ~820, no <mask>, and
+     the same look family. Across 42 ribbons that is the difference between
+     ~9,500 nodes and ~34,000 on pages that also render a 150-row directory.
+     ?lines=seg forces the segmented renderer if the difference ever matters.
 
-      const svg = document.createElementNS(NS,'svg');
-      svg.setAttribute('viewBox', VB);
-      svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-      svg.setAttribute('aria-hidden','true');
-      svg.style.width = sizeVW + 'vw';
-      svg.style.left = xPct + '%';
-      svg.style.top = yPct + '%';
-      svg.style.opacity = alpha;
-      svg.style.transform = 'translate(-50%,-50%) rotate(' + rot + 'deg)';
+     tube.js is a MODULE and this file is a classic script, so it arrives by
+     dynamic import. The URL is resolved against this script's own src, because
+     a document-relative path would break on pages at different depths. If the
+     import fails for any reason the flat stroke is drawn instead — the same
+     reason --rung-scale lives in a CSS token: a missing piece should degrade,
+     never blank the page. A cached tube.js without an expected export has
+     taken every ribbon on this site down once already. */
+  const SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
+  const SEGMENTED = /[?&]lines=seg\b/.test(location.search);
+  /* ?lines=flat pins the old flat stroke, so the surface can be judged as a
+     before/after on the same page rather than from memory. */
+  const FLAT = /[?&]lines=flat\b/.test(location.search);
 
-      /* WEAVE OFF by default. The casing is a navy path 1.55x the stroke width
-         painted underneath, so a later ribbon masks an earlier one where they
-         cross — over-and-under rather than stacked. At thin weights it is
-         invisible machinery; at bold weights it reads as a dark outline around
-         every ribbon, which is not what the brand's tubes look like.
-         Re-enable per section with data-lines-weave="on". */
-      const w = widthUnits(sizeVW, strokePx);
-      let casing = null;
-      if (sec.dataset.linesWeave === 'on'){
-        casing = document.createElementNS(NS,'path');
-        casing.setAttribute('d', d);
-        casing.setAttribute('class','casing');
-        casing.setAttribute('stroke-width', (parseFloat(w)*1.55).toFixed(2));
-        svg.appendChild(casing);
-      }
+  /* A ramp from the section's own accent. The homepage passes the model's
+     36-stop ramps; here the colour is a CSS custom property, so three stops
+     are synthesised around it — enough for the shading to read as a tube, and
+     it keeps this file independent of the element's spine data. */
+  const hx = h => [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  const hex = c => '#' + c.map(v => Math.round(v<0?0:v>255?255:v).toString(16).padStart(2,'0')).join('');
+  function hsl(c){
+    let [r,g,b]=c.map(v=>v/255);
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b), l=(mx+mn)/2;
+    if (mx===mn) return [0,0,l];
+    const dd=mx-mn, sa = l>.5 ? dd/(2-mx-mn) : dd/(mx+mn);
+    const h = mx===r ? (g-b)/dd+(g<b?6:0) : mx===g ? (b-r)/dd+2 : (r-g)/dd+4;
+    return [h/6,sa,l];
+  }
+  function rgbOf([h,s,l]){
+    if (!s) return [l*255,l*255,l*255];
+    const q = l<.5 ? l*(1+s) : l+s-l*s, pp = 2*l-q;
+    const f = t => { t=(t+1)%1;
+      return t<1/6 ? pp+(q-pp)*6*t : t<.5 ? q : t<2/3 ? pp+(q-pp)*(2/3-t)*6 : pp; };
+    return [f(h+1/3)*255, f(h)*255, f(h-1/3)*255];
+  }
+  const cl01 = v => v<0?0:v>1?1:v;
+  function rampFor(sec, hue){
+    const name = sec.dataset.linesHue === 'mixed' ? hue : 'accent';
+    const v = getComputedStyle(sec).getPropertyValue('--' + name).trim();
+    const base = /^#[0-9a-f]{6}$/i.test(v) ? hx(v) : [140,150,190];
+    const [h,sa,l] = hsl(base);
+    return [ hex(rgbOf([h, cl01(sa-.10), cl01(l+.10)])),
+             hex(base),
+             hex(rgbOf([h, cl01(sa+.12), cl01(l-.12)])) ];
+  }
 
-      const p = document.createElementNS(NS,'path');
-      p.setAttribute('d', d);
-      /* Tied to the SECTION's accent, not a per-stroke hue. The homepage mixes
-         all four in one band because the element is the subject there; on a
-         subpage the band already means one zone, so a green ribbon in the
-         Market band just contradicts the heading. Variety comes from rank
-         (weight + alpha), not from hue. `hue` is kept in the layout table for
-         the few places that want an explicit cross-zone stroke. */
-      p.setAttribute('stroke', sec.dataset.linesHue === 'mixed'
-        ? 'var(--' + hue + ')' : 'var(--accent)');
-      p.setAttribute('stroke-width', w);
-      svg.appendChild(p);
-      host.appendChild(svg);
+  let TUBE = null;
 
-      const len = p.getTotalLength();
-      [p, casing].filter(Boolean).forEach(el => {
-        el.style.strokeDasharray = len;
-        el.style.strokeDashoffset = reduce ? 0 : len;
+  function start(){
+    document.querySelectorAll('[data-lines]').forEach(sec => {
+      const pin = parseInt(sec.dataset.lines, 10);
+      const set = LAYOUTS[Number.isFinite(pin) ? pin % LAYOUTS.length
+                                               : cycle++ % LAYOUTS.length];
+      const host = document.createElement('div');
+      host.className = 'lineset';
+      host.setAttribute('aria-hidden','true');
+      sec.prepend(host);
+
+      set.forEach((spec, i) => {
+        const shape = spec[0], hue = spec[1];
+        const sizeVW = spec[2], strokePx = spec[6], alpha = spec[7];
+        const xPct = spec[3], yPct = spec[4], rot = spec[5], par = spec[8];
+        const d = SHAPES[shape];
+        if (!d) return;
+
+        const svg = document.createElementNS(NS,'svg');
+        svg.setAttribute('viewBox', VB);
+        svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+        svg.setAttribute('aria-hidden','true');
+        svg.style.width = sizeVW + 'vw';
+        svg.style.left = xPct + '%';
+        svg.style.top = yPct + '%';
+        svg.style.opacity = alpha;
+        svg.style.transform = 'translate(-50%,-50%) rotate(' + rot + 'deg)';
+
+        /* WEAVE OFF by default. The casing is a navy path 1.55x the stroke width
+           painted underneath, so a later ribbon masks an earlier one where they
+           cross — over-and-under rather than stacked. At thin weights it is
+           invisible machinery; at bold weights it reads as a dark outline around
+           every ribbon, which is not what the brand's tubes look like.
+           Re-enable per section with data-lines-weave="on". */
+        const w = widthUnits(sizeVW, strokePx);
+        let casing = null;
+        if (sec.dataset.linesWeave === 'on'){
+          casing = document.createElementNS(NS,'path');
+          casing.setAttribute('d', d);
+          casing.setAttribute('class','casing');
+          casing.setAttribute('stroke-width', (parseFloat(w)*1.55).toFixed(2));
+          svg.appendChild(casing);
+        }
+
+        if (TUBE && !FLAT){
+          const stops = rampFor(sec, hue);
+          const La = (150 - rot) * Math.PI / 180;   // one light, held as each svg rotates
+          const bands = (SEGMENTED ? null : TUBE.paintStack(svg, d, parseFloat(w), stops, La));
+          let first, extra, len;
+          if (bands){ first = bands[0]; extra = bands.slice(1); len = first.getTotalLength(); }
+          else { const t = TUBE.paintTube(svg, d, parseFloat(w), stops, La);
+                 first = null; extra = null; len = t.len; var seg = t; }
+          host.appendChild(svg);
+          for (const b of [first, ...(extra||[])].filter(Boolean)){
+            b.style.strokeDasharray = len;
+            b.style.strokeDashoffset = reduce ? 0 : len;
+          }
+          if (seg && reduce) seg.reveal(1, 1);
+          drawables.push({ svg:svg, p:first, extra:extra, seg:seg||null, casing:null,
+                           len:len, sec:sec, stops:stops, La:La,
+                           sizeVW:sizeVW, strokePx:strokePx, rot:rot, par:par, d:d,
+                           w:win(i), dir: i>0 && i%2===0 ? -1 : 1 });
+          return;
+        }
+
+        const p = document.createElementNS(NS,'path');
+        p.setAttribute('d', d);
+        /* Tied to the SECTION's accent, not a per-stroke hue. The homepage mixes
+           all four in one band because the element is the subject there; on a
+           subpage the band already means one zone, so a green ribbon in the
+           Market band just contradicts the heading. Variety comes from rank
+           (weight + alpha), not from hue. `hue` is kept in the layout table for
+           the few places that want an explicit cross-zone stroke. */
+        p.setAttribute('stroke', sec.dataset.linesHue === 'mixed'
+          ? 'var(--' + hue + ')' : 'var(--accent)');
+        p.setAttribute('stroke-width', w);
+        svg.appendChild(p);
+        host.appendChild(svg);
+
+        const len = p.getTotalLength();
+        [p, casing].filter(Boolean).forEach(el => {
+          el.style.strokeDasharray = len;
+          el.style.strokeDashoffset = reduce ? 0 : len;
+        });
+
+        drawables.push({ svg:svg, p:p, casing:casing, len:len, sec:sec,
+                         sizeVW:sizeVW, strokePx:strokePx, rot:rot, par:par,
+                         w:win(i), dir: i>0 && i%2===0 ? -1 : 1 });
       });
-
-      drawables.push({ svg:svg, p:p, casing:casing, len:len, sec:sec,
-                       sizeVW:sizeVW, strokePx:strokePx, rot:rot, par:par,
-                       w:win(i), dir: i>0 && i%2===0 ? -1 : 1 });
     });
-  });
 
-  if (drawables.length && !reduce){
-    let raf = 0, idle = 0, lastY = scrollY;
+    if (drawables.length && !reduce){
+      let raf = 0, idle = 0, lastY = scrollY;
 
-    function paint(){
-      const vh = innerHeight;
-      for (let k=0;k<drawables.length;k++){
-        const d = drawables[k];
-        const r = d.sec.getBoundingClientRect();
-        if (r.bottom < -vh*0.4 || r.top > vh*1.4) continue;      // cull
+      function paint(){
+        const vh = innerHeight;
+        for (let k=0;k<drawables.length;k++){
+          const d = drawables[k];
+          const r = d.sec.getBoundingClientRect();
+          if (r.bottom < -vh*0.4 || r.top > vh*1.4) continue;      // cull
 
-        const t = clamp(1 - (r.top - vh*0.08)/(vh*0.82), 0, 1);
-        const e = expoOut(clamp((t - d.w[0])/(d.w[1]-d.w[0]), 0, 1));
-        const off = ((d.dir<0?-1:1) * d.len * (1-e)).toFixed(1);
-        d.p.style.strokeDashoffset = off;
-        if (d.casing) d.casing.style.strokeDashoffset = off;
+          const t = clamp(1 - (r.top - vh*0.08)/(vh*0.82), 0, 1);
+          const e = expoOut(clamp((t - d.w[0])/(d.w[1]-d.w[0]), 0, 1));
+          if (d.seg){
+            d.seg.reveal(e, d.dir);                       // segmented: show the first N quads
+          } else {
+            const off = ((d.dir<0?-1:1) * d.len * (1-e)).toFixed(1);
+            d.p.style.strokeDashoffset = off;
+            if (d.extra) for (let j=0;j<d.extra.length;j++) d.extra[j].style.strokeDashoffset = off;
+            if (d.casing) d.casing.style.strokeDashoffset = off;
+          }
 
-        const rel = (r.top + r.height/2 - vh/2)/vh;
-        d.svg.style.transform =
-          'translate(-50%,-50%) translate3d(' + (rel*d.par*12).toFixed(1) + 'px,'
-          + (-rel*d.par*46).toFixed(1) + 'px,0) rotate(' + d.rot + 'deg)';
+          const rel = (r.top + r.height/2 - vh/2)/vh;
+          d.svg.style.transform =
+            'translate(-50%,-50%) translate3d(' + (rel*d.par*12).toFixed(1) + 'px,'
+            + (-rel*d.par*46).toFixed(1) + 'px,0) rotate(' + d.rot + 'deg)';
+        }
       }
-    }
 
-    function frame(){
-      paint();
-      if (Math.abs(scrollY-lastY) < 0.5) idle++; else idle = 0;
-      lastY = scrollY;
-      if (idle > 20){ raf = 0; return; }       // settled — stop entirely
-      raf = requestAnimationFrame(frame);
-    }
-    const kick = () => { idle = 0; if (!raf) raf = requestAnimationFrame(frame); };
-
-    addEventListener('scroll', kick, {passive:true});
-    addEventListener('resize', () => {
-      for (let k=0;k<drawables.length;k++){
-        const d = drawables[k];
-        const w = widthUnits(d.sizeVW, d.strokePx);
-        d.p.setAttribute('stroke-width', w);
-        if (d.casing) d.casing.setAttribute('stroke-width', (parseFloat(w)*1.55).toFixed(2));
+      function frame(){
+        paint();
+        if (Math.abs(scrollY-lastY) < 0.5) idle++; else idle = 0;
+        lastY = scrollY;
+        if (idle > 20){ raf = 0; return; }       // settled — stop entirely
+        raf = requestAnimationFrame(frame);
       }
+      const kick = () => { idle = 0; if (!raf) raf = requestAnimationFrame(frame); };
+
+      addEventListener('scroll', kick, {passive:true});
+      addEventListener('resize', () => {
+        for (let k=0;k<drawables.length;k++){
+          const d = drawables[k];
+          const w = widthUnits(d.sizeVW, d.strokePx);
+          if (TUBE && (d.p || d.seg)){
+            /* radius is in viewBox units and depends on the viewport, so the
+               shaded geometry is rebuilt — on resize only, never per frame */
+            const off = d.p ? d.p.style.strokeDashoffset : '';
+            if (d.seg){ d.seg = TUBE.paintTube(d.svg, d.d, parseFloat(w), d.stops, d.La); d.len = d.seg.len; }
+            else {
+              const bands = TUBE.paintStack(d.svg, d.d, parseFloat(w), d.stops, d.La);
+              d.p = bands[0]; d.extra = bands.slice(1); d.len = d.p.getTotalLength();
+              for (const b of bands){ b.style.strokeDasharray = d.len;
+                b.style.strokeDashoffset = reduce ? 0 : (off || d.len); }
+            }
+            continue;
+          }
+          d.p.setAttribute('stroke-width', w);
+          if (d.casing) d.casing.setAttribute('stroke-width', (parseFloat(w)*1.55).toFixed(2));
+        }
+        paint(); kick();
+      }, {passive:true});
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden){ if (raf) cancelAnimationFrame(raf); raf = 0; }
+        else { lastY = scrollY; kick(); }
+      }, {passive:true});
+
       paint(); kick();
-    }, {passive:true});
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden){ if (raf) cancelAnimationFrame(raf); raf = 0; }
-      else { lastY = scrollY; kick(); }
-    }, {passive:true});
+    }
 
-    paint(); kick();
+  }
+
+  /* Draw shaded if the module is there, flat if it is not. Never nothing. */
+  if (SCRIPT_SRC){
+    import(new URL('./tube.js', SCRIPT_SRC).href)
+      .then(m => { TUBE = (m && m.paintStack && m.paintTube) ? m : null; })
+      .catch(e => { console.warn('VARA lines: tube surface unavailable, drawing flat.', e); })
+      .then(start);
+  } else {
+    start();                       // no script src to resolve against: flat
   }
 
   window.__varaSectionLines = drawables;     // probe for verification

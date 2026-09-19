@@ -2899,8 +2899,12 @@ if (sec && host) {
      Not a second ladder for a second context: a ribbon is a ribbon whether it
      leads a hero band or sits behind this grid. 80px is RETIRED — at that
      weight it stops being a line through a composition and becomes a slab
-     across it. Weight is a constant px at every viewport; the 0.6x mobile
-     step-down in the bench is deliberately NOT adopted yet.
+     across it. The mobile step IS adopted and is NOT reimplemented here: it
+     comes from --rung-scale in system/tokens.css (1, and .6 below 640), read
+     once by rungScale() above and applied inside widthUnits. A second set of
+     numbers living in this file is the drift the one ladder exists to stop.
+     THREE RUNGS MEANS THREE RIBBONS — this set draws three. A fourth doubled
+     onto the bottom rung is a wash, not a hierarchy.
      Every stroke is >= .5 opacity because one composition never mixes flat
      and shaded. */
   const RIBBONS = [
