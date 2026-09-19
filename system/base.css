@@ -393,9 +393,46 @@ nav.links a[aria-current="page"]{color:var(--cream)}
 /* ---- News card ----------------------------------------------------------
    The landing page's news teaser. Media block is a token-derived ribbon
    ground, never a white card — illustrations sit on navy (ILLUSTRATION.md §3). */
-.ncard{display:grid;gap:var(--gap-sm);text-decoration:none;color:inherit;
+.ncard{display:grid;gap:var(--gap-sm);text-decoration:none;color:inherit;position:relative;
+  isolation:isolate;
   border-radius:var(--r-card);transition:transform var(--d-base) var(--e-enter)}
-.ncard:hover{transform:translateY(-3px)}
+
+/* HOVER — the card lifts onto a pane of glass.
+   The resting state said almost nothing: a 3px lift and the word Read changing
+   colour, on a card that has no surface of its own, so there was no signifier
+   that the whole card was the target. It now takes the system's .glass recipe
+   — same tint, same blur/saturate/brightness tokens, same shadow — so it reads
+   as the panel it becomes rather than as a new invention.
+
+   Painted on ::after with a NEGATIVE inset rather than as padding on the card.
+   Padding would have to exist at rest to avoid a reflow on hover, which would
+   inset every card in the grid and change the resting design; this leaves the
+   resting layout byte-identical and costs nothing until someone points at it.
+   z-index -1 under the card's own isolation keeps it behind the content and
+   above the page. */
+.ncard::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:calc(var(--gap-sm) * -1) -20px -18px;
+  border-radius:var(--r-panel);
+  background:rgba(10,30,80,.26);
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  box-shadow:var(--sh-lg), inset 0 0 0 1px rgba(255,255,255,.14);
+  opacity:0;
+  transition:opacity var(--d-base) var(--e-enter);
+}
+.ncard:hover,
+.ncard:focus-visible{transform:translateY(-4px)}
+.ncard:hover::after,
+.ncard:focus-visible::after{opacity:1}
+/* Keyboard gets the same state as the mouse — the lift and the glass ARE the
+   focus indicator here, so the card must not rely on the default outline it
+   would otherwise draw around an inline-grid anchor. */
+.ncard:focus-visible{outline:2px solid var(--cream);outline-offset:6px}
+@media (prefers-reduced-motion:reduce){
+  .ncard,.ncard::after{transition:none}
+  .ncard:hover,.ncard:focus-visible{transform:none}
+}
 .ncard .media{position:relative;aspect-ratio:16/10;border-radius:var(--r-card);overflow:hidden;
   background:linear-gradient(150deg,color-mix(in oklab,var(--accent) 24%,var(--navy-700)),
     var(--navy) 58%,var(--navy-950));

@@ -103,52 +103,65 @@
   })();
 
   const LAYOUTS = [
-    /* [shape, hue, sizeVW, side, yPct, rotDeg, strokePx, alpha, parallax]
+    /* [shape, hue, sizeVW, preferredSide, strokePx, parallax]
 
-       FOUR PER SET, and the count is not arbitrary — each entry has a job:
-         1. a CROSSING, high or low, for the sweep the brand leads with.
-            Dropped on a band under 620px, where it would lie across the copy.
-         2. two GUTTER RUNNERS, one per edge. These bleed top and bottom, so
-            they run down the margins and out of the band at both ends. They
-            are what carries a shallow pagehead — the section does not have to
-            be tall enough to hold them.
-         3. a complete FORM, tucked into a corner, as the punctuation.
-       A short band therefore still draws three, along both gutters, rather
-       than one mark alone in a lot of space.
+       SIX PER BAND, one of each family and then two more accents spread down
+       the gutters. Families first — SWEEP crossing the frame, RUNNER bleeding
+       top and bottom down a margin, CURL complete and hand-drawn, SPINE the
+       traced model stroke — then a smaller runner and curl to carry the rest
+       of the margin. Never the same geometry twice in a band.
 
-       Hue is NAMED and always one of the four; it picks that stroke's own
-       36-stop model ramp. --accent is never consulted — on a page with no
-       data-zone it falls back to cream and shades to tan. */
-    [['sweepA',    'coral',  124, 'R', 16,  10, 68, ALPHA,  0.50],
-     ['riseA',     'violet',  40, 'L', 50,  -8, 56, ALPHA,  0.34],
-     ['hookB',     'cyan',    34, 'R', 50,   6, 44, ALPHA,  0.28],
-     ['el-coral',  'coral',   30, 'R', 88, -12, 44, ALPHA,  0.42]],
+       No yPct and no fixed x: the solver above takes the first slot that does
+       not pile onto what is already down. Elements DO run over the copy by
+       design, up to 10% of the smaller shape; they sit behind it (.lineset is
+       z-index 0) so the text always wins.
 
-    [['archA',     'cyan',   128, 'L', 86, -14, 68, ALPHA, -0.50],
-     ['hookA',     'green',   40, 'L', 50,   8, 56, ALPHA, -0.34],
-     ['riseB',     'coral',   34, 'R', 50,  -6, 44, ALPHA, -0.28],
-     ['coilB',     'violet',  30, 'R', 18,  16, 44, ALPHA, -0.42]],
+       This is the rule for every page that uses this file — which is all of
+       them except home, whose ribbons are drawn by its own renderer. */
+    [['sweepA',    'coral',  124, 'R', 68,  0.50],
+     ['riseA',     'violet',  40, 'L', 56,  0.34],
+     ['coilB',     'cyan',    32, 'R', 44,  0.28],
+     ['el-green',  'green',   30, 'L', 44,  0.42],
+     ['hookB',     'coral',   26, 'R', 44,  0.22],
+     ['loopA',     'violet',  24, 'L', 44,  0.18]],
 
-    [['driftA',    'violet', 120, 'R', 18,  16, 68, ALPHA,  0.53],
-     ['riseB',     'green',   40, 'L', 50,  -8, 56, ALPHA,  0.34],
-     ['hookA',     'coral',   34, 'R', 50,   6, 44, ALPHA,  0.28],
-     ['el-cyan',   'cyan',    30, 'R', 86, -14, 44, ALPHA,  0.40]],
+    [['archA',     'cyan',   128, 'L', 68, -0.50],
+     ['hookB',     'green',   40, 'R', 56, -0.34],
+     ['loopA',     'coral',   32, 'L', 44, -0.28],
+     ['el-violet', 'violet',  30, 'R', 44, -0.42],
+     ['riseB',     'cyan',    26, 'L', 44, -0.22],
+     ['coilA',     'green',   24, 'R', 44, -0.18]],
 
-    [['crestB',    'green',  126, 'L', 82, -18, 68, ALPHA, -0.50],
-     ['hookB',     'violet',  40, 'L', 50,   8, 56, ALPHA, -0.34],
-     ['riseA',     'cyan',    34, 'R', 50,  -6, 44, ALPHA, -0.28],
-     ['loopA',     'coral',   30, 'R', 20,  12, 44, ALPHA, -0.41]],
+    [['driftA',    'violet', 120, 'R', 68,  0.53],
+     ['riseB',     'coral',   40, 'L', 56,  0.34],
+     ['coilA',     'green',   32, 'R', 44,  0.28],
+     ['el-cyan',   'cyan',    30, 'L', 44,  0.40],
+     ['hookA',     'violet',  26, 'R', 44,  0.22],
+     ['loopB',     'coral',   24, 'L', 44,  0.18]],
 
-    [['sweepC',    'cyan',   122, 'R', 14,  14, 68, ALPHA,  0.47],
-     ['riseA',     'coral',   40, 'L', 50,  -8, 56, ALPHA,  0.34],
-     ['hookB',     'green',   34, 'R', 50,   6, 44, ALPHA,  0.28],
-     ['el-violet', 'violet',  30, 'R', 84, -16, 44, ALPHA,  0.39]],
+    [['crestB',    'green',  126, 'L', 68, -0.50],
+     ['hookA',     'cyan',    40, 'R', 56, -0.34],
+     ['loopB',     'violet',  32, 'L', 44, -0.28],
+     ['el-coral',  'coral',   30, 'R', 44, -0.41],
+     ['riseA',     'green',   26, 'L', 44, -0.22],
+     ['coilB',     'cyan',    24, 'R', 44, -0.18]],
 
-    [['archB',     'coral',  128, 'L', 88, -12, 68, ALPHA, -0.49],
-     ['hookA',     'cyan',    40, 'L', 50,   8, 56, ALPHA, -0.34],
-     ['riseB',     'violet',  34, 'R', 50,  -6, 44, ALPHA, -0.28],
-     ['el-green',  'green',   30, 'R', 16,  18, 44, ALPHA, -0.40]],
+    [['sweepC',    'cyan',   122, 'R', 68,  0.47],
+     ['riseA',     'green',   40, 'L', 56,  0.34],
+     ['coilB',     'coral',   32, 'R', 44,  0.28],
+     ['el-violet', 'violet',  30, 'L', 44,  0.39],
+     ['hookB',     'cyan',    26, 'R', 44,  0.22],
+     ['loopA',     'green',   24, 'L', 44,  0.18]],
+
+    [['archB',     'coral',  128, 'L', 68, -0.49],
+     ['hookB',     'violet',  40, 'R', 56, -0.34],
+     ['loopA',     'cyan',    32, 'L', 44, -0.28],
+     ['el-green',  'green',   30, 'R', 44, -0.40],
+     ['riseB',     'coral',   26, 'L', 44, -0.22],
+     ['coilA',     'violet',  24, 'R', 44, -0.18]],
   ];
+;
+;
 ;
 ;
 ;
@@ -169,17 +182,18 @@
   let POOL = null, ST_RAMPS = null;
   function inkOf(d){
     const n = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
-    const xs = n.filter((_, i) => i % 2 === 0);
-    return [Math.min.apply(null, xs), Math.max.apply(null, xs)];
+    const xs = n.filter((_, i) => i % 2 === 0), ys = n.filter((_, i) => i % 2 === 1);
+    return [Math.min.apply(null, xs), Math.max.apply(null, xs),
+            Math.min.apply(null, ys), Math.max.apply(null, ys)];
   }
-  const HAND_INK = { loopA:[200,760], loopB:[260,820], coilA:[140,700], coilB:[300,860] };
+  const HAND = ['loopA','loopB','coilA','coilB'];
   function buildPool(ST){
     const P = {};
     if (ST) for (const k of ['coral','green','violet','cyan']){
       const S = ST[k];
       if (S && S.d) P['el-' + k] = { d:S.d, vb:ST._viewBox, stops:S.colors, ink:inkOf(S.d) };
     }
-    for (const k in HAND_INK) P[k] = { d:SHAPES[k], vb:VB, stops:null, ink:HAND_INK[k] };
+    for (const k of HAND) P[k] = { d:SHAPES[k], vb:VB, stops:null, ink:inkOf(SHAPES[k]) };
     /* THE FREEHAND SWEEPS, back in. These run their paths past the viewBox on
        purpose, and that is the point: a stroke that enters one edge and leaves
        by another reads as passing THROUGH the frame. The earlier complaint was
@@ -224,28 +238,50 @@
      1440 desktop is a gutter; 38% of a 370 phone is a third of the screen, and
      the ribbon walks straight through the copy. One lever, already decided —
      --rung-scale — rather than a second breakpoint of its own. */
+  /* ---- PLACEMENT IS SOLVED, NOT DECLARED --------------------------------
+     Fixed xPct/yPct kept producing the same two failures: shapes stacked on
+     one edge, and whole areas of a band left empty. Both come from placing by
+     hand against a band whose height is not known until it renders.
+
+     So each element is given a ladder of candidate positions and takes the
+     first that does not collide with what is already down. Collision is
+     measured on the shapes' real INK boxes — the drawn extent, not the mostly
+     empty viewBox — and a little overlap is allowed on purpose: 10% of the
+     smaller shape, which is the difference between a composition and a pile.
+     If nothing clears, the element is dropped rather than stacked. */
+  /* More rungs than there are elements, so a band can spread them sparsely
+     down a gutter instead of clustering at the few positions on offer. */
+  const Y_SLOTS = [8, 22, 36, 50, 64, 78, 92];
+  const X_SLOTS = { L:['L'], R:['R'], any:['L','R'] };
+
+  function boxOf(SH, sizeVW, xPct, yPct, bandW, bandH){
+    const vb = SH.vb.split(/[ ,]+/).map(Number);
+    const vbW = vb[2], vbH = vb[3];
+    const w = sizeVW/100 * innerWidth, h = w * vbH/vbW;
+    const cx = xPct/100 * bandW, cy = yPct/100 * bandH;
+    const ink = SH.ink || [0, vbW, 0, vbH];
+    return { x0: cx - w/2 + ink[0]/vbW*w, x1: cx - w/2 + ink[1]/vbW*w,
+             y0: cy - h/2 + ink[2]/vbH*h, y1: cy - h/2 + ink[3]/vbH*h };
+  }
+  function clash(a, b){
+    const ox = Math.min(a.x1,b.x1) - Math.max(a.x0,b.x0);
+    const oy = Math.min(a.y1,b.y1) - Math.max(a.y0,b.y0);
+    if (ox <= 0 || oy <= 0) return 0;
+    const inter = ox*oy;
+    const small = Math.min((a.x1-a.x0)*(a.y1-a.y0), (b.x1-b.x0)*(b.y1-b.y0));
+    return small > 0 ? inter/small : 0;
+  }
   const xFor = (shape, side, sizeVW, gap) => {
     const SH = POOL[shape];
-    /* a crossing spans the frame; nudge it by side for variety, but never
-       anchor it to an edge — that is what would crop it into a fragment */
     if (SH && SH.cross) return side === 'L' ? 42 : 58;
     const ink = (SH && SH.ink) || [0,1000];
-    const fL = ink[0]/1000, fR = ink[1]/1000;
-    /* A phone has no empty margin to put anything in — the copy is the full
-       width — so below 640 the form is pushed a third of its own width back
-       out of the page and reads as something passing behind the column.
-
-       EXCEPT in a .zgap, where that is precisely wrong. A zgap is not content
-       with art beside it; it is a band whose entire job is to show the art —
-       clamp(260px,40vh,480px) of height with nothing in it but a soft rule.
-       Pushing the form out of one leaves 338px of dead navy on a phone, three
-       times down the page, which is what the gap looked like. There is no copy
-       in there to avoid, so the form stays in view and fills the space it was
-       built for. */
+    const vbW = SH ? +SH.vb.split(/[ ,]+/)[2] : 1000;
+    const fL = ink[0]/vbW, fR = ink[1]/vbW;
     const edge = (innerWidth < 640 && !gap) ? EDGE - sizeVW*0.34 : EDGE;
     return side === 'L' ? edge - fL*sizeVW + sizeVW/2
                         : 100 - edge - fR*sizeVW + sizeVW/2;
   };
+
 
 ;
 
@@ -362,32 +398,74 @@
        So the rule is structural instead: an edge is taken or it is free. A
        later entry wanting a taken edge is dropped. A zgap is exempt — it has
        no copy to work around, so a stack there is a composition. */
-    const taken = { L:false, R:false };
+    /* HOW MANY, AND WHERE, DEPENDS ON WHAT THE BAND IS FOR.
+       A title section is one headline and a standfirst and nothing else; six
+       ribbons around it is not decoration, it is interference. It gets a
+       short right-hand column only — the copy is ranged left, so the right is
+       the side that can carry anything at all.
+       A content band already has cards, rules and copy competing; three is
+       the most it can take before the page reads as noise.
+       A zgap has nothing in it but the art, so it gets the most. */
+    const isHead = sec.classList.contains('pagehead');
+    const BUDGET = isGap ? 5 : isHead ? 2 : 3;
+    const placed = [];                         // ink boxes already down in this band
+    /* Counted separately from `placed`, because a crossing reserves no space
+       but is absolutely part of how busy a band looks — leaving it out of the
+       budget let a zgap draw six when its budget was five. */
+    let drawn = 0;
+    const bandW = sec.getBoundingClientRect().width;
+    const bandH = Math.max(1, sec.getBoundingClientRect().height);
     const host = document.createElement('div');
       host.className = 'lineset';
       host.setAttribute('aria-hidden','true');
       sec.prepend(host);
 
       set.forEach((spec, i) => {
-        const shape = spec[0], hue = spec[1];
-        const sizeVW = spec[2];
-        const strokePx = spec[6], alpha = spec[7];
-        const yPct = spec[4], rot = spec[5], par = spec[8];
+        const shape = spec[0], hue = spec[1], sizeVW = spec[2];
+        const strokePx = spec[4], par = spec[5], alpha = ALPHA;
         const SH = POOL[shape];
         if (!SH) return;
-        /* Only the CROSSING needs room — it spans the section by definition.
-           Gutter runners bleed out of the band top and bottom, so a shallow
-           strip carries them fine, and drawing them is what stops a short
-           band reading as empty. An earlier pass cut short bands down to a
-           single form; that solved an overlap and produced a lone mark in a
-           lot of space, which is the worse problem. */
-        if (SH.cross && !roomy) return;
-        if (!SH.cross && !isGap){
-          const side = spec[3];
-          if (taken[side]) return;                  // that gutter is spoken for
-          taken[side] = true;
+        /* A CROSSING ONLY GOES WHERE THERE IS NOTHING TO CROSS. Height was the
+           wrong test: the news card grid is tall and completely full, and a
+           sweep through it runs over three cards and three headlines at once.
+           That is the busyness — not the count, the fact that a 120vw stroke
+           was laid across content at all. Crossings are now confined to the
+           zgap, the one band that exists to hold art and holds nothing else.
+           Every other band gets margin work only: runners and curls down the
+           gutters, which pass beside content rather than through it. */
+        if (SH.cross && !isGap) return;
+
+        /* take the first slot that does not pile onto what is already down */
+        let xPct = null, yPct = null;
+        if (drawn >= BUDGET) return;                // this band has had enough
+        const sides = SH.cross ? [spec[3]]
+                    : isHead   ? ['R']                  // title copy owns the left
+                    : isGap    ? X_SLOTS.any
+                    : X_SLOTS[spec[3]].concat(spec[3]==='L'?'R':'L');
+        outer:
+        for (const sd of sides){
+          const x = xFor(shape, sd, sizeVW, isGap);
+          for (const y of Y_SLOTS){
+            const b = boxOf(SH, sizeVW, x, y, bandW, bandH);
+            let worst = 0;
+            for (const q of placed) worst = Math.max(worst, clash(b, q));
+            if (worst <= 0.10){
+              xPct = x; yPct = y;
+              /* A CROSSING IS NOT AN OBSTACLE. It spans the band by design, so
+                 registering its ink box as occupied marks the whole band taken
+                 and every later element is refused — which is how a zone band
+                 ended up drawing one shape. A sweep passing behind a curl is
+                 the composition, not a collision; only the compact shapes
+                 reserve space from each other. */
+              if (!SH.cross) placed.push(b);
+              drawn++;
+              break outer;
+            }
+          }
         }
-        const xPct = xFor(shape, spec[3], sizeVW, isGap);
+        if (xPct === null) return;                 // nowhere it would not pile
+        const rot = (par > 0 ? 1 : -1) * (6 + (placed.length * 4) % 14);
+
         const d = SH.d;
         if (!d) return;
 
@@ -469,72 +547,84 @@
       });
     });
 
+    /* ---- DRAW ONCE ON ENTRY, THEN STOP -------------------------------
+       This used to be a scroll-scrubbed rig: a rAF loop that ran for as long
+       as you kept scrolling and, every frame, read a bounding rect per ribbon
+       and wrote a transform and a reveal. On a page carrying twenty-five of
+       them that is real work on every frame of every scroll, forever, for a
+       decoration.
+
+       They do not need to track the finger. They need to arrive once. Each
+       band now draws itself on its own clock the first time it comes into
+       view — about 1.2s, ranked so the heavy stroke leads — and is then
+       finished: the loop ends, the observer stops watching that band, and
+       scrolling past it afterwards costs nothing. There is no scroll listener.
+
+       Given up with it: the parallax drift, which only ever existed because a
+       per-frame loop was already running. The resting transform is written
+       once, here. */
+    for (const d of drawables){
+      d.svg.style.transform = 'translate(-50%,-50%) rotate(' + d.rot + 'deg)';
+      setReveal(d, reduce ? 1 : 0);
+    }
+
+    function setReveal(d, e){
+      if (d.seg){ d.seg.reveal(e, d.dir); return; }
+      const off = ((d.dir<0?-1:1) * d.len * (1-e)).toFixed(1);
+      d.p.style.strokeDashoffset = off;
+      if (d.extra) for (let j=0;j<d.extra.length;j++) d.extra[j].style.strokeDashoffset = off;
+      if (d.casing) d.casing.style.strokeDashoffset = off;
+    }
+
     if (drawables.length && !reduce){
-      let raf = 0, idle = 0, lastY = scrollY;
-
-      function paint(){
-        const vh = innerHeight;
-        for (let k=0;k<drawables.length;k++){
-          const d = drawables[k];
-          const r = d.sec.getBoundingClientRect();
-          if (r.bottom < -vh*0.4 || r.top > vh*1.4) continue;      // cull
-
-          const t = clamp(1 - (r.top - vh*0.08)/(vh*0.82), 0, 1);
-          const e = expoOut(clamp((t - d.w[0])/(d.w[1]-d.w[0]), 0, 1));
-          if (d.seg){
-            d.seg.reveal(e, d.dir);                       // segmented: show the first N quads
-          } else {
-            const off = ((d.dir<0?-1:1) * d.len * (1-e)).toFixed(1);
-            d.p.style.strokeDashoffset = off;
-            if (d.extra) for (let j=0;j<d.extra.length;j++) d.extra[j].style.strokeDashoffset = off;
-            if (d.casing) d.casing.style.strokeDashoffset = off;
-          }
-
-          const rel = (r.top + r.height/2 - vh/2)/vh;
-          d.svg.style.transform =
-            'translate(-50%,-50%) translate3d(' + (rel*d.par*12).toFixed(1) + 'px,'
-            + (-rel*d.par*46).toFixed(1) + 'px,0) rotate(' + d.rot + 'deg)';
+      const DUR = 1200, STAGGER = 160;
+      const byBand = new Map();
+      for (const d of drawables){
+        if (!byBand.has(d.sec)) byBand.set(d.sec, []);
+        byBand.get(d.sec).push(d);
+      }
+      const io = new IntersectionObserver(es => {
+        for (const en of es){
+          if (!en.isIntersecting) continue;
+          io.unobserve(en.target);                     // once only
+          const set = byBand.get(en.target);
+          if (!set) continue;
+          const t0 = performance.now();
+          (function step(now){
+            let done = true;
+            for (let k=0;k<set.length;k++){
+              const d = set[k];
+              const e = expoOut(clamp((now - t0 - k*STAGGER) / DUR, 0, 1));
+              setReveal(d, e);
+              if (e < 1) done = false;
+            }
+            if (done) return;                          // finished: the loop ENDS
+            requestAnimationFrame(step);
+          })(performance.now());
         }
-      }
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
+      for (const sec of byBand.keys()) io.observe(sec);
 
-      function frame(){
-        paint();
-        if (Math.abs(scrollY-lastY) < 0.5) idle++; else idle = 0;
-        lastY = scrollY;
-        if (idle > 20){ raf = 0; return; }       // settled — stop entirely
-        raf = requestAnimationFrame(frame);
-      }
-      const kick = () => { idle = 0; if (!raf) raf = requestAnimationFrame(frame); };
-
-      addEventListener('scroll', kick, {passive:true});
+      /* radius is in viewBox units, so a resize rebuilds the geometry — on
+         resize only, never per frame */
       addEventListener('resize', () => {
         for (let k=0;k<drawables.length;k++){
           const d = drawables[k];
           const w = widthUnits(d.sizeVW, d.strokePx);
           if (TUBE && (d.p || d.seg)){
-            /* radius is in viewBox units and depends on the viewport, so the
-               shaded geometry is rebuilt — on resize only, never per frame */
-            const off = d.p ? d.p.style.strokeDashoffset : '';
             if (d.seg){ d.seg = TUBE.paintTube(d.svg, d.d, parseFloat(w), d.stops, d.La); d.len = d.seg.len; }
             else {
               const bands = TUBE.paintStack(d.svg, d.d, parseFloat(w), d.stops, d.La);
               d.p = bands[0]; d.extra = bands.slice(1); d.len = d.p.getTotalLength();
-              for (const b of bands){ b.style.strokeDasharray = d.len;
-                b.style.strokeDashoffset = reduce ? 0 : (off || d.len); }
+              for (const b of bands) b.style.strokeDasharray = d.len;
             }
+            setReveal(d, 1);
             continue;
           }
           d.p.setAttribute('stroke-width', w);
           if (d.casing) d.casing.setAttribute('stroke-width', (parseFloat(w)*1.55).toFixed(2));
         }
-        paint(); kick();
       }, {passive:true});
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden){ if (raf) cancelAnimationFrame(raf); raf = 0; }
-        else { lastY = scrollY; kick(); }
-      }, {passive:true});
-
-      paint(); kick();
     }
 
   }

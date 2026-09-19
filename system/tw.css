@@ -1358,11 +1358,42 @@
     gap: var(--gap-sm);
     text-decoration: none;
     color: inherit;
+    position: relative;
+    isolation: isolate;
     border-radius: var(--r-card);
     transition: transform var(--d-base) var(--e-enter);
   }
-  .ncard:hover {
-    transform: translateY(-3px);
+  .ncard::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    inset: calc(var(--gap-sm) * -1) -20px -18px;
+    border-radius: var(--r-panel);
+    background: rgba(10,30,80,.26);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+    box-shadow: var(--sh-lg), inset 0 0 0 1px rgba(255,255,255,.14);
+    opacity: 0;
+    transition: opacity var(--d-base) var(--e-enter);
+  }
+  .ncard:hover, .ncard:focus-visible {
+    transform: translateY(-4px);
+  }
+  .ncard:hover::after, .ncard:focus-visible::after {
+    opacity: 1;
+  }
+  .ncard:focus-visible {
+    outline: 2px solid var(--cream);
+    outline-offset: 6px;
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .ncard,.ncard::after {
+      transition: none;
+    }
+    .ncard:hover,.ncard:focus-visible {
+      transform: none;
+    }
   }
   .ncard .media {
     position: relative;
