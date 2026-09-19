@@ -37,6 +37,8 @@ const NS = 'http://www.w3.org/2000/svg';
    nothing. If something looks chunky, it is segs, not stops. */
 export const TUBE = { segs: 72, stops: 9, con: .42, wrap: .66, sss: .20, sheen: .18 };
 
+
+
 const cl01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
 const hx = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
 const rgb = c => 'rgb(' + c.map(v => Math.round(v < 0 ? 0 : v > 255 ? 255 : v)).join(',') + ')';

@@ -765,6 +765,14 @@
     --d-frost: 0ms;
   }
 }
+:root {
+  --rung-scale: 1;
+}
+@media (max-width:639px) {
+  :root {
+    --rung-scale: .6;
+  }
+}
 @layer components {
   * {
     box-sizing: border-box;

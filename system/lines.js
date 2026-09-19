@@ -126,9 +126,18 @@
   const expoOut = t => (t >= 1 ? 1 : 1 - Math.pow(2, -4.2*t));
   const win = r => (r === 0 ? [0,0.58] : [0.26+(r-1)*0.05, 0.86+(r-1)*0.04]);
 
+  /* Reads --rung-scale (system/tokens.css), the one definition of the ladder's
+     responsive step: below 640 every rung goes to 0.6 of itself, because a
+     rank-0 rung is 4.7% of a 1440 desktop and 18.4% of a 370 phone. A token
+     rather than a constant here because this file is a classic script on the
+     seventeen subpages and cannot import what the two module call sites use.
+     Falls back to 1 — full weight — if the token is missing. */
+  const rungScale = () =>
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rung-scale')) || 1;
+
   /* on-screen px -> viewBox units, so a ribbon stays a ribbon at any viewport */
   const widthUnits = (sizeVW, targetPx) =>
-    (targetPx * VBW / Math.max(1,(sizeVW/100)*innerWidth)).toFixed(2);
+    (targetPx * rungScale() * VBW / Math.max(1,(sizeVW/100)*innerWidth)).toFixed(2);
 
   const NS = 'http://www.w3.org/2000/svg';
   const drawables = [];

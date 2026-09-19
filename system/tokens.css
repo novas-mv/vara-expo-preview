@@ -144,3 +144,23 @@
 @media (prefers-reduced-motion:reduce){
   :root{ --d-fast:0ms; --d-base:0ms; --d-slow:0ms; --d-frost:0ms; }
 }
+
+/* ---- THE RUNG SCALE — one definition, and it lives here -------------------
+   The stroke weight ladder (68 / 56 / 44, rank 0 first — ILLUSTRATION.md
+   Tier 1.5) is a DESKTOP scale. Weight is a constant pixel value, so a rank-0
+   rung is 4.7% of a 1440 desktop and 18.4% of a 370 phone: the ribbon stops
+   being a line through the composition and becomes a band across it.
+
+   Below 640 every rung is taken to 0.6 of itself (68 -> 41, 56 -> 34,
+   44 -> 26). That scales the ONE ladder rather than introducing a second set
+   of numbers — the rungs keep their ratios to each other.
+
+   It is a custom property and not a JS constant on purpose. Three separate
+   places convert px to viewBox units (home's line layer, home's sponsors
+   band, and system/lines.js on the seventeen subpages) and two of them are
+   modules while the third is a classic script, so there is no import they can
+   share. A token they all read is the only single source of truth available —
+   and if one of them is ever served stale it falls back to 1, full weight,
+   instead of throwing and taking every ribbon on the page with it. */
+:root{ --rung-scale:1 }
+@media (max-width:639px){ :root{ --rung-scale:.6 } }

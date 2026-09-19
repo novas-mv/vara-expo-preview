@@ -2240,6 +2240,12 @@ window.__varaSample = function(x,y){ return _readPx(x,y); };
 <script type="module">
 import { STROKES } from './data/strokes.js';
 import { paintTube, paintStack, TUBE, STACK } from './system/tube.js';
+/* Reads --rung-scale (system/tokens.css): the ladder is a desktop scale and a
+   rank-0 rung is 18.4% of a 370 phone. Falls back to 1 — full weight — if the
+   token is ever missing, rather than zeroing every stroke. */
+const rungScale = () =>
+  parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rung-scale')) || 1;
+
 
 /* ---- WHICH lines get the shaded tube surface --------------------------
    Not all of them. A tube is ~125 DOM nodes against a flat stroke's 2, and
@@ -2407,7 +2413,7 @@ function widthUnits(sizeVW, targetPx){
      degenerate measurement yields a slightly wrong width rather than one a
      thousand times too big. */
   const boxPx = (sizeVW/100) * Math.max(320, innerWidth);
-  return (targetPx * VBW / boxPx).toFixed(2);
+  return (targetPx * rungScale() * VBW / boxPx).toFixed(2);
 }
 
 if (PX > 8) for (const k in LAYOUTS){
@@ -2868,6 +2874,12 @@ window.__varaLines = drawables;
      ===================================================================== -->
 <script type="module">
 import { paintStack } from './system/tube.js';
+/* Reads --rung-scale (system/tokens.css): the ladder is a desktop scale and a
+   rank-0 rung is 18.4% of a 370 phone. Falls back to 1 — full weight — if the
+   token is ever missing, rather than zeroing every stroke. */
+const rungScale = () =>
+  parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rung-scale')) || 1;
+
 import { STROKES }    from './data/strokes.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -2899,7 +2911,8 @@ if (sec && host) {
 
   /* clamp the VIEWPORT, not the result: a zero-width box would otherwise turn
      an 80px stroke into tens of thousands of viewBox units */
-  const widthUnits = (svg, px) => px * (VBW / Math.max(1, svg.getBoundingClientRect().width));
+  const widthUnits = (svg, px) =>
+    px * rungScale() * (VBW / Math.max(1, svg.getBoundingClientRect().width));
 
   const built = RIBBONS.map(R => {
     const svg = document.createElementNS(NS, 'svg');
