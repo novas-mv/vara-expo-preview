@@ -706,7 +706,12 @@ h2{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
    Lines are Tier 1.5 shaded ribbons (system/tube.js), placed in the gutters
    rather than across the names, drawn from the real model strokes. See the
    module at the foot of this file. */
-#sponsors-home .sb{position:relative;isolation:isolate}
+/* The heading needs real space above the bento. This was 0 — the only
+   section on the page where it was (zones 16, scale 40, news 31) — and at
+   line-height .93 the display face's descenders overflow their own box, so
+   zero read as the card touching the word. --gap-lg puts it in the same
+   range as the other two heading-to-block gaps. */
+#sponsors-home .sb{position:relative;isolation:isolate;margin-top:var(--gap-lg)}
 /* The clip lives on the full-bleed SECTION, never on .sb. .sb is inset by the
    gutter, so clipping there cut every ribbon dead on the card edge — the
    straight vertical seam down the bento. The section spans the page, so the
@@ -1281,7 +1286,12 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
   #zones .zstep .sn{grid-column:1;grid-row:1;justify-self:start;
     display:inline-flex;align-items:center;width:auto;
     background:var(--accent);color:var(--tag-ink);
-    padding:5px 12px;border-radius:var(--r-pill)}
+    padding:5px 12px;border-radius:var(--r-pill);
+    /* No shadow on the chip. The one on .st/.sd holds light type against the
+       colour field, which cannot be darkened without losing the point of it —
+       but the chip brings its own opaque ground and dark ink, so the same
+       shadow has nothing to do except read as a drop shadow under the text. */
+    text-shadow:none}
   #zones .zstep .st{grid-column:1;grid-row:2}
 
   /* A zone-hue dot on every index key was tried here and removed: with a

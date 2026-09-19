@@ -76,40 +76,44 @@
    which is why these seventeen pages ran 48/34/27/20 while home ran 80/68.
    80px is retired: at that weight a ribbon reads as a slab, not a line.
 
-   THE FOURTH LINE in each set is still 20px. The ladder has three rungs and
-   inventing a fourth is not mine to do, so rank 3 — the faintest line, alpha
-   .12 — is left exactly as it was pending a ruling. Do not add a mobile
-   step-down either: none has been ruled on, and weight is a constant pixel
+   THE FOURTH LINE shares the bottom rung at 44. The ladder has three rungs and
+   these sets have four lines, so rank 3 sits on 44 alongside rank 2 rather
+   than on a fourth weight invented for it — the two are still separated, by
+   opacity (.16 against .12) and by placement. It used to be 20px, which is
+   what read as a different, thinner family of line on the same page. Nothing
+   on this site is now thinner than the bottom rung.
+
+   No mobile step-down: none has been ruled on, and weight is a constant pixel
    value, so 68px is 4.7% of a 1440 desktop and 18% of a 370 phone. */
     [['sweepA', 'coral', 96, 70, 52, 16, 68, .40, 0.50],
      ['hookB', 'violet', 62, 12, 88, -14, 56, .22, 0.28],
      ['loopA', 'cyan', 38, 30, 105, 10, 44, .16, 0.42],
-     ['archB', 'green', 86, 92, 84, 26, 20, .12, 0.23]],
+     ['archB', 'green', 86, 92, 84, 26, 44, .12, 0.23]],
 
     [['archA', 'cyan', 96, 26, 72, -22, 68, .40, -0.50],
      ['riseB', 'green', 58, 88, 84, 26, 56, .22, -0.28],
      ['coilB', 'violet', 36, 92, 50, -34, 44, .16, -0.42],
-     ['sweepC', 'coral', 82, 8, 92, 16, 20, .12, 0.24]],
+     ['sweepC', 'coral', 82, 8, 92, 16, 44, .12, 0.24]],
 
     [['loopB', 'violet', 96, 74, 34, 24, 68, .40, 0.53],
      ['crestA', 'coral', 66, 16, 82, -18, 56, .22, 0.30],
      ['driftA', 'green', 40, 92, 104, 14, 44, .16, 0.40],
-     ['hookA', 'cyan', 84, 8, 60, 30, 20, .12, -0.25]],
+     ['hookA', 'cyan', 84, 8, 60, 30, 44, .12, -0.25]],
 
     [['crestB', 'green', 96, 24, 60, -26, 68, .40, -0.50],
      ['sweepB', 'cyan', 64, 86, 32, 20, 56, .22, -0.29],
      ['riseA', 'coral', 38, 8, 94, -12, 44, .16, -0.41],
-     ['coilA', 'violet', 88, 92, 72, 20, 20, .12, 0.23]],
+     ['coilA', 'violet', 88, 92, 72, 20, 44, .12, 0.23]],
 
     [['coilA', 'coral', 96, 68, 44, 20, 68, .40, 0.47],
      ['archB', 'violet', 60, 10, 80, -16, 56, .22, 0.29],
      ['sweepC', 'green', 40, 92, 102, 12, 44, .16, 0.39],
-     ['riseB', 'cyan', 84, 8, 58, 28, 20, .12, -0.26]],
+     ['riseB', 'cyan', 84, 8, 58, 28, 44, .12, -0.26]],
 
     [['driftA', 'cyan', 96, 30, 66, -20, 68, .40, -0.49],
      ['loopB', 'coral', 62, 84, 86, 22, 56, .22, -0.28],
      ['crestB', 'violet', 38, 92, 48, -32, 44, .16, -0.40],
-     ['hookB', 'green', 82, 8, 90, 18, 20, .12, 0.25]],
+     ['hookB', 'green', 82, 8, 90, 18, 44, .12, 0.25]],
   ];
 
   const clamp = (v,a,b) => (v<a?a:v>b?b:v);
