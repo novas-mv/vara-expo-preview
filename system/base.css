@@ -713,3 +713,46 @@ fieldset{border:0;margin:0 0 var(--gap-lg);padding:0;min-width:0}
 @media(max-width:820px){
   .stepper{grid-template-columns:1fr 1fr}
 }
+
+/* ---- THE GUTTER RULE -----------------------------------------------------
+   A decorative ribbon may bleed anywhere on the page background, but it must
+   not cross the column people read in. The strokes run in document space and
+   bleed vertically on purpose, so a ribbon anchored in one band arrives in the
+   next one — measured on home, two sponsors ribbons bleeding UP and one from
+   #scale bleeding DOWN crossed all six news headlines and paragraphs at once.
+   Moving those three by hand would fix this screenshot and nothing else.
+
+   So the constraint is expressed once, against the same --maxw the content
+   column is built from: the line layer is masked out across that column and
+   kept in the gutters either side, with a short fade so the cut is never a
+   hard edge. It follows the column at every viewport because it is the same
+   token.
+
+   The honest trade: the gutter is what the viewport leaves over --maxw, so
+   the ribbons are broad on a wide screen and slim at 1440, where the gutter is
+   about 60px a side. Below --maxw there is no gutter at all and the layer goes
+   quiet, which is the right outcome on a phone, where a 68px ribbon across a
+   headline was the worst of this to begin with.
+
+   Masking was tried once before, per-section, and rejected — see graphics.css
+   Tier 1.5: on the SUBPAGES the copy runs 5%-95% of the viewport, so no mask
+   both protects the text and leaves a ribbon. That reasoning still holds and
+   this rule is deliberately NOT applied there. It works on home because home's
+   bands are a fixed centred --maxw column with real gutters either side. */
+.gutter-lines{
+  --gut-edge:40px;
+  -webkit-mask-image:linear-gradient(90deg,
+    #000 0,
+    #000 max(0px, calc(50% - var(--maxw) / 2)),
+    transparent calc(50% - var(--maxw) / 2 + var(--gut-edge)),
+    transparent calc(50% + var(--maxw) / 2 - var(--gut-edge)),
+    #000 min(100%, calc(50% + var(--maxw) / 2)),
+    #000 100%);
+  mask-image:linear-gradient(90deg,
+    #000 0,
+    #000 max(0px, calc(50% - var(--maxw) / 2)),
+    transparent calc(50% - var(--maxw) / 2 + var(--gut-edge)),
+    transparent calc(50% + var(--maxw) / 2 - var(--gut-edge)),
+    #000 min(100%, calc(50% + var(--maxw) / 2)),
+    #000 100%);
+}

@@ -111,6 +111,12 @@
    and the transition between zones becomes the graphic event. */
 .zgap{position:relative;min-height:clamp(260px,40vh,480px);
   display:grid;place-items:center;padding-inline:var(--gut)}
+/* On a phone 40vh of decorative band is a third of the screen, and it reads as
+   the page having stopped — three of them down one page. The gap still has to
+   exist (it is what turns the transition between zones into the graphic event,
+   and it is where the ribbons live) but it does not need to be a whole screen
+   to do that. */
+@media (max-width:639px){ .zgap{min-height:clamp(120px,16vh,170px)} }
 .zgap .rrule{width:min(100%,var(--maxw));margin:0}
 
 /* ---- 2. Ribbon rule -----------------------------------------------------

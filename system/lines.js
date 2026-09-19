@@ -91,34 +91,67 @@
 
      These sit BEHIND the content (.lineset is z-index 0, everything else 1),
      so they can pass under copy without blocking it. */
+  /* ONE OPACITY for every ribbon, not a ramp by rank. These used to run
+     .40 / .22 / .16, which greyed the colour and muted the shading the tube
+     surface exists to show — and an alpha ramp is not hierarchy anyway, the
+     three rungs already do that. Full strength then proved too loud against
+     the copy. So a single value, sitting back a little from the ground.
+     ?lines=a:N sets it live, 0 to 1. */
+  const ALPHA = (() => {
+    const m = /[?&]lines=a:(\d*\.?\d+)/.exec(location.search);
+    return m ? Math.min(1, Math.max(0, parseFloat(m[1]))) : 0.65;
+  })();
+
   const LAYOUTS = [
-    /* Eight shapes, no repeat inside a set, a different leader every time.
-       Biased LOW (yPct 60+) and RIGHT: these pages set their copy left and
-       ranged, so the right margin is the empty one. */
-    [['el-coral',  52, 'R', 74,  14, 68, 1,  0.50],
-     ['loopB',     38, 'L', 96, -12, 56, 1,  0.28],
-     ['el-cyan',   28, 'R', 34,  18, 44, 1,  0.42]],
+    /* [shape, hue, sizeVW, side, yPct, rotDeg, strokePx, alpha, parallax]
 
-    [['el-cyan',   52, 'R', 68, -18, 68, 1, -0.50],
-     ['coilA',     38, 'L', 98,  22, 56, 1, -0.28],
-     ['el-violet', 28, 'L', 30, -14, 44, 1, -0.42]],
+       FOUR PER SET, and the count is not arbitrary — each entry has a job:
+         1. a CROSSING, high or low, for the sweep the brand leads with.
+            Dropped on a band under 620px, where it would lie across the copy.
+         2. two GUTTER RUNNERS, one per edge. These bleed top and bottom, so
+            they run down the margins and out of the band at both ends. They
+            are what carries a shallow pagehead — the section does not have to
+            be tall enough to hold them.
+         3. a complete FORM, tucked into a corner, as the punctuation.
+       A short band therefore still draws three, along both gutters, rather
+       than one mark alone in a lot of space.
 
-    [['el-violet', 52, 'R', 78,  20, 68, 1,  0.53],
-     ['el-green',  38, 'L', 94, -16, 56, 1,  0.30],
-     ['coilB',     28, 'R', 28,  12, 44, 1,  0.40]],
+       Hue is NAMED and always one of the four; it picks that stroke's own
+       36-stop model ramp. --accent is never consulted — on a page with no
+       data-zone it falls back to cream and shades to tan. */
+    [['sweepA',    'coral',  124, 'R', 16,  10, 68, ALPHA,  0.50],
+     ['riseA',     'violet',  40, 'L', 50,  -8, 56, ALPHA,  0.34],
+     ['hookB',     'cyan',    34, 'R', 50,   6, 44, ALPHA,  0.28],
+     ['el-coral',  'coral',   30, 'R', 88, -12, 44, ALPHA,  0.42]],
 
-    [['el-green',  52, 'R', 70, -22, 68, 1, -0.50],
-     ['loopA',     38, 'L', 92,  16, 56, 1, -0.29],
-     ['el-coral',  28, 'L', 32, -10, 44, 1, -0.41]],
+    [['archA',     'cyan',   128, 'L', 86, -14, 68, ALPHA, -0.50],
+     ['hookA',     'green',   40, 'L', 50,   8, 56, ALPHA, -0.34],
+     ['riseB',     'coral',   34, 'R', 50,  -6, 44, ALPHA, -0.28],
+     ['coilB',     'violet',  30, 'R', 18,  16, 44, ALPHA, -0.42]],
 
-    [['loopA',     52, 'R', 66,  18, 68, 1,  0.47],
-     ['el-violet', 38, 'L', 90, -14, 56, 1,  0.29],
-     ['el-green',  28, 'R', 26,  10, 44, 1,  0.39]],
+    [['driftA',    'violet', 120, 'R', 18,  16, 68, ALPHA,  0.53],
+     ['riseB',     'green',   40, 'L', 50,  -8, 56, ALPHA,  0.34],
+     ['hookA',     'coral',   34, 'R', 50,   6, 44, ALPHA,  0.28],
+     ['el-cyan',   'cyan',    30, 'R', 86, -14, 44, ALPHA,  0.40]],
 
-    [['coilB',     52, 'R', 80, -16, 68, 1, -0.49],
-     ['el-coral',  38, 'L', 95,  20, 56, 1, -0.28],
-     ['loopB',     28, 'R', 24, -12, 44, 1, -0.40]],
+    [['crestB',    'green',  126, 'L', 82, -18, 68, ALPHA, -0.50],
+     ['hookB',     'violet',  40, 'L', 50,   8, 56, ALPHA, -0.34],
+     ['riseA',     'cyan',    34, 'R', 50,  -6, 44, ALPHA, -0.28],
+     ['loopA',     'coral',   30, 'R', 20,  12, 44, ALPHA, -0.41]],
+
+    [['sweepC',    'cyan',   122, 'R', 14,  14, 68, ALPHA,  0.47],
+     ['riseA',     'coral',   40, 'L', 50,  -8, 56, ALPHA,  0.34],
+     ['hookB',     'green',   34, 'R', 50,   6, 44, ALPHA,  0.28],
+     ['el-violet', 'violet',  30, 'R', 84, -16, 44, ALPHA,  0.39]],
+
+    [['archB',     'coral',  128, 'L', 88, -12, 68, ALPHA, -0.49],
+     ['hookA',     'cyan',    40, 'L', 50,   8, 56, ALPHA, -0.34],
+     ['riseB',     'violet',  34, 'R', 50,  -6, 44, ALPHA, -0.28],
+     ['el-green',  'green',   30, 'R', 16,  18, 44, ALPHA, -0.40]],
   ];
+;
+;
+;
 ;
 ;
 
@@ -133,7 +166,7 @@
      is four hues; tinting a traced coral spine with a section's green accent
      throws away the ramp that makes it read as the element at all. The hand
      curls have no ramp of their own and still take the section accent. */
-  let POOL = null;
+  let POOL = null, ST_RAMPS = null;
   function inkOf(d){
     const n = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
     const xs = n.filter((_, i) => i % 2 === 0);
@@ -147,6 +180,25 @@
       if (S && S.d) P['el-' + k] = { d:S.d, vb:ST._viewBox, stops:S.colors, ink:inkOf(S.d) };
     }
     for (const k in HAND_INK) P[k] = { d:SHAPES[k], vb:VB, stops:null, ink:HAND_INK[k] };
+    /* THE FREEHAND SWEEPS, back in. These run their paths past the viewBox on
+       purpose, and that is the point: a stroke that enters one edge and leaves
+       by another reads as passing THROUGH the frame. The earlier complaint was
+       not about bleeding, it was about fragments — a curl chopped mid-loop,
+       which has not earned its crop. A sweep crossing the whole section has.
+       They are placed centred and oversized so both ends are well off-frame;
+       never anchored to a gutter, which is what turns a crossing back into a
+       fragment. */
+    for (const k of ['sweepA','sweepB','sweepC','archA','archB','driftA','crestA','crestB'])
+      P[k] = { d:SHAPES[k], vb:VB, stops:null, ink:null, cross:true };
+    /* GUTTER RUNNERS. hookA/B and riseA/B bleed off the TOP and BOTTOM, not
+       the sides — their paths run y -60..880 in a 0..800 box. Anchored to an
+       edge they run down the gutter and out of the band at both ends, which
+       is how the homepage gets graphic interest into a shallow strip: the
+       band does not have to be tall enough to contain them, because they were
+       never meant to be contained. This is what a short section should draw
+       instead of one lonely complete form in a corner. */
+    for (const k of ['hookA','hookB','riseA','riseB'])
+      P[k] = { d:SHAPES[k], vb:VB, stops:null, ink:inkOf(SHAPES[k]), gutter:true };
     return P;
   }
 
@@ -172,14 +224,25 @@
      1440 desktop is a gutter; 38% of a 370 phone is a third of the screen, and
      the ribbon walks straight through the copy. One lever, already decided —
      --rung-scale — rather than a second breakpoint of its own. */
-  const xFor = (shape, side, sizeVW) => {
-    const ink = (POOL[shape] && POOL[shape].ink) || [0,1000];
+  const xFor = (shape, side, sizeVW, gap) => {
+    const SH = POOL[shape];
+    /* a crossing spans the frame; nudge it by side for variety, but never
+       anchor it to an edge — that is what would crop it into a fragment */
+    if (SH && SH.cross) return side === 'L' ? 42 : 58;
+    const ink = (SH && SH.ink) || [0,1000];
     const fL = ink[0]/1000, fR = ink[1]/1000;
     /* A phone has no empty margin to put anything in — the copy is the full
-       width. Below 640 the form is pushed a third of its own width back out
-       of the page, so a curl reads as something passing behind the column
-       rather than sitting on it. */
-    const edge = innerWidth < 640 ? EDGE - sizeVW*0.34 : EDGE;
+       width — so below 640 the form is pushed a third of its own width back
+       out of the page and reads as something passing behind the column.
+
+       EXCEPT in a .zgap, where that is precisely wrong. A zgap is not content
+       with art beside it; it is a band whose entire job is to show the art —
+       clamp(260px,40vh,480px) of height with nothing in it but a soft rule.
+       Pushing the form out of one leaves 338px of dead navy on a phone, three
+       times down the page, which is what the gap looked like. There is no copy
+       in there to avoid, so the form stays in view and fills the space it was
+       built for. */
+    const edge = (innerWidth < 640 && !gap) ? EDGE - sizeVW*0.34 : EDGE;
     return side === 'L' ? edge - fL*sizeVW + sizeVW/2
                         : 100 - edge - fR*sizeVW + sizeVW/2;
   };
@@ -258,9 +321,15 @@
     return [f(h+1/3)*255, f(h)*255, f(h-1/3)*255];
   }
   const cl01 = v => v<0?0:v>1?1:v;
-  function rampFor(sec){
-    const v = getComputedStyle(sec).getPropertyValue('--accent').trim();
-    const base = /^#[0-9a-f]{6}$/i.test(v) ? hx(v) : [140,150,190];
+  /* A named BRAND hue, never the section accent. On a page with no data-zone
+     --accent falls back to --cream, and a cream ribbon put through the shading
+     model comes out tan — a colour that is in no part of this brand. The four
+     hues are the element's own; a ribbon is one of them or it is nothing. */
+  let ROOT_CS = null;
+  function rampFor(hue){
+    ROOT_CS = ROOT_CS || getComputedStyle(document.documentElement);
+    const v = ROOT_CS.getPropertyValue('--' + hue).trim();
+    const base = /^#[0-9a-f]{6}$/i.test(v) ? hx(v) : [255,138,102];
     const [h,sa,l] = hsl(base);
     return [ hex(rgbOf([h, cl01(sa-.10), cl01(l+.10)])),
              hex(base),
@@ -274,17 +343,36 @@
       const pin = parseInt(sec.dataset.lines, 10);
       const set = LAYOUTS[Number.isFinite(pin) ? pin % LAYOUTS.length
                                                : cycle++ % LAYOUTS.length];
-      const host = document.createElement('div');
+      /* a band that exists only to carry the art, rather than content it has to
+       keep clear of */
+    const isGap = sec.classList.contains('zgap');
+    /* A CROSSING NEEDS ROOM. It spans 120vw+, so on a short band — a pagehead
+       is typically one headline and a standfirst — there is no y at all that
+       keeps it out of the copy: it crosses the whole section by definition.
+       Below this height the set drops its crossing and draws the two forms
+       only, which is what a small section can carry without being blocked.
+       Measured once here, not per frame. */
+    const roomy = isGap || sec.getBoundingClientRect().height >= 620;
+    const host = document.createElement('div');
       host.className = 'lineset';
       host.setAttribute('aria-hidden','true');
       sec.prepend(host);
 
       set.forEach((spec, i) => {
-        const shape = spec[0], sizeVW = spec[1], strokePx = spec[5], alpha = spec[6];
-        const yPct = spec[3], rot = spec[4], par = spec[7];
+        const shape = spec[0], hue = spec[1];
+        const sizeVW = spec[2];
+        const strokePx = spec[6], alpha = spec[7];
+        const yPct = spec[4], rot = spec[5], par = spec[8];
         const SH = POOL[shape];
         if (!SH) return;
-        const xPct = xFor(shape, spec[2], sizeVW);
+        /* Only the CROSSING needs room — it spans the section by definition.
+           Gutter runners bleed out of the band top and bottom, so a shallow
+           strip carries them fine, and drawing them is what stops a short
+           band reading as empty. An earlier pass cut short bands down to a
+           single form; that solved an overlap and produced a lone mark in a
+           lot of space, which is the worse problem. */
+        if (SH.cross && !roomy) return;
+        const xPct = xFor(shape, spec[3], sizeVW, isGap);
         const d = SH.d;
         if (!d) return;
 
@@ -317,7 +405,10 @@
         if (TUBE && !FLAT){
           /* the model spines bring their own 36-stop ramp; the hand curls
              take the section's accent */
-          const stops = SH.stops || rampFor(sec);
+          /* the traced spines carry their own 36-stop ramp; everything else
+             takes the named brand hue's, or a synthesised one if strokes.js
+             never arrived */
+          const stops = SH.stops || (ST_RAMPS && ST_RAMPS[hue]) || rampFor(hue);
           const La = (150 - rot) * Math.PI / 180;   // one light, held as each svg rotates
           const bands = (SEGMENTED ? null : TUBE.paintStack(svg, d, parseFloat(w), stops, La));
           let first, extra, len;
@@ -440,7 +531,11 @@
       .then(() => import(new URL('../pages/home/data/strokes.js', SCRIPT_SRC).href)
                     .then(sm => sm.STROKES)
                     .catch(() => null))
-      .then(ST => { POOL = buildPool(ST); })
+      .then(ST => {
+        POOL = buildPool(ST);
+        if (ST) ST_RAMPS = { coral:ST.coral && ST.coral.colors, green:ST.green && ST.green.colors,
+                             violet:ST.violet && ST.violet.colors, cyan:ST.cyan && ST.cyan.colors };
+      })
       .catch(e => { console.warn('VARA lines: tube surface unavailable, drawing flat.', e); })
       .then(start);
   } else {

@@ -1630,7 +1630,7 @@ stacked{display:flex;align-items:center;flex-wrap:wrap;
     <h2 class="d">Sponsors &amp; partners</h2>
 
     <div class="sb">
-      <div class="ribbons" aria-hidden="true"></div>
+      <div class="ribbons gutter-lines" aria-hidden="true"></div>
 
       <div class="srow b1">
         <div class="c">
@@ -2362,7 +2362,7 @@ const zoneSections = [...document.querySelectorAll('[data-zone]')].filter(s => s
    stroke can run past a section edge instead of being clipped by it. */
 const lineLayer = document.createElement('div');
 lineLayer.id = 'lineLayer';
-lineLayer.className = 'bleed-x';   // the system's bleed contract, system/graphics.css
+lineLayer.className = 'bleed-x gutter-lines';   // bleeds sideways, stays out of the read column   // the system's bleed contract, system/graphics.css
 /* directly after the field: above it, below everything that follows */
 const fieldEl = document.getElementById('field');
 if (fieldEl && fieldEl.parentNode) fieldEl.parentNode.insertBefore(lineLayer, fieldEl.nextSibling);
