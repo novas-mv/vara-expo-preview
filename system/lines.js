@@ -76,44 +76,48 @@
    which is why these seventeen pages ran 48/34/27/20 while home ran 80/68.
    80px is retired: at that weight a ribbon reads as a slab, not a line.
 
-   THE FOURTH LINE shares the bottom rung at 44. The ladder has three rungs and
-   these sets have four lines, so rank 3 sits on 44 alongside rank 2 rather
-   than on a fourth weight invented for it — the two are still separated, by
-   opacity (.16 against .12) and by placement. It used to be 20px, which is
-   what read as a different, thinner family of line on the same page. Nothing
+   THREE RUNGS, THREE LINES. These sets used to carry four. When the ladder came
+   in the fourth had nowhere to sit — it shared 44 with rank 2, so a set was
+   four ribbons of near-identical weight and the hierarchy rested entirely on
+   opacity. The fourth is dropped rather than given an invented weight: a
+   three-rung scale draws three lines. It was 20px before the ladder, which is
+   what read as a different, thinner family of line on the same page; nothing
    on this site is now thinner than the bottom rung.
 
-   No mobile step-down: none has been ruled on, and weight is a constant pixel
-   value, so 68px is 4.7% of a 1440 desktop and 18% of a 370 phone. */
+   SURFACE: these stay FLAT, and that is the guidance working, not a gap. The
+   shaded tube (ILLUSTRATION.md Tier 1.5) is for ribbons at opacity >= .5,
+   where the across-tube shading can actually be seen. Every ribbon here runs
+   .40 / .22 / .16, and at those values it cannot — while the cost is real:
+   42 ribbons across these pages would go from 84 DOM nodes to ~9,500 with
+   paintStack, or ~34,000 with paintTube. Home shades its bands because they
+   are the subject at full opacity; these sit behind body copy.
+
+   MOBILE: the ladder takes a responsive step through --rung-scale
+   (system/tokens.css) — 0.6 below 640px, so the rungs keep their ratios
+   instead of becoming a second set of numbers. */
     [['sweepA', 'coral', 96, 70, 52, 16, 68, .40, 0.50],
      ['hookB', 'violet', 62, 12, 88, -14, 56, .22, 0.28],
-     ['loopA', 'cyan', 38, 30, 105, 10, 44, .16, 0.42],
-     ['archB', 'green', 86, 92, 84, 26, 44, .12, 0.23]],
+     ['loopA', 'cyan', 38, 30, 105, 10, 44, .16, 0.42]],
 
     [['archA', 'cyan', 96, 26, 72, -22, 68, .40, -0.50],
      ['riseB', 'green', 58, 88, 84, 26, 56, .22, -0.28],
-     ['coilB', 'violet', 36, 92, 50, -34, 44, .16, -0.42],
-     ['sweepC', 'coral', 82, 8, 92, 16, 44, .12, 0.24]],
+     ['coilB', 'violet', 36, 92, 50, -34, 44, .16, -0.42]],
 
     [['loopB', 'violet', 96, 74, 34, 24, 68, .40, 0.53],
      ['crestA', 'coral', 66, 16, 82, -18, 56, .22, 0.30],
-     ['driftA', 'green', 40, 92, 104, 14, 44, .16, 0.40],
-     ['hookA', 'cyan', 84, 8, 60, 30, 44, .12, -0.25]],
+     ['driftA', 'green', 40, 92, 104, 14, 44, .16, 0.40]],
 
     [['crestB', 'green', 96, 24, 60, -26, 68, .40, -0.50],
      ['sweepB', 'cyan', 64, 86, 32, 20, 56, .22, -0.29],
-     ['riseA', 'coral', 38, 8, 94, -12, 44, .16, -0.41],
-     ['coilA', 'violet', 88, 92, 72, 20, 44, .12, 0.23]],
+     ['riseA', 'coral', 38, 8, 94, -12, 44, .16, -0.41]],
 
     [['coilA', 'coral', 96, 68, 44, 20, 68, .40, 0.47],
      ['archB', 'violet', 60, 10, 80, -16, 56, .22, 0.29],
-     ['sweepC', 'green', 40, 92, 102, 12, 44, .16, 0.39],
-     ['riseB', 'cyan', 84, 8, 58, 28, 44, .12, -0.26]],
+     ['sweepC', 'green', 40, 92, 102, 12, 44, .16, 0.39]],
 
     [['driftA', 'cyan', 96, 30, 66, -20, 68, .40, -0.49],
      ['loopB', 'coral', 62, 84, 86, 22, 56, .22, -0.28],
-     ['crestB', 'violet', 38, 92, 48, -32, 44, .16, -0.40],
-     ['hookB', 'green', 82, 8, 90, 18, 44, .12, 0.25]],
+     ['crestB', 'violet', 38, 92, 48, -32, 44, .16, -0.40]],
   ];
 
   const clamp = (v,a,b) => (v<a?a:v>b?b:v);
