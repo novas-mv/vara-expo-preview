@@ -353,6 +353,16 @@
        only, which is what a small section can carry without being blocked.
        Measured once here, not per frame. */
     const roomy = isGap || sec.getBoundingClientRect().height >= 620;
+    /* ONE ELEMENT PER GUTTER. Twice now two shapes anchored to the same edge
+       have landed on top of each other with the rest of the band empty, and
+       twice the instinct was to separate them by yPct. That cannot work: a
+       gutter element is 30-40vw, which at 1440 is 430-580px across, while the
+       band it sits in may be 469px tall. No y separates two shapes each larger
+       than the space between them.
+       So the rule is structural instead: an edge is taken or it is free. A
+       later entry wanting a taken edge is dropped. A zgap is exempt — it has
+       no copy to work around, so a stack there is a composition. */
+    const taken = { L:false, R:false };
     const host = document.createElement('div');
       host.className = 'lineset';
       host.setAttribute('aria-hidden','true');
@@ -372,6 +382,11 @@
            single form; that solved an overlap and produced a lone mark in a
            lot of space, which is the worse problem. */
         if (SH.cross && !roomy) return;
+        if (!SH.cross && !isGap){
+          const side = spec[3];
+          if (taken[side]) return;                  // that gutter is spoken for
+          taken[side] = true;
+        }
         const xPct = xFor(shape, spec[3], sizeVW, isGap);
         const d = SH.d;
         if (!d) return;
