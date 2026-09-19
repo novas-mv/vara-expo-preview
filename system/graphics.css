@@ -57,7 +57,31 @@
    `clip` rather than `hidden` because clip does NOT create a scroll container —
    hidden here would, and a scroll container in the middle of the page is how
    vertical scrolling gets swallowed. */
-[data-lines]{position:relative;isolation:isolate;overflow:clip visible}
+/* ---- THE BLEED CONTRACT — two rules, and they are checked -----------------
+   Decorative strokes are meant to run off the page background, across gutters
+   and section seams, and stop only where the viewport does. Two things break
+   that, and both broke it here more than once:
+
+   1. THE CLIPPING HOST MUST BE FULL-BLEED. Clip on anything inset by the
+      gutter — a .sb, a .sinner, any max-width wrapper — and every stroke is
+      cut dead on that box's edge. It reads as a straight vertical seam down
+      the content, which is the complaint every time. Only elements that span
+      the page (a section, the line layer) may carry .bleed-x.
+
+   2. NEVER overflow-clip-margin ON A BLEED HOST. It widens the clip region on
+      EVERY axis, so a vertical allowance quietly puts the same number of
+      horizontal pixels back into the scroll region — 100vh of it, 844px,
+      measured on the homepage. overflow-y:visible gives unlimited vertical
+      bleed for free and costs nothing horizontally.
+
+   `clip`, never `hidden`: hidden makes a scroll container, and a scroll
+   container mid-page is how vertical scrolling gets swallowed. Not fixable on
+   html or body either — both were tried (see base.css).
+
+   `tools/check-bleed.py` enforces both rules across every template. */
+.bleed-x{overflow-x:clip;overflow-y:visible}
+
+[data-lines]{position:relative;isolation:isolate;overflow-x:clip;overflow-y:visible}
 [data-lines] > *:not(.lineset){position:relative;z-index:1}
 
 /* ---- 1b. Where a line set may go -----------------------------------------

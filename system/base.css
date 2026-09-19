@@ -316,8 +316,16 @@ legend{padding:0}
   color:var(--cream);margin:0}
 .foot .who .muted{margin:12px 0 0;font-size:13px;line-height:1.6;max-width:36ch}
 /* partner credit — an inline pill, not a panel. It is a credit. */
+/* Aligned to the same column as .cols and .base. Those are max-width:--maxw
+   with auto margins; .credit had neither, so on a wide window it sat on the
+   footer's padding edge while everything above and below it started at the
+   centred content column — measured 72px against 140px at 1600. It is
+   width:fit-content, so it cannot use `margin:0 auto` (that would centre the
+   pill); the inline-start margin reproduces the centring offset instead. */
 .foot .credit{display:flex;gap:14px;align-items:center;flex-wrap:wrap;width:fit-content;
-  margin:var(--gap-md) 0 0;padding:14px 18px;border-radius:var(--r-pill);
+  margin:var(--gap-md) 0 0;
+  margin-inline-start:max(0px, calc((100% - var(--maxw)) / 2));
+  padding:14px 18px;border-radius:var(--r-pill);
   background:rgba(246,241,230,.06);box-shadow:inset 0 0 0 1px var(--ink-hairline)}
 .foot .credit .k{font-size:10px;letter-spacing:var(--ls-label);text-transform:uppercase;
   color:var(--ink-56);font-weight:600}

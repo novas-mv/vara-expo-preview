@@ -488,9 +488,6 @@
     --tw-tracking: var(--ls-label);
     letter-spacing: var(--ls-label);
   }
-  .text-wrap {
-    text-wrap: wrap;
-  }
   .tab-0 {
     tab-size: 0;
   }
@@ -1390,6 +1387,7 @@
     flex-wrap: wrap;
     width: fit-content;
     margin: var(--gap-md) 0 0;
+    margin-inline-start: max(0px, calc((100% - var(--maxw)) / 2));
     padding: 14px 18px;
     border-radius: var(--r-pill);
     background: rgba(246,241,230,.06);
@@ -2092,10 +2090,15 @@
   .lineset path.casing {
     stroke: var(--navy);
   }
+  .bleed-x {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
   [data-lines] {
     position: relative;
     isolation: isolate;
-    overflow: clip visible;
+    overflow-x: clip;
+    overflow-y: visible;
   }
   [data-lines] > *:not(.lineset) {
     position: relative;
