@@ -393,6 +393,7 @@ nav.links a[aria-current="page"]{color:var(--cream)}
 /* ---- News card ----------------------------------------------------------
    The landing page's news teaser. Media block is a token-derived ribbon
    ground, never a white card — illustrations sit on navy (ILLUSTRATION.md §3). */
+:root{ --ncard-pad:clamp(16px,1.6vw,24px) }
 .ncard{display:grid;gap:var(--gap-sm);text-decoration:none;color:inherit;position:relative;
   isolation:isolate;
   border-radius:var(--r-card);transition:transform var(--d-base) var(--e-enter)}
@@ -412,14 +413,16 @@ nav.links a[aria-current="page"]{color:var(--cream)}
    above the page. */
 .ncard::after{
   content:"";position:absolute;z-index:-1;pointer-events:none;
-  /* Sides are the tight axis: two adjacent panes have to clear each other
-     inside the grid's column gap. A fixed bleed cannot — at --gap-md (28px at
-     1440) two panes overlapped by 12px and the raised card ran into its
-     neighbour. Deriving it from the SAME token the gap uses makes that
-     impossible: a quarter of --gap-lg each side always leaves half the gap
-     between panes, at every viewport. Vertical is free, nothing sits beside
-     the card there. */
-  inset:calc(var(--gap-sm) * -1) calc(var(--gap-lg) / -4) -16px;
+  /* --ncard-pad is the padding INSIDE the pane, and the pane is drawn by
+     bleeding that far past the card on every side, uniformly. It is a real
+     token rather than a fixed bleed for two reasons: the card's own layout
+     must not shift (so this can never become padding on .ncard itself), and
+     the grid has to be able to reserve room for it — pages/news/index.html
+     sets its column gap to twice this plus a gap, so two raised panes always
+     clear each other whatever the viewport. Earlier a fixed 20px bleed against
+     a --gap-md column gap overlapped by 12px and the raised card ran into its
+     neighbour. */
+  inset:calc(var(--ncard-pad) * -1);
   border-radius:var(--r-panel);
   background:rgba(10,30,80,.26);
   -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bright));

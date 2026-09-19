@@ -26,7 +26,10 @@
    the card box on both sides, and at --gap-md (28px at 1440) two panes
    overlapped by 12px — the raised card ran into its neighbour. The gap now
    has to clear twice the bleed with room to spare. */
-.grid3{max-width:var(--maxw);margin:0 auto;display:grid;gap:var(--gap-lg);
+.grid3{max-width:var(--maxw);margin:0 auto;display:grid;
+  /* the column gap reserves both neighbours' hover padding plus a real
+     gap between them, so a raised card can never reach its neighbour */
+  gap:var(--gap-lg) calc(var(--ncard-pad) * 2 + var(--gap-sm));
   grid-template-columns:repeat(3,1fr)}
 .grid3 .ncard{min-width:0;align-content:start}
 .ncard[hidden]{display:none}
