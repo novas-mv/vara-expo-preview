@@ -217,7 +217,10 @@ function init(){
      arrives far too late. SEED stays a large FRACTION so the onset is still
      soft (0.20 x 1.9 = 380ms, gentler than the original 0.12 x 2.7 = 324ms)
      while the whole thing completes a full second sooner. */
-  const MT = 1.9;
+  /* 2.2, up from 1.9 — a modest lengthening, because the real problem was
+     never the clock. See the grow curve below: the entrance was spending a
+     third of itself invisible. ?entrance=N overrides it for tuning. */
+  const MT = (() => { const m=/entrance=([\d.]+)/.exec(location.search); return m?parseFloat(m[1]):2.2; })();
   const PHASE = { coral:0.00, green:0.02, violet:0.035, cyan:0.05 };   // nearly simultaneous by design
   /* SEED was 0.12 (~324ms) which snapped on. Longer, softer swell and an
      earlier, longer grow so the element is already moving when you look. */
@@ -315,7 +318,9 @@ function init(){
      copy in the left half. Past ~2.2 a stroke spills across the type. BIG_OUT
      can be bolder because the exit travels RIGHT as it swells, so the growth
      leaves the frame instead of crossing the words. */
-  const PEAK = 2.10, BIG_OUT = 2.00;
+  const PEAK_WIDE = 2.10;
+  const PEAK_NARROW = (() => { const m=/peak=([\d.]+)/.exec(location.search); return m?parseFloat(m[1]):1.40; })();
+  const BIG_OUT = 2.00;
   /* Which END each stroke is consumed from on the way out. +1 eats it from
      the start of the spine toward the finish, -1 the other way. Mixed on
      purpose: four strokes erasing the same direction reads like a wipe. */
@@ -454,7 +459,7 @@ function init(){
         /* The earlier, overlapped version, kept for comparison. */
         FK.grow = sstep(0.12, 0.78, u);
         FK.off  = IN_DIST * (1 - sstep(0, 1, u)) * M;
-        FK.big  = 1 + (PEAK - 1) * (sstep(0.04, 0.46, u) * (1 - sstep(0.56, 1.0, u)));
+        FK.big  = 1 + ((flyWide === false ? PEAK_NARROW : PEAK_WIDE) - 1) * (sstep(0.04, 0.46, u) * (1 - sstep(0.56, 1.0, u)));
         FK.spin = SPIN_IN * (1 - sstep(0.12, 1.0, u)) * M;
         FK.arc  = bell(sstep(0, 1, u)) * M;
       } else {
@@ -475,7 +480,7 @@ function init(){
         FK.grow = sstep(IN_DRAW, 1, u);
         /* The swell rides the DRAW, not the travel — the stroke inflates as it
            makes itself and settles to size as it finishes. */
-        FK.big  = 1 + (PEAK - 1) * (sstep(IN_DRAW, IN_DRAW + 0.28, u) * (1 - sstep(0.74, 1.0, u)));
+        FK.big  = 1 + ((flyWide === false ? PEAK_NARROW : PEAK_WIDE) - 1) * (sstep(IN_DRAW, IN_DRAW + 0.28, u) * (1 - sstep(0.74, 1.0, u)));
         /* The impact, landed on the frame the travel ends. A narrow dent in
            the scale, just before the draw inflates it — arrival, then growth. */
         FK.big *= 1 - (1 - SQUASH) * Math.exp(-Math.pow((u - IN_TRAVEL) / 0.075, 2)) * M;
@@ -549,14 +554,30 @@ function init(){
   const clamp01 = t => Math.min(1, Math.max(0, t));
   const inOutCubic = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
   const inOutQuint = t => t < 0.5 ? 16*t*t*t*t*t : 1 - Math.pow(-2*t + 2, 5) / 2;
+  const outCubic   = t => 1 - Math.pow(1 - t, 3);
   const smooth = (t,a,b) => inOutCubic(clamp01((t - a) / (b - a)));
 
   /* Declared up here: the worker plumbing below closes over all three, and
      the synchronous fallback can fire during init itself. */
   let started = false, t0 = 0, dead = false;
 
+  /* Below this much growth the two end caps are still effectively the same
+     sphere — the gap between them is exactly `grow` in arc units, and a
+     stroke's radius is a good tenth of its length, so under ~0.10 they
+     overlap almost completely. Two coincident spheres Z-FIGHT: the depth
+     buffer cannot separate them, and the winner flips across the surface in
+     hard-edged patches. That is what read as a sliced dot on the violet at
+     the start of the entrance, and as a seam arcing over the others.
+     One sphere is geometrically sufficient there — the sliver of stroke
+     between the two bounds is far shorter than the cap's own radius — so the
+     far cap simply stays hidden until they have genuinely separated. */
+  const CAP_PROUD = 1.02;   // see cap(); polygonOffset does most of the work now
+  const CAP_SPLIT = 0.10;
+  /* Below this the stroke is a bare sphere, not a stroke — so it is not drawn. */
+  const STROKE_MIN = 0.035;
   const capGeo = new THREE.SphereGeometry(1, 32, 24);
   const heads = {};
+
 
   /* One delivered stroke: rebuild its geometry from the transferred buffers,
      give it a FRESH material (cloning would inherit a draw-on injection and
@@ -576,10 +597,26 @@ function init(){
     pv.add(m);
     m.userData.pv = pv;
     const birth = BIRTH[name];
-    const matOf = t => new THREE.MeshPhysicalMaterial({
-      color: colorAt(colors, t), roughness:0.42, clearcoat:0.35,
-      clearcoatRoughness:0.3, metalness:0, envMapIntensity:0.35
-    });
+    /* The cap is THE SAME SUBSTANCE as the stroke it ends. It used to be a
+       duller, fully opaque material — roughness .42 vs .22, clearcoat .35 vs
+       .75, no transmission, no sheen, no emissive, half the env intensity — so
+       even with the depth sorted you saw a matte blob welded onto a glossy
+       translucent ribbon, for the whole length of the extrude. Same gummy
+       recipe, solid colour instead of vertex colours.
+
+       polygonOffset on top: the cap and the tube still share a surface where
+       they overlap, and biasing the cap toward the camera in DEPTH resolves
+       that without moving it in SPACE — which is the honest fix, since the
+       two really are meant to be the same surface there. */
+    const matOf = t => {
+      const mat = gummyMaterial(name, colors);
+      mat.vertexColors = false;
+      mat.color = colorAt(colors, t);
+      mat.polygonOffset = true;
+      mat.polygonOffsetFactor = -2;
+      mat.polygonOffsetUnits = -2;
+      return mat;
+    };
     const lo = new THREE.Mesh(capGeo, matOf(birth));
     const hi = new THREE.Mesh(capGeo, matOf(birth));
     m.add(lo, hi);                                  // children, so they inherit the stroke transform
@@ -654,13 +691,26 @@ function init(){
     const i = Math.min(sp.length - 2, Math.floor(f)), k = f - i;
     const a = sp[i], b = sp[i+1];
     mesh.position.set(a[0]+(b[0]-a[0])*k, a[1]+(b[1]-a[1])*k, a[2]+(b[2]-a[2])*k);
-    mesh.scale.setScalar(a[3]+(b[3]-a[3])*k);
+    /* PROUD of the tube, deliberately. The cap's radius is the spine radius,
+       and the tube's surface is the isosurface at exactly that radius around
+       the same spine — so at scale 1.0 the cap's inner hemisphere and the tube
+       are THE SAME SURFACE IN THE SAME PLACE. Two coplanar surfaces cannot be
+       ordered by a depth buffer, and the winner flickers across the whole
+       overlap: that is the artifacting all through the extrude. Sitting the
+       cap 4% outside puts it strictly in front everywhere, so it simply wins.
+       4% of a ~0.04 radius is under two thousandths of a world unit — far
+       below anything the eye can pick out against the tube's own silhouette. */
+    mesh.scale.setScalar((a[3]+(b[3]-a[3])*k) * CAP_PROUD);
   }
 
   /* Before the first stroke lands the clock is held at T=0, so the element
      enters from the designed start pose rather than part-way through it. */
   const clock = now => reduce ? 1e9 : (started ? (now - t0) / MT : 0);
 
+  window.__peakProbe = () => ({ flyWide, narrowUsed: flyWide === false,
+    PEAK_WIDE, PEAK_NARROW, effective: (flyWide === false ? PEAK_NARROW : PEAK_WIDE),
+    loopT: +loopT.toFixed(2), F_IN:+F_IN.toFixed(2), LOOP_AFTER,
+    bigNow: Object.keys(strokes).map(n => n + ':' + (strokes[n].userData.pv ? strokes[n].userData.pv.scale.x.toFixed(2) : '-')).join(' ') });
   function pose(now){
     const T = clock(now);
     /* The entrance owns the clock until it is finished, and then the mark
@@ -720,7 +770,8 @@ function init(){
         /* Caps stay full size all the way down to grow 0 — at zero they sit
            on top of each other AT the birth point, and that overlap IS the
            dot the stroke is born as. */
-        H.lo.visible = H.hi.visible = g < 1;
+        H.lo.visible = g < 1;
+        H.hi.visible = H.lo.visible && g > CAP_SPLIT;    // see CAP_SPLIT
         if (g < 1) for (const c of [H.lo, H.hi])
           c.material.color.copy(colorAt(m.userData.colors, c === H.lo ? loT : hiT));
         continue;
@@ -732,9 +783,24 @@ function init(){
       }
 
       const seed = looping ? 1 : smooth(T, ph, ph + SEED);
+      /* outCubic, not inOutQuint. The old curve is deliberately slow off the
+         mark — it spends its first ~30% below the length at which a stroke is
+         drawn at all (STROKE_MIN). That slow start used to be VISIBLE as the
+         dot swelling at the birth point; now that the lone-sphere stage is
+         gone it is simply dead air, and the draw that remained was crammed
+         into the back two thirds. outCubic reaches the visible threshold in
+         about 1% of the window, so the extrude starts immediately and uses
+         the WHOLE of it, decelerating into the finish. Same duration, nearly
+         twice the visible transition. */
       const grow = looping ? loopGrow(name)
-                           : inOutQuint(clamp01((T - (ph + SEED*0.6)) / GROW));
-      if (seed <= 0){ m.visible = false; H.lo.visible = H.hi.visible = false; continue; }
+                           : outCubic(clamp01((T - (ph + SEED*0.6)) / GROW));
+      /* A stroke is not shown until it is a STROKE. Below this much growth the
+         only thing on screen is its end cap — a bare sphere sitting on its own
+         with no ribbon between the bounds — and a lone sphere is both off-brief
+         and the thing that kept showing up clipped. Past it there is always a
+         real capsule with rounded ends, which is what the mark is made of.
+         The seed ramp still swells it in; it just swells in as a stroke. */
+      if (seed <= 0 || grow < STROKE_MIN){ m.visible = false; H.lo.visible = H.hi.visible = false; continue; }
       m.visible = true;
       const loT = birth * (1 - grow), hiT = birth + (1 - birth) * grow;
       H.set(loT, hiT);
@@ -746,7 +812,8 @@ function init(){
       const s = looping ? clamp01(grow / 0.05) : (grow > 0 ? 1 : seed);
       H.lo.scale.multiplyScalar(s); H.hi.scale.multiplyScalar(s);
       const growing = grow < 1;
-      H.lo.visible = H.hi.visible = growing && s > 0.001;
+      H.lo.visible = growing && s > 0.001;
+      H.hi.visible = H.lo.visible && grow > CAP_SPLIT;   // see CAP_SPLIT
       if (growing) for (const c of [H.lo, H.hi])
         c.material.color.copy(colorAt(m.userData.colors, c === H.lo ? loT : hiT));
     }
@@ -754,7 +821,15 @@ function init(){
   function dolly(now){
     const T = clock(now);
     const k = inOutQuint(clamp01(T));
-    cam.position.z = REST.z * (0.30 + 0.70 * k);     // from inside the element out to rest
+    /* 0.62, not 0.30. At 0.30 the camera starts so far inside the element that
+       three of the four birth points are OUTSIDE the frame — measured, coral
+       does not enter until 0.81s, violet 0.77s, green 0.58s. So for the first
+       three quarters of a second there is nothing to see no matter how fast
+       the meshes arrive, and on narrow, where the canvas is its own row, that
+       reads as a blank box. The mesh build was never the cause; the dolly was.
+       At 0.62 every birth point is in frame from the first rendered frame, and
+       it is still a pull-out — just one that starts where the mark is. */
+    cam.position.z = REST.z * (0.62 + 0.38 * k);
     rig.rotation.set(TILT[0]*(1-k), TILT[1]*(1-k), TILT[2]*(1-k));
   }
 
