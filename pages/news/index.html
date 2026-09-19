@@ -31,10 +31,12 @@
      them, so a raised card can never reach the one beside or below it. The row
      gap was left at --gap-lg when the padding went in and the vertical
      separation came out NEGATIVE — 43px of gap against 2x23px of padding, so
-     the panes overlapped by 3px at 1440 and 5px at 900. Rows get --gap-md
+     the panes overlapped by 3px at 1440 and 5px at 900. Rows get --gap-lg
      rather than the columns' --gap-sm: stacked cards want more air between
-     them than side-by-side ones, and there is no width pressure on that axis. */
-  gap:calc(var(--ncard-pad) * 2 + var(--gap-md)) calc(var(--ncard-pad) * 2 + var(--gap-sm));
+     them than side-by-side ones, and there is no width pressure on that axis.
+     --gap-md gave 28px of clear space at 1440 and Mufhim called for at least
+     32; --gap-lg is the next rung and gives 43. */
+  gap:calc(var(--ncard-pad) * 2 + var(--gap-lg)) calc(var(--ncard-pad) * 2 + var(--gap-sm));
   grid-template-columns:repeat(3,1fr)}
 .grid3 .ncard{min-width:0;align-content:start}
 .ncard[hidden]{display:none}
