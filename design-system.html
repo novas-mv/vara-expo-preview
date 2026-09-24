@@ -64,6 +64,19 @@
     vertical-align:top;color:var(--ink-84)}
   table.tok td:first-child{width:clamp(140px,18vw,230px)}
 
+  .faces{display:grid;gap:var(--gap-lg);
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .face{display:grid;gap:12px;align-content:start;padding:var(--gap-md);
+    border-radius:var(--r-card);box-shadow:inset 0 0 0 1px var(--ink-hairline)}
+  .facehead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .face h4{margin:0;font-weight:800;font-size:22px;letter-spacing:var(--ls-display-tight);
+    color:var(--cream)}
+  .facesample{margin:0;font-size:30px;line-height:1.1;color:var(--ink-90);
+    letter-spacing:var(--ls-display-tight)}
+  .wts{display:flex;gap:8px;flex-wrap:wrap}
+  .wt{font-size:15px;color:var(--ink-84);padding:4px 10px;border-radius:var(--r-pill);
+    box-shadow:inset 0 0 0 1px var(--ink-hairline)}
+  .face .pill{justify-self:start}
   .note{font-size:13.5px;color:var(--ink-84);line-height:1.6;max-width:var(--maxw-text)}
   .note b{color:var(--cream)}
   .rule{display:grid;gap:8px;padding:var(--gap-md);border-radius:var(--r-card);
@@ -115,6 +128,67 @@
   <div class="sec">
     <h2>Tokens</h2>
     <section class="grp"><h3>Colour · navy ramp (structural ground)</h3><figure class="sw"><span class="chip" style="background:var(--navy-950)"></span><figcaption><code>--navy-950</code><b>#00133F</b><i>body ground</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--navy-900)"></span><figcaption><code>--navy-900</code><b>#001A52</b><i>footer, root bg, band grounds</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--navy)"></span><figcaption><code>--navy</code><b>#001D61</b><i>primary brand ground</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--navy-700)"></span><figcaption><code>--navy-700</code><b>#0A3080</b><i>raised navy, borders on dark</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--navy-shadow)"></span><figcaption><code>--navy-shadow</code><b>0,9,30</b><i>rgb triple for tinted shadows — never black</i></figcaption></figure></section><section class="grp"><h3>Colour · ink</h3><figure class="sw"><span class="chip" style="background:var(--ink)"></span><figcaption><code>--ink</code><b>#F6F1E6</b><i>body text on dark</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--cream)"></span><figcaption><code>--cream</code><b>#F3EDDF</b><i>display type, solid button fills</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-on-light)"></span><figcaption><code>--ink-on-light</code><b>#04143C</b><i>text on a cream fill</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-94)"></span><figcaption><code>--ink-94</code><b>rgba(246,241,230,.94)</b></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-90)"></span><figcaption><code>--ink-90</code><b>rgba(246,241,230,.90)</b></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-86)"></span><figcaption><code>--ink-86</code><b>rgba(246,241,230,.86)</b></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-84)"></span><figcaption><code>--ink-84</code><b>rgba(246,241,230,.84)</b></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-56)"></span><figcaption><code>--ink-56</code><b>rgba(246,241,230,.56)</b></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-hairline)"></span><figcaption><code>--ink-hairline</code><b>rgba(246,241,230,.14)</b></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--ink-rim)"></span><figcaption><code>--ink-rim</code><b>rgba(246,241,230,.52)</b></figcaption></figure></section><section class="grp"><h3>Colour · zone accents</h3><figure class="sw"><span class="chip" style="background:var(--coral)"></span><figcaption><code>--coral</code><b>#FF8A66</b><i>Career</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--green)"></span><figcaption><code>--green</code><b>#6BFE96</b><i>Education</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--cyan)"></span><figcaption><code>--cyan</code><b>#1FE1FE</b><i>Skills Experience</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--violet)"></span><figcaption><code>--violet</code><b>#B66CF1</b><i>Market</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--coral-tag)"></span><figcaption><code>--coral-tag</code><b>#FF724F</b><i>the one accent-as-UI exception: .ztag</i></figcaption></figure><figure class="sw"><span class="chip" style="background:var(--tag-ink)"></span><figcaption><code>--tag-ink</code><b>#06122C</b></figcaption></figure></section><section class="grp"><h3>Type</h3><div class="ty"><div class="tyhead"><code>--t-display-xl</code><b>clamp(44px,9vw,150px)</b><i>hero date</i></div><p class="tysample" style="font-size:var(--t-display-xl)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-display-lg</code><b>clamp(34px,5.6vw,82px)</b><i>stat figures</i></div><p class="tysample" style="font-size:var(--t-display-lg)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-display-md</code><b>clamp(30px,4.4vw,64px)</b><i>h2 / page title</i></div><p class="tysample" style="font-size:var(--t-display-md)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-display-sm</code><b>clamp(22px,2.7vw,40px)</b><i>h3 / statement</i></div><p class="tysample" style="font-size:var(--t-display-sm)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-lead</code><b>clamp(19px,2.4vw,36px)</b><i>lede, venue line</i></div><p class="tysample" style="font-size:var(--t-lead)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-body-lg</code><b>clamp(15px,1.25vw,18.5px)</b></div><p class="tysample" style="font-size:var(--t-body-lg)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-body</code><b>clamp(14px,1.25vw,17.5px)</b></div><p class="tysample" style="font-size:var(--t-body)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-ui</code><b>13.5px</b><i>buttons, nav</i></div><p class="tysample" style="font-size:var(--t-ui)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-label</code><b>11px</b><i>eyebrows, stat labels</i></div><p class="tysample" style="font-size:var(--t-label)">Show up. Skill up.</p></div><div class="ty"><div class="tyhead"><code>--t-key</code><b>clamp(8.5px,.78vw,11px)</b><i>countdown keys</i></div><p class="tysample" style="font-size:var(--t-key)">Show up. Skill up.</p></div><table class='tok'><tbody><tr><td><code>--f-display</code></td><td><b>&quot;Cabinet Grotesk&quot;,&quot;General Sans&quot;,sans-serif</b></td><td></td></tr><tr><td><code>--f-body</code></td><td><b>&quot;General Sans&quot;,system-ui,-apple-system,sans-serif</b></td><td></td></tr><tr><td><code>--f-mono</code></td><td><b>&quot;JetBrains Mono&quot;,ui-monospace,SFMono-Regular,Menlo,monospace</b></td><td></td></tr><tr><td><code>--ls-display</code></td><td><b>-.04em</b></td><td></td></tr><tr><td><code>--ls-display-tight</code></td><td><b>-.035em</b></td><td></td></tr><tr><td><code>--ls-label</code></td><td><b>.18em</b></td><td></td></tr><tr><td><code>--ls-tag</code></td><td><b>.13em</b></td><td></td></tr><tr><td><code>--lh-display</code></td><td><b>.95</b></td><td></td></tr><tr><td><code>--lh-display-tight</code></td><td><b>.88</b></td><td></td></tr><tr><td><code>--lh-body</code></td><td><b>1.62</b></td><td></td></tr></tbody></table></section><section class="grp"><h3>Space</h3><div class="bar"><div class="barhead"><code>--gut</code><b>clamp(20px,4.6vw,72px)</b><i>page gutter, universal</i></div><span class="barfill" style="width:var(--gut)"></span></div><div class="bar"><div class="barhead"><code>--pad-section</code><b>clamp(96px,14vh,170px)</b><i>standard zone</i></div><span class="barfill" style="width:var(--pad-section)"></span></div><div class="bar"><div class="barhead"><code>--pad-band</code><b>clamp(80px,11vh,120px)</b><i>compact band</i></div><span class="barfill" style="width:var(--pad-band)"></span></div><div class="bar"><div class="barhead"><code>--pad-subband</code><b>clamp(28px,5vh,56px)</b><i>sub-band</i></div><span class="barfill" style="width:var(--pad-subband)"></span></div><div class="bar"><div class="barhead"><code>--gap-xs</code><b>8px</b></div><span class="barfill" style="width:var(--gap-xs)"></span></div><div class="bar"><div class="barhead"><code>--gap-sm</code><b>14px</b></div><span class="barfill" style="width:var(--gap-sm)"></span></div><div class="bar"><div class="barhead"><code>--gap-md</code><b>clamp(18px,2vw,28px)</b></div><span class="barfill" style="width:var(--gap-md)"></span></div><div class="bar"><div class="barhead"><code>--gap-lg</code><b>clamp(24px,3vw,48px)</b></div><span class="barfill" style="width:var(--gap-lg)"></span></div><div class="bar"><div class="barhead"><code>--gap-xl</code><b>clamp(44px,7vh,86px)</b></div><span class="barfill" style="width:var(--gap-xl)"></span></div><table class='tok'><tbody><tr><td><code>--maxw</code></td><td><b>1320px</b></td><td></td></tr><tr><td><code>--maxw-text</code></td><td><b>68ch</b></td><td></td></tr></tbody></table></section><section class="grp"><h3>Illustration (ILLUSTRATION.md)</h3><table class='tok'><tbody><tr><td><code>--spot-sm</code></td><td><b>clamp(72px,8vw,104px)</b></td><td></td></tr><tr><td><code>--spot-md</code></td><td><b>clamp(96px,11vw,148px)</b></td><td></td></tr><tr><td><code>--spot-lg</code></td><td><b>clamp(140px,18vw,260px)</b></td><td></td></tr><tr><td><code>--ribbon-w</code></td><td><b>11</b></td><td>stroke width on a 120-unit artboard</td></tr><tr><td><code>--ribbon-casing</code></td><td><b>19</b></td><td>the weave casing: ribbon + ~8 units</td></tr></tbody></table></section><section class="grp"><h3>Radius</h3><figure class="rad"><span class="radbox" style="border-radius:var(--r-pill)"></span><figcaption><code>--r-pill</code><b>999px</b></figcaption></figure><figure class="rad"><span class="radbox" style="border-radius:var(--r-panel)"></span><figcaption><code>--r-panel</code><b>26px</b></figcaption></figure><figure class="rad"><span class="radbox" style="border-radius:var(--r-card)"></span><figcaption><code>--r-card</code><b>18px</b></figcaption></figure><figure class="rad"><span class="radbox" style="border-radius:var(--r-section)"></span><figcaption><code>--r-section</code><b>clamp(28px,4vw,54px)</b></figcaption></figure></section><section class="grp"><h3>Elevation</h3><figure class="sh"><span class="shbox" style="box-shadow:var(--sh-sm)"></span><figcaption><code>--sh-sm</code></figcaption></figure><figure class="sh"><span class="shbox" style="box-shadow:var(--sh-lg)"></span><figcaption><code>--sh-lg</code></figcaption></figure><figure class="sh"><span class="shbox" style="box-shadow:var(--sh-text)"></span><figcaption><code>--sh-text</code></figcaption></figure><table class='tok'><tbody><tr><td><code>--sh-sm</code></td><td><b>0 1px 1px rgba(0,9,30,.30), 0 2px 4px rgba(0,9,30,.22), 0 4px 10px rgba(0,9,30,.18), 0 9px 22px rgba(0,9,30,.13), 0 18px 44px rgba(0,9,30,.09)</b></td><td></td></tr><tr><td><code>--sh-lg</code></td><td><b>0 1px 2px rgba(0,9,30,.26), 0 4px 8px rgba(0,9,30,.20), 0 9px 22px rgba(0,9,30,.16), 0 20px 48px rgba(0,9,30,.12), 0 38px 78px rgba(0,9,30,.08)</b></td><td></td></tr><tr><td><code>--sh-text</code></td><td><b>drop-shadow(0 1px 1px rgba(0,9,30,.30)) drop-shadow(0 3px 8px rgba(0,9,30,.22)) drop-shadow(0 8px 20px rgba(0,9,30,.16)) drop-shadow(0 18px 42px rgba(0,9,30,.10))</b></td><td></td></tr></tbody></table></section><section class="grp"><h3>Motion</h3><table class='tok'><tbody><tr><td><code>--e-scrub</code></td><td><b>cubic-bezier(.16,1,.3,1)</b></td><td>expo-out, for scrubbed values</td></tr><tr><td><code>--e-enter</code></td><td><b>cubic-bezier(.215,.61,.355,1)</b></td><td>entrance, own clock</td></tr><tr><td><code>--e-exit</code></td><td><b>cubic-bezier(.4,0,1,1)</b></td><td></td></tr><tr><td><code>--d-fast</code></td><td><b>180ms</b></td><td></td></tr><tr><td><code>--d-frost</code></td><td><b>520ms</b></td><td></td></tr></tbody></table></section><section class="grp"><h3>Glass</h3><table class='tok'><tbody><tr><td><code>--glass-blur</code></td><td><b>22px</b></td><td></td></tr><tr><td><code>--glass-sat</code></td><td><b>1.35</b></td><td></td></tr><tr><td><code>--glass-bright</code></td><td><b>1.02</b></td><td>~1. At .78 over a dark field it renders a black box.</td></tr></tbody></table></section>
+  </div>
+
+  <div class="sec">
+    <h2>Typefaces</h2>
+    <p class="note">
+      Three families, each bound to a role token so pages ask for the role and never
+      the family. The weights listed are <b>exactly the ones the site loads</b> — read
+      out of the document head when this page was built, so a weight shown here is a
+      weight that ships.
+    </p>
+    <div class="faces">
+        <article class="face">
+          <div class="facehead">
+            <h4 style="font-family:var(--f-display)">Cabinet Grotesk</h4>
+            <code>--f-display</code>
+            <span class="stamp">Fontshare</span>
+          </div>
+          <p class="facesample" style="font-family:var(--f-display)">Show up. Skill up.</p>
+          <div class="wts"><span class="wt" style="font-family:var(--f-display);font-weight:800">800</span> <span class="wt" style="font-family:var(--f-display);font-weight:700">700</span></div>
+          <p class="note" style="font-size:12.5px">ITF Free Font Licence — free for personal and commercial use</p>
+          <a class="pill ghost" href="https://www.fontshare.com/fonts/cabinet-grotesk" target="_blank" rel="noopener">
+            Download Cabinet Grotesk &rarr;</a>
+        </article>
+        <article class="face">
+          <div class="facehead">
+            <h4 style="font-family:var(--f-body)">General Sans</h4>
+            <code>--f-body</code>
+            <span class="stamp">Fontshare</span>
+          </div>
+          <p class="facesample" style="font-family:var(--f-body)">Show up. Skill up.</p>
+          <div class="wts"><span class="wt" style="font-family:var(--f-body);font-weight:400">400</span> <span class="wt" style="font-family:var(--f-body);font-weight:500">500</span> <span class="wt" style="font-family:var(--f-body);font-weight:600">600</span></div>
+          <p class="note" style="font-size:12.5px">ITF Free Font Licence — free for personal and commercial use</p>
+          <a class="pill ghost" href="https://www.fontshare.com/fonts/general-sans" target="_blank" rel="noopener">
+            Download General Sans &rarr;</a>
+        </article>
+        <article class="face">
+          <div class="facehead">
+            <h4 style="font-family:var(--f-mono)">JetBrains Mono</h4>
+            <code>--f-mono</code>
+            <span class="stamp">Google Fonts</span>
+          </div>
+          <p class="facesample" style="font-family:var(--f-mono)">6–8 NOV 2026 · 0123456789</p>
+          <div class="wts"><span class="wt" style="font-family:var(--f-mono);font-weight:700">700</span> <span class="wt" style="font-family:var(--f-mono);font-weight:800">800</span></div>
+          <p class="note" style="font-size:12.5px">SIL Open Font Licence 1.1</p>
+          <a class="pill ghost" href="https://www.jetbrains.com/lp/mono/" target="_blank" rel="noopener">
+            Download JetBrains Mono &rarr;</a>
+        </article></div>
+    <p class="note">
+      The buttons go to the foundries. The font files are <b>not hosted here</b>: the
+      site loads them from Fontshare and Google Fonts and keeps no local copy, so
+      offering them for download would mean republishing someone else's binaries from
+      this domain. Both licences are permissive, so that can be done — but it should be
+      a decision, not a side effect of a build script.
+    </p>
+    <p class="note">
+      Each family also has a <b>metric-matched fallback</b> declared on the landing page
+      — local Arial or Menlo with <code>size-adjust</code> and ascent/descent overrides
+      tuned so the substitute occupies nearly the same space. That is what stops the
+      layout shifting when the webfonts arrive, and what makes a failed font load
+      degrade quietly instead of reflowing the page.
+    </p>
   </div>
 
   <div class="sec">
