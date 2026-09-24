@@ -1,0 +1,4 @@
+JetBrains Mono
+SIL Open Font Licence, Version 1.1
+Full terms: https://scripts.sil.org/OFL
+Source: https://www.jetbrains.com/lp/mono/

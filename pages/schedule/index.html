@@ -3,7 +3,14 @@
 <title>Schedule &mdash; VARA Expo 2026</title>
 <link rel="preconnect" href="https://api.fontshare.com">
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<!-- TWO requests, not one. Fontshare drops the second family when both are
+     asked for in a single URL: f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600
+     comes back as Cabinet Grotesk + Satoshi, with General Sans missing entirely.
+     Every page therefore set body copy in a font it never loaded, and fell back
+     to system-ui. Measured: "General Sans" rendered at exactly the width of a
+     nonsense font name. Keep these separate. -->
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">

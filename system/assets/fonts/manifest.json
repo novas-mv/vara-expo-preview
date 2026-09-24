@@ -1,0 +1,44 @@
+[
+  {
+    "family": "Cabinet Grotesk",
+    "weight": 700,
+    "file": "cabinet-grotesk-700.woff2",
+    "bytes": 20300
+  },
+  {
+    "family": "Cabinet Grotesk",
+    "weight": 800,
+    "file": "cabinet-grotesk-800.woff2",
+    "bytes": 20204
+  },
+  {
+    "family": "General Sans",
+    "weight": 400,
+    "file": "general-sans-400.woff2",
+    "bytes": 23084
+  },
+  {
+    "family": "General Sans",
+    "weight": 500,
+    "file": "general-sans-500.woff2",
+    "bytes": 22904
+  },
+  {
+    "family": "General Sans",
+    "weight": 600,
+    "file": "general-sans-600.woff2",
+    "bytes": 23092
+  },
+  {
+    "family": "JetBrains Mono",
+    "weight": 700,
+    "file": "jetbrains-mono-700.woff2",
+    "bytes": 31340
+  },
+  {
+    "family": "JetBrains Mono",
+    "weight": 800,
+    "file": "jetbrains-mono-800.woff2",
+    "bytes": 31340
+  }
+]
