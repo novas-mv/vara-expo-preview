@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VARA — Hero Layout Options</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001D61; --navy-900:#001A52; --navy-950:#00133F;
+  --cream:#F3EDDF; --ink:#F6F1E6;
+  --coral:#FF8A66; --cyan:#1FE1FE; --violet:#B66CF1; --green:#6BFE96;
+  --gut:clamp(20px,4.6vw,72px);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--navy-950);color:var(--ink);
+  font-family:"General Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.d{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.035em;line-height:.92}
+.mono{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
+
+.note{position:sticky;top:0;z-index:70;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;
+  padding:12px var(--gut);background:rgba(0,10,32,.95);border-bottom:1px solid rgba(246,241,230,.13);
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+.note b{color:var(--ink);font-weight:600}
+.note span{color:rgba(246,241,230,.52);text-transform:none;letter-spacing:0;font-size:13px}
+
+/* approximates the shipped field at 0.22 coverage — layout study only */
+.stage{position:relative;min-height:100vh;min-height:100lvh;overflow:hidden;isolation:isolate;
+  padding:clamp(74px,10vh,110px) var(--gut) clamp(34px,6vh,62px);display:grid;
+  background:
+    radial-gradient(38% 30% at 14% 26%, rgba(107,254,150,.20), transparent 70%),
+    radial-gradient(34% 28% at 86% 22%, rgba(182,108,241,.20), transparent 72%),
+    radial-gradient(40% 32% at 70% 78%, rgba(31,225,254,.15), transparent 74%),
+    radial-gradient(30% 26% at 24% 84%, rgba(255,138,102,.16), transparent 74%),
+    linear-gradient(180deg,#001A52 0%,#002273 44%,#001347 100%);
+}
+.el{display:block;filter:drop-shadow(0 30px 70px rgba(0,0,0,.5))}
+
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,241,230,.78)}
+.cta{display:flex;gap:11px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;text-decoration:none;padding:13px 22px;border-radius:999px;
+  font-weight:600;font-size:14px;background:var(--cream);color:#04101F}
+.pill.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(246,241,230,.5)}
+
+/* the date/venue block, given real weight in every option */
+.when .day{font-family:"Cabinet Grotesk";font-weight:800;letter-spacing:-.04em;line-height:.86}
+.when .mon{color:var(--coral)}
+.when .venue{font-size:clamp(12px,1.05vw,14px);letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(246,241,230,.82);margin-top:12px}
+.rule{height:1px;background:rgba(246,241,230,.26);border:0;margin:18px 0}
+
+
+/* ---------- SHADOW SYSTEM ----------------------------------------------
+   The previous shadows were centred glows at very high alpha
+   (0 0 12px rgba(...,.85) and similar). A centred glow has no light
+   direction, so it reads as a dark ring around each glyph rather than as a
+   shadow — that is the thing that looks amateurish.
+
+   What mature shadows do instead:
+   1. DIRECTION. Every layer is offset downward, as if lit from above. A
+      shadow with no offset is a halo, not a shadow.
+   2. LAYERS. Several stacked layers with progressively larger blur and
+      progressively LOWER alpha, approximating a real penumbra. One hard
+      shadow cannot do this.
+   3. LOW ALPHA PER LAYER. Nothing above ~.30. The effect is cumulative;
+      each individual layer should be almost invisible on its own.
+   4. TINTED, NOT BLACK. Shadows take the scene's darkest ambient hue
+      (#00091E navy here) so they sit in the palette instead of punching a
+      grey hole in it.
+   5. A TIGHT CONTACT LAYER. The first 1-2px layer is what visually "sits"
+      the type on the surface; without it the whole stack floats.        */
+:root{
+  --sh-sm:
+    0 1px 1px rgba(0,9,30,.30),
+    0 2px 4px rgba(0,9,30,.22),
+    0 4px 10px rgba(0,9,30,.18),
+    0 9px 22px rgba(0,9,30,.13),
+    0 18px 44px rgba(0,9,30,.09);
+  --sh-lg:
+    0 1px 2px rgba(0,9,30,.26),
+    0 4px 8px rgba(0,9,30,.20),
+    0 9px 22px rgba(0,9,30,.16),
+    0 20px 48px rgba(0,9,30,.12),
+    0 38px 78px rgba(0,9,30,.08);
+}
+
+/* ============ A — COLOSSAL CENTRE ============ */
+#a{place-items:center;text-align:center}
+#a .wrap{display:grid;justify-items:center;gap:clamp(10px,1.6vh,20px);max-width:1100px}
+#a .el{width:min(46vw,470px);margin-bottom:clamp(4px,1vh,14px)}
+#a h1{font-size:clamp(26px,3.1vw,44px);margin:0;max-width:20ch}
+#a .when .day{font-size:clamp(40px,6.4vw,92px)}
+
+/* ============ B — SPLIT, ELEMENT LEFT ============ */
+#b{align-content:center}
+#b .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(24px,5vw,80px);align-items:center;width:100%;max-width:1320px;margin:0 auto}
+#b .el{width:min(42vw,520px);margin-inline:auto}
+#b h1{font-size:clamp(32px,4.4vw,64px);margin:0 0 20px;max-width:13ch}
+#b .when .day{font-size:clamp(34px,4.6vw,66px)}
+@media(max-width:900px){#b .grid{grid-template-columns:1fr}}
+
+/* ============ C — ELEMENT BEHIND THE DATE ============ */
+#c{place-items:center;text-align:center}
+#c .stack{position:relative;display:grid;justify-items:center;gap:14px}
+#c .el{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);
+  width:min(62vw,620px);opacity:.96;z-index:0}
+#c .fore{position:relative;z-index:1;display:grid;justify-items:center;gap:12px}
+#c .title{font-family:"Cabinet Grotesk";font-weight:800;letter-spacing:-.01em;
+  font-size:clamp(15px,1.5vw,21px);text-shadow:var(--sh-sm)}
+#c .title i{font-style:normal;color:var(--coral)}
+/* NO pool behind the type in C.
+   A radial scrim here sits in .fore (z-index 1), i.e. OVER the element, and
+   dimmed the logo across its whole centre — measured: the green arm lost 24%
+   of its luminance. Legibility comes from text-shadow on the small lines
+   instead: shadows follow the glyphs, so they darken only what is directly
+   behind the letters and leave the element at full strength. */
+#c .eyebrow,#c .when .venue{
+  text-shadow:var(--sh-sm);
+}
+#c .cdlabel,#c .cd .n,#c .cd .k{
+  text-shadow:var(--sh-sm);
+}
+#c .when .day{font-size:clamp(52px,9.6vw,150px);
+  text-shadow:var(--sh-lg)}
+#c h1{font-size:clamp(20px,2.3vw,32px);margin:0;max-width:22ch;
+  text-shadow:var(--sh-lg)}
+
+/* ============ D — BASELINE BAND ============ */
+#d{align-content:space-between}
+#d .top{display:grid;justify-items:center;text-align:center;gap:12px;padding-top:clamp(6px,2vh,26px)}
+#d .el{width:min(38vw,400px)}
+#d h1{font-size:clamp(28px,3.4vw,48px);margin:0;max-width:18ch}
+#d .band{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(20px,3vw,56px);
+  align-items:end;padding-top:clamp(16px,2.4vh,28px);border-top:1px solid rgba(246,241,230,.22)}
+#d .when .day{font-size:clamp(30px,4.2vw,58px)}
+@media(max-width:900px){#d .band{grid-template-columns:1fr;gap:22px}}
+
+/* the countdown, secondary: mono, small, quiet */
+.cd{display:flex;align-items:stretch;gap:clamp(9px,1.3vw,16px)}
+.cd .u{text-align:center}
+.cd .n{font-family:"JetBrains Mono",monospace;font-weight:700;font-variant-numeric:tabular-nums;
+  line-height:.9;color:rgba(246,241,230,.94);font-size:clamp(17px,1.8vw,26px)}
+.cd .k{font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(246,241,230,.58);margin-top:7px;font-family:"General Sans"}
+.cd .sep{width:1px;background:rgba(246,241,230,.22);margin-bottom:16px}
+.cdlabel{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,241,230,.6)}
+</style>
+</head>
+<body>
+
+<!-- A -->
+<div class="note"><b>A · Colossal centre</b> <span>Element is the hero. Headline demoted to a supporting line, date at display scale beneath.</span></div>
+<section class="stage" id="a">
+  <div class="wrap">
+    <img class="el" src="./element.png" alt="">
+    <div class="eyebrow">National Skills &amp; Career Expo · Maldives</div>
+    <h1 class="d">Show up. Skill up. Stand out.</h1>
+    <div class="when">
+      <div class="day">6–8 <span class="mon">NOV</span> 2026</div>
+      <div class="venue">Central Park · Hulhumalé, Maldives</div>
+    </div>
+    <div class="cta" style="margin-top:14px"><a class="pill" href="#">Register Now</a><a class="pill ghost" href="#">Exhibit with us</a></div>
+    <div class="cdlabel" style="margin-top:18px">Doors open in</div>
+      <div class="cd" data-cd></div>
+  </div>
+</section>
+
+<!-- B -->
+<div class="note"><b>B · Split</b> <span>Element holds one half at scale; headline, date and venue stack in the other.</span></div>
+<section class="stage" id="b">
+  <div class="grid">
+    <img class="el" src="./element.png" alt="">
+    <div>
+      <div class="eyebrow" style="margin-bottom:16px">National Skills &amp; Career Expo</div>
+      <h1 class="d">Show up. Skill up. Stand out.</h1>
+      <div class="when">
+        <div class="day">6–8 <span class="mon">NOV</span> 2026</div>
+        <div class="venue">Central Park · Hulhumalé, Maldives</div>
+      </div>
+      <hr class="rule">
+      <div class="cdlabel" style="margin-bottom:10px">Doors open in</div>
+      <div class="cd" data-cd style="margin-bottom:22px"></div>
+      <div class="cta"><a class="pill" href="#">Register Now</a><a class="pill ghost" href="#">Exhibit with us</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- C -->
+<div class="note"><b>C · Element behind the date</b> <span>Biggest element of the four — it sits behind, the date reads over it at display scale.</span></div>
+<section class="stage" id="c">
+  <div class="stack">
+    <img class="el" src="./element.png" alt="">
+    <div class="fore">
+      <div class="title">VARA EXPO <i>2026</i></div>
+      <div class="eyebrow">National Skills &amp; Career Expo · Maldives</div>
+      <div class="when">
+        <div class="day">6–8 <span class="mon">NOV</span> 2026</div>
+        <div class="venue">Central Park · Hulhumalé, Maldives</div>
+      </div>
+      <h1 class="d">Show up. Skill up. Stand out.</h1>
+      <div class="cta" style="margin-top:10px"><a class="pill" href="#">Register Now</a><a class="pill ghost" href="#">Exhibit with us</a></div>
+      <div class="cdlabel" style="margin-top:18px">Doors open in</div>
+      <div class="cd" data-cd></div>
+    </div>
+  </div>
+</section>
+
+<!-- D -->
+<div class="note"><b>D · Baseline band</b> <span>Element and headline centred up top; date, venue and CTAs as one information bar across the base.</span></div>
+<section class="stage" id="d">
+  <div class="top">
+    <img class="el" src="./element.png" alt="">
+    <div class="eyebrow">National Skills &amp; Career Expo · Maldives</div>
+    <h1 class="d">Show up. Skill up. Stand out.</h1>
+  </div>
+  <div class="band">
+    <div class="when">
+      <div class="day">6–8 <span class="mon">NOV</span> 2026</div>
+      <div class="venue">Central Park · Hulhumalé</div>
+    </div>
+    <div style="align-self:end;justify-self:center;display:grid;justify-items:center">
+      <div class="cdlabel" style="margin-bottom:9px">Doors open in</div>
+      <div class="cd" data-cd></div>
+    </div>
+    <div class="cta" style="align-self:end"><a class="pill" href="#">Register Now</a><a class="pill ghost" href="#">Exhibit with us</a></div>
+  </div>
+</section>
+
+
+
+<script>
+(function(){
+  var T=Date.UTC(2026,10,6,4,0,0);
+  var U=[['Days',864e5],['Hours',36e5],['Minutes',6e4],['Seconds',1e3]];
+  var boxes=[].slice.call(document.querySelectorAll('[data-cd]'));
+  boxes.forEach(function(b){b.innerHTML=U.map(function(u,i){
+    return (i?'<div class="sep"></div>':'')+'<div class="u"><div class="n" data-u="'+u[0]+'">--</div><div class="k">'+u[0]+'</div></div>';}).join('');});
+  function pad(n){return n<10?'0'+n:''+n}
+  function tick(){var l=Math.max(0,T-Date.now()),r=l,v={};
+    U.forEach(function(u){v[u[0]]=Math.floor(r/u[1]);r-=v[u[0]]*u[1]});
+    boxes.forEach(function(b){U.forEach(function(u){
+      var e=b.querySelector('[data-u="'+u[0]+'"]');
+      var s=u[0]==='Days'?String(v[u[0]]):pad(v[u[0]]);
+      if(e.textContent!==s)e.textContent=s;});});}
+  var iv=null;function go(){if(!iv){tick();iv=setInterval(tick,1000)}}
+  function stop(){if(iv){clearInterval(iv);iv=null}}
+  document.addEventListener('visibilitychange',function(){document.hidden?stop():go()},{passive:true});
+  go();
+})();
+</script>
+</body>
+</html>

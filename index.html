@@ -1,0 +1,3140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VARA Expo 2026 — Show up. Skill up. Stand out.</title>
+
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- Design tokens. home was the ONLY page linking no stylesheet at all, so
+     every var(--token) it inherited from a shared component resolved to
+     nothing: --r-panel left the sponsor bands square-cornered, and
+     --gap-xl made `margin:var(--gap-xl) auto 0` invalid, which silently
+     dropped the `auto` and stopped the footer wordmark centring. This file
+     defines custom properties and nothing else, so it cannot restyle the
+     page — it only makes the variables exist. -->
+<!-- THE SAME BUNDLE THE OTHER SEVENTEEN PAGES LOAD. Home linked only
+     tokens.css, so it had the variables but none of the components — which is
+     why its footer, bands, tags and icon wells were re-implemented inline and
+     then drifted. The sponsors gutter going missing was that drift: a bespoke
+     `#news-home,#sponsors-home{padding:… var(--gut)}` got narrowed to news and
+     nothing in the system was left holding the page gutter.
+
+     Safe to add, by construction rather than by luck: tw.css imports base.css
+     into the COMPONENTS layer, and this page's own <style>
+/* The .foot component is NOT defined here. It lives in system/base.css and
+   this page loads the bundle like the other seventeen. It used to be copied in
+   because home linked no stylesheet — 13 selectors, every one an exact
+   duplicate — and the copy then won over the system by being unlayered, so a
+   fix to the shared footer silently did not reach the homepage. That is how
+   the credit pill ended up misaligned here and correct everywhere else. */ below is UNLAYERED.
+     Unlayered rules beat every layered one, so where the two define the same
+     thing home still wins and nothing here restyles. The bundle only makes the
+     system's components available — the duplicates can then be deleted one at
+     a time against a geometry check, instead of the page drifting further. -->
+<link rel="stylesheet" href="./system/tw.css">
+
+<script type="importmap">
+{
+  "imports": { "three": "https://unpkg.com/three@0.184.0/build/three.module.min.js" },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
+    "https://unpkg.com/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6"
+  }
+}
+</script>
+
+<script>
+/* Main-thread block probe. Off unless ?probe is in the URL, so it costs
+   nothing in normal use. Records every rAF delta from parse time until the
+   element first becomes visible, which is how the "is the mesh build still
+   blocking the main thread?" question gets answered with a number instead of
+   an assertion. Read it from the console as window.__varaProbe.report(). */
+if (location.search.includes('probe')){
+  var P = window.__varaProbe = { t0: performance.now(), deltas: [], tasks: [], done: 0 };
+
+  /* Long tasks are the honest instrument: a PerformanceObserver entry is
+     actual main-thread occupancy, so it cannot be inflated by an occluded
+     window the way a raw rAF gap can. */
+  try {
+    new PerformanceObserver(function(l){
+      l.getEntries().forEach(function(e){
+        if (!P.done || e.startTime < P.done) P.tasks.push({ at:+e.startTime.toFixed(1), ms:+e.duration.toFixed(1) });
+      });
+    }).observe({ type:'longtask', buffered:true });
+  } catch(e){}
+
+  /* rAF deltas too, but only frames where the page was actually visible and
+     focused — otherwise the browser's own throttling shows up as a "stall". */
+  var last = P.t0;
+  (function tick(){
+    var n = performance.now(), d = n - last; last = n;
+    if (document.visibilityState === 'visible' && document.hasFocus()) P.deltas.push(+d.toFixed(2));
+    if (!P.done) requestAnimationFrame(tick);
+  })();
+
+  P.report = function(){
+    var fcp = (performance.getEntriesByName('first-contentful-paint')[0]||{}).startTime || null;
+    var pre = P.tasks.filter(function(t){ return !P.done || t.at < P.done; });
+    return {
+      longestTaskMs: pre.reduce(function(m,t){ return Math.max(m, t.ms); }, 0),
+      totalBlockingMs: +pre.reduce(function(m,t){ return m + t.ms; }, 0).toFixed(1),
+      tasksOver200ms: pre.filter(function(t){ return t.ms > 200; }),
+      longestVisibleFrameMs: P.deltas.length ? Math.max.apply(null, P.deltas) : null,
+      frames: P.deltas.length,
+      fcpMs: fcp,
+      elementVisibleMs: P.done ? +P.done.toFixed(1) : null,
+      fcpToElementMs: (fcp && P.done) ? +(P.done - fcp).toFixed(1) : null
+    };
+  };
+}
+</script>
+
+<style>
+/* ============================================================
+   VARA Expo — hero is 3D, everything below is vector lines.
+   Carried-over perf rules (all measured on this project):
+     · no background-attachment:fixed
+     · no background-clip:text on animated content
+     · no animated layout properties (letter-spacing, width, …)
+     · no mix-blend-mode on a fixed full-viewport layer
+     · text-shadow blur radii stay SMALL. A 46px radius cost 2.3x the
+       scroll sweep vs 14px; a 110px radius + backdrop-filter cost 4.4x.
+   ============================================================ */
+
+:root{
+  /* navy scale. #001D61 is the client's structural ground. */
+  --navy-950:#00133F; --navy-900:#001A52; --navy:#001D61; --navy-700:#0A3080;
+  --cream:#F3EDDF; --ink:#F6F1E6;
+  --coral:#FF8A66; --cyan:#1FE1FE; --violet:#B66CF1; --green:#6BFE96;
+  --gut:clamp(20px,4.6vw,72px);
+  --maxw:1320px;
+}
+/* The reset lives in the BASE layer on purpose. Unlayered it beats every
+   layer regardless of specificity, so this one-character selector silently
+   outranked every .foot/.band/.card rule system/tw.css defines — which is
+   what kept the footer credit misaligned here and nowhere else. Deleting it
+   outright is not the fix either: preflight's own reset then reaches rules
+   this page's inline CSS was relying on it to beat. @layer base puts it back
+   in the right tier. */
+@layer base{*{box-sizing:border-box;margin:0;padding:0}}
+/* #field is a position:fixed canvas covering the viewport behind everything.
+   Rubber-band overscroll slides the content up and reveals it bare — a band
+   of raw colour field below the footer that reads as unfinished deadspace.
+   Two guards: stop the bounce, and paint the root the footer's own ground so
+   even a browser that bounces anyway has nothing alien to show. */
+html{scroll-behavior:smooth;background:#001D61;overscroll-behavior-y:none}
+body{overscroll-behavior-y:none}
+body{
+  /* Pinned, not inherited. Linking the bundle brought base.css's
+     `body{font-size:17.5px}` — the system's body size, which the other
+     seventeen pages use — and home had been on the UA default 16px. That one
+     inherited property moved 4,279 of 4,329 elements in the geometry
+     fingerprint. Adopting the system's type scale on this page is a real
+     design decision, not a side effect of a stylesheet link, so the size is
+     held here and the question is raised separately. */
+  font-size:16px;line-height:normal;
+  background:var(--navy-950);color:var(--ink);
+  font-family:"General Sans","General Sans fallback",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+
+/* ---------- METRIC-MATCHED FALLBACKS ----------------------------------------
+   The page's last layout shift was a font swap. Measured in a 4x trace: at
+   1,233ms the hero copy block went 1092x1002 -> 1060x871 and the nav and
+   wordmark narrowed 7-14px, all at once, as the real faces replaced the
+   system fallback. CLS 0.0041 — every remaining bit of it.
+
+   These three faces are the SAME system fonts the stack already falls back to,
+   re-declared with their metrics bent to match the real ones, so the fallback
+   occupies the space the webfont will occupy and the swap moves nothing.
+
+   The numbers are measured, not copied from a generator: each real face and
+   its fallback were rendered to a canvas at 100px and compared on advance
+   width and fontBoundingBox ascent/descent.
+
+     Cabinet Grotesk  vs Arial          3264.90 / 3444.19 -> 94.79%
+     General Sans     vs Arial          3293.20 / 3444.19 -> 95.62%
+     JetBrains Mono   vs ui-monospace   4259.93 / 3225.24 -> 132.08%
+
+   Cabinet was then tuned by measurement, not left at the computed figure:
+   94.79% still rendered the statement 14.5px wide against the real face, so
+   it went to 92.10% (and its overrides with it), which lands it at -1.1px.
+   The residual on the copy BLOCK is -8px of height and does not come from
+   line boxes — line-gap-override at 8%, 12% and 16% all measured identically,
+   so it is not worth overfitting to one viewport.
+
+   ascent/descent overrides are expressed against the ADJUSTED em (the real
+   metric divided by size-adjust), which is what the spec measures them
+   against. If `local()` finds nothing — a Linux or Android device with no
+   Arial — the face simply has no source, the family drops out, and the stack
+   falls through exactly as it does today. */
+@font-face{
+  font-family:"Cabinet Grotesk fallback";
+  src:local("Arial"),local("Helvetica"),local("Liberation Sans");
+  size-adjust:92.10%; ascent-override:94.46%; descent-override:30.40%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"General Sans fallback";
+  src:local("Arial"),local("Helvetica"),local("Liberation Sans");
+  size-adjust:95.62%; ascent-override:105.63%; descent-override:25.10%; line-gap-override:0%;
+}
+@font-face{
+  font-family:"JetBrains Mono fallback";
+  src:local("Menlo"),local("Consolas"),local("DejaVu Sans Mono");
+  size-adjust:132.08%; ascent-override:77.23%; descent-override:22.71%; line-gap-override:0%;
+}
+img{max-width:100%;display:block}
+.d{font-family:"Cabinet Grotesk","Cabinet Grotesk fallback","General Sans",sans-serif;font-weight:800;letter-spacing:-.035em;line-height:.93}
+.mono{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* ---------- nav ----------
+   Flush at the hero — no background, no blur. The frost only arrives once
+   .scrolled is toggled, and that toggle comes from ONE IntersectionObserver
+   on a sentinel, never a scroll listener. Re-measured as free on this page. */
+
+/* The bar's entire visual treatment — tint AND blur — lives on one pseudo
+   element that is TALLER than the fade, so its hard edge sits where the mask
+   has already reached zero and can never be seen.
+   Previous attempts failed because something always kept a hard bottom edge:
+   first the backdrop-filter on the header box, then (after moving the blur to
+   a pseudo) the header's own background gradient, which still stopped dead at
+   77px. Measured as the sharpest transition on the page both times. */
+
+
+/* The hero used to carry a VARA EXPO 2026 title of its own. With the statement
+   leading the hero that line has nowhere to sit, so the name moves into the
+   nav beside the mark — where a wordmark belongs — instead of being dropped. */
+
+
+
+/* 96x92, not square - a fixed 34x34 squashed it 4% (matches system/base.css) */
+
+
+
+
+
+
+.pill{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:11px 21px;border-radius:999px;text-decoration:none;
+  font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  background:var(--cream);color:#04143C;
+  box-shadow:0 0 0 1px rgba(255,255,255,.14);
+  transition:transform .35s,box-shadow .35s;
+}
+.pill:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.3),0 6px 26px rgba(0,0,0,.35)}
+.pill.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(246,241,230,.52)}
+.pill.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--cream)}
+.dot{width:6px;height:6px;border-radius:50%;background:#FF724F}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+
+/* ---------- hero (3D) ---------- */
+#hero{
+  position:relative;min-height:100svh;overflow:clip;isolation:isolate;
+  /* three rows: title pinned top, lockup centred over the element, statement
+     and actions pinned to the base of the viewport */
+  /* SPLIT: copy left, element right. This replaces the centred poster stack
+     (title pinned top, date centred over the element, statement at the base).
+     The inversion is the point of the redesign — the STATEMENT leads and the
+     date becomes supporting information, where before the date was the hero
+     and the statement sat at the bottom of the viewport. */
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;
+  padding:clamp(70px,10vh,110px) var(--gut) clamp(34px,6vh,64px);
+  /* DELIBERATE DEVIATION FROM THE HANDOFF README.
+     The README specifies renderer.setClearColor(0x37002c) — brand plum.
+     The brand ground moved from plum to NAVY (#001D61), so the hero canvas
+     is rendered with alpha:true over this navy page instead. Do not revert
+     the clear colour to plum; it is not a bug. */
+  /* Ends on #001A52 — the exact colour the continuous field starts on — so
+     the hero hands off to the rest of the page with no visible seam. It used
+     to fall to #00081C (near-black) against a navy field, which drew a hard
+     horizontal edge across the boundary. Stay inside the navy family. */
+  /* The hero carries the full colour spread — it is composed of all four
+     brand hues — and then FADES TO TRANSPARENT at the bottom so the
+     continuous field shows through underneath. Two opaque grounds always
+     meet in a visible line; one fading into the other does not. */
+  background:transparent;   /* the ground lives on ::before so it can be masked */
+}
+/* The hero ground sits on its own layer so a single mask can fade EVERY
+   layer together. Previously the base gradient faded but the four colour
+   washes on top of it did not, so they stopped dead at the hero's bottom
+   edge and drew the line you could see. One mask, all layers, no seam.
+   The hero deliberately carries all four hues — it is the one place the
+   whole palette appears at once. */
+/* The hero has NO ground of its own. Its ambilight is painted by the shared
+   #field canvas via the 'all' weight state, so there is exactly one ground
+   for the whole document and nothing to butt against at the hero's edge. */
+/* ---- AMBILIGHT -----------------------------------------------------------
+   A soft spill of the element's own four hues on the ground behind it, the way
+   a backlit screen throws colour onto the wall. It is deliberately UNDER the
+   canvas (z-index 0 vs the element's own paint) and deliberately weak: the
+   brief is vibrancy, not a wash, and the navy has to stay unmistakably navy.
+
+   Sized and placed to the element's MEASURED frame — centre 72.5% / 53%, about
+   52% of the width — not to the section, or the glow sits where the element
+   is not. --amb-x/--amb-y are updated with the camera in layout(), so the glow
+   follows the element instead of drifting away from it at other widths.
+
+   `plus-lighter` adds light rather than replacing colour, so the navy shows
+   through the glow instead of being covered by it — `screen` at this alpha
+   flattened the ground to a flat mauve. */
+/* Positioned from layout()'s own framing constants, not by eye: the element's
+   on-screen centre is 72% / 48% above 900px and 50% / 38% below it — the exact
+   values hero-element.js computes — and it is framed at about 52% of the hero
+   width. The ambilight is anchored to the same point, because the glow is
+   anchored to the element. */
+.hero-still{
+  display:none;position:absolute;z-index:0;pointer-events:none;
+  /* The art is cropped to its own alpha bounds, so this box IS the mark — no
+     invisible padding to reason about. aspect-ratio reserves the height before
+     the file arrives, so the still cannot introduce a shift of its own. */
+  left:72%;top:48%;width:42%;aspect-ratio:1400/1378;height:auto;
+  transform:translate(-50%,-50%);
+}
+html.no-3d .hero-still{display:block}
+html.no-3d #stage{display:none}
+/* Narrow: MIRROR `#hero canvas` exactly rather than guess a percentage.
+   Below 900px the hero is a two-row grid (`auto auto`) and the canvas is a
+   grid ITEM in row 1 at `height:min(42svh,360px)` — that row is what reserves
+   space above the copy. An absolutely positioned still is out of flow, so it
+   ignored the row entirely and landed on top of the statement whatever
+   percentage it was given; 86% and 66% were both wrong for the same reason.
+   Taking the same box means the still sits where the element sits, at every
+   aspect ratio, with no numbers to re-tune. `contain` keeps the art centred in
+   that box without distorting it. */
+@media (max-width:900px){
+  .hero-still{
+    position:relative;inset:auto;grid-row:1;transform:none;
+    width:100%;height:min(42svh,360px);aspect-ratio:auto;object-fit:contain;
+  }
+}
+
+.ambilight{
+  position:absolute;z-index:0;pointer-events:none;
+  left:var(--amb-x,72.5%);top:var(--amb-y,53%);
+  width:var(--amb-w,58%);aspect-ratio:1;transform:translate(-50%,-50%);
+  mix-blend-mode:plus-lighter;opacity:.55;
+  /* FOUR HUES, NO BLUE BASE. There used to be a fifth, central blue radial
+     holding the others together — but adding blue light to an already blue
+     ground is the one thing that cannot show, so all it did was raise the
+     brightness and make the whole spill read as a blue blob.
+
+     Each stop sits where its stroke actually is in the element: green upper
+     left, violet upper right, cyan lower left, coral lower right. The warm
+     pair stays a little under the cool pair — coral and violet on blue read as
+     pink much faster than green and cyan read as anything, which is what
+     turned the copy side mauve before — but not so far under that the glow
+     loses its colour, which is what happened when they were halved. */
+  /* Re-tuned for the DARK ground. These alphas were set against a much
+     brighter blue ramp; on #001D61 with a #0B2A7A bloom the whole layer was
+     adding a peak of RGB(7,18,10) — luma 15 against a ground of RGB(11,42,122),
+     which is to say nothing at all. Roughly 3x now, which is what it takes for
+     additive light to read as colour on a dark ground rather than as a faint
+     lift in brightness. */
+  background:
+    radial-gradient(37% 41% at 41% 27%, rgba(107,254,150,.42), transparent 67%),
+    radial-gradient(34% 37% at 69% 23%, rgba(182,108,241,.36), transparent 68%),
+    radial-gradient(39% 43% at 32% 69%, rgba(31,225,254,.42), transparent 68%),
+    radial-gradient(37% 40% at 73% 71%, rgba(255,138,102,.38), transparent 68%);
+  filter:blur(56px) saturate(1.3);
+}
+@media (prefers-reduced-motion:reduce){ .ambilight{filter:blur(56px) saturate(1.3)} }
+@media (max-width:900px){ .ambilight{--amb-x:50%;--amb-y:62%;--amb-w:96%;opacity:.46} }
+
+#hero canvas{
+  /* Still full-bleed, NOT confined to the right column. The element is framed
+     by shifting the camera's frustum window (see layout() below), which keeps
+     the approved pose exactly; sizing the canvas to a column instead would
+     shrink the element and re-crop it. Full-bleed also lets it bleed past the
+     right edge, which is what the layout wants. */
+  position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;
+  background-repeat:no-repeat;
+  /* CONTAIN, not 100% 100%. The fallback is a snapshot of the ELEMENT only.
+     Stretching it to the hero box distorted it, and because older snapshots
+     had a ground baked in it painted a gradient that could never match the
+     live field — that edge was the second band on this page. The ground is
+     the shared #field now, so this layer must stay transparent. */
+  background-size:contain;background-position:center;
+}
+/* The hero contrast scrim is GONE.
+   It was a 4-stop gradient over the hero only. Each stop is a slope change,
+   and on a background this soft a slope change reads as a band — ablation
+   put it at exactly y=892, and removing it dropped the sharpest transition
+   on screen from 24.4 to 15.9. With every overlay off, the shared field
+   measures 4.9, i.e. genuinely smooth: every band on this page has been an
+   effect layer that does not span the document drawing its own edge.
+   Hero contrast is carried by text-shadow on the type instead, which has
+   no geometry and therefore no edge. */
+/* ---- hero type ---------------------------------------------------------
+   Four things only: title, date, place, statement. The descriptor line and
+   the countdown moved below the fold — the descriptor duplicated the VARA
+   EXPO title, and the countdown was a fifth element competing in the centre.
+   Shadows are layered + directional + navy-tinted (see --sh-sm/--sh-lg);
+   a centred 0 0 glow reads as a halo, which is what looked amateurish. */
+:root{
+  --sh-sm:0 1px 1px rgba(0,9,30,.30),0 2px 4px rgba(0,9,30,.22),
+          0 4px 10px rgba(0,9,30,.18),0 9px 22px rgba(0,9,30,.13),
+          0 18px 44px rgba(0,9,30,.09);
+  --sh-lg:0 1px 2px rgba(0,9,30,.26),0 4px 8px rgba(0,9,30,.20),
+          0 9px 22px rgba(0,9,30,.16),0 20px 48px rgba(0,9,30,.12),
+          0 38px 78px rgba(0,9,30,.08);
+}
+/* BALANCE. Measured against the reference: its "STAND OUT" spans 34.6% of the
+   viewport, mine spanned 26.7% — the copy was ~1.3x too small for the half it
+   sits in, which left a dead vertical band between the text and the element
+   and made the element look oversized. Everything here is scaled to close
+   that, and the block is allowed to run to ~530px so the rules reach across
+   the column instead of stopping a third of the way.
+
+   The block is INSET past --gut on wide screens. It first sat hard on the
+   gutter, on the argument that every other page starts there — but the hero is
+   the one page with nothing above the fold to align to, and on the gutter it
+   read as pinned to the edge rather than placed. The inset is deliberately
+   small: enough to look chosen, not enough to drift toward the element.
+   Stacked layouts centre the block and cancel it. */
+.hero-copy{position:relative;z-index:2;grid-column:1;
+  display:grid;justify-items:start;text-align:left;
+  margin-left:clamp(0px,2.4vw,40px);
+  gap:clamp(18px,2.8vh,32px);max-width:min(530px,100%)}
+
+/* The statement is the hero now. Two beats: the setup at one size, the payoff
+   bigger and uppercase, on its own line. */
+#hero h1{margin:0;color:var(--cream);letter-spacing:-.03em;line-height:1.02;
+  display:grid;gap:clamp(2px,.6vh,8px);
+  filter:drop-shadow(0 1px 1px rgba(0,9,30,.30)) drop-shadow(0 3px 8px rgba(0,9,30,.22))
+         drop-shadow(0 8px 20px rgba(0,9,30,.16)) drop-shadow(0 18px 42px rgba(0,9,30,.10))}
+#hero h1 .say{font-size:clamp(30px,5.05vw,72px);font-weight:700;letter-spacing:-.035em}
+/* ONE LINE, always. Wrapped onto two it stopped being a payoff and the
+   gradient restarted on the second line, so "OUT" came back round to coral
+   instead of finishing on cyan. nowrap + a size that fits the column. */
+#hero h1 .grad{font-size:clamp(40px,7.1vw,102px);font-weight:800;text-transform:uppercase;
+  letter-spacing:-.045em;line-height:.96;white-space:nowrap}
+
+/* gradient on the payoff only — STATIC, because an animated
+   background-clip:text fill was the measured scroll stutter */
+#hero h1 .grad{
+  background-image:linear-gradient(94deg,#FF8A66 0%,#FB85E5 46%,#61FFF1 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent}
+
+/* ---- the supporting block: name, descriptor, date, place ----
+   Two hairlines group it into "what this is" and "when and where". They are
+   the only rules in the hero; everything else is type. */
+.hero-meta{display:grid;justify-items:start;gap:clamp(5px,.8vh,9px);width:100%}
+/* ONE rule, and a quieter one. There were two, bracketing the name line; with
+   that line gone a second rule had nothing left to separate, and at .34 the
+   pair read as structure the block does not need. This is the single break
+   between the statement and the facts under it. */
+.hero-meta .hrule{width:min(62%,330px);height:1px;border:0;
+  background:linear-gradient(90deg,rgba(246,241,230,.20),rgba(246,241,230,.02));
+  margin:clamp(4px,.8vh,10px) 0 clamp(8px,1.4vh,16px)}
+/* the date needs the air the second rule used to give it */
+.hero-meta .hm-when{margin-top:clamp(10px,1.7vh,20px)}
+.hero-meta p{margin:0;text-shadow:var(--sh-sm)}
+/* The VARA EXPO 2026 line is GONE from the hero. The wordmark sits in the nav
+   beside the mark, the <title> carries it, and repeating it under a headline
+   this size was the page saying its own name twice. */
+.hm-sub{font-size:clamp(10px,1vw,14px);letter-spacing:.17em;text-transform:uppercase;
+  color:rgba(246,241,230,.72)}
+.hm-when{font-family:"Cabinet Grotesk","Cabinet Grotesk fallback","General Sans",sans-serif;
+  font-size:clamp(25px,3.25vw,47px);letter-spacing:-.02em;color:var(--cream);line-height:1.05}
+.hm-when b{font-weight:800}
+.hm-when span{font-weight:400;color:rgba(246,241,230,.76)}
+.hm-where{font-size:clamp(13px,1.5vw,21px);letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(246,241,230,.76)}
+/* gradient on the last beat only — STATIC, because an animated
+   background-clip:text fill was the measured scroll stutter */
+#hero h1 .grad{
+  background-image:linear-gradient(94deg,#FF8A66 0%,#FB85E5 46%,#61FFF1 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  #hero h1 .grad{color:#FF8A66;-webkit-text-fill-color:#FF8A66;background-image:none}
+}
+
+/* ---- the band under the hero ---- */
+/* The countdown was a right-hand item in a space-between row, so it read as a
+   detail parked beside the descriptor rather than as the thing the page is
+   counting to. It is now a centred column: copy on top, the clock in its own
+   panel below it.
+
+   The panel is the page's existing .glass component, not a new surface —
+   a second raised treatment invented here is exactly the drift that
+   DESIGN-SYSTEM.md §0.5 exists to stop. .glass carries a negative left margin
+   because it was built to bleed off the hero's copy column, so that is zeroed
+   and the box is sized to its contents instead. */
+#openin{position:relative;z-index:1;padding:clamp(28px,5vh,56px) var(--gut);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:clamp(20px,3.2vh,36px)}
+#openin .who{font-size:clamp(14px,1.25vw,17.5px);color:rgba(246,241,230,.88);
+  max-width:62ch;margin:0}
+/* width:fit-content made this a box floating in a wide band — the panel read
+   as a chip rather than as the section. It is now a proper band at --maxw, so
+   it occupies the row it was given. */
+#openin .cdwrap{margin-left:0;width:min(100%,var(--maxw));
+  padding:clamp(26px,3.4vw,44px) clamp(24px,3.4vw,52px)}
+/* the clock needs saying what it is; "48" alone is not a sentence */
+#openin .cdlbl{margin:0 0 clamp(14px,2vh,22px);font-size:var(--t-label);
+  letter-spacing:var(--ls-label);text-transform:uppercase;font-weight:600;
+  color:var(--ink-56)}
+
+/* THE DIGITS CARRY THIS, NOT THE PANEL.
+   At clamp(28px,4.6vw,62px) the figures were sized for a countdown tucked
+   beside a paragraph, and dropping that unchanged into a highlighted band is
+   what still read as weak — a frame around quiet type reads quieter, not
+   louder. They now run at --t-display-lg, the stat-figure step, which is the
+   scale this page already uses when a number IS the content. */
+#openin .cd{gap:clamp(12px,2.2vw,34px)}
+#openin .cd .n{font-size:var(--t-display-lg);line-height:.9;letter-spacing:-.04em}
+#openin .cd .k{font-size:clamp(9.5px,.85vw,12px);letter-spacing:.2em;
+  color:var(--ink-84);margin-top:clamp(10px,1.4vh,14px)}
+/* the rules run the full height of the figures now rather than stopping short,
+   so the row reads as one instrument instead of four stacked pairs */
+#openin .cd .sep{margin-bottom:0;align-self:stretch;
+  background:linear-gradient(180deg,transparent,var(--ink-rim) 22%,var(--ink-rim) 78%,transparent)}
+@media (max-width:640px){
+  #openin .cd .n{font-size:clamp(34px,13vw,56px)}
+  #openin .cdwrap{padding:clamp(20px,5vw,30px) clamp(14px,4vw,24px)}
+}
+.cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+
+/* ---------- countdown ----------
+   JetBrains Mono 700/800, tabular-nums: fixed digit advance, so a ticking
+   second never reflows. Hairline rules instead of colons. No shadow, no
+   filter. Writes only on change; the interval stops on visibilitychange. */
+/* `contain:paint` is not decoration. The countdown writes new digits once a
+   second INSIDE .glass.cdwrap, which carries
+   backdrop-filter:blur(22px) saturate(1.75) brightness(0.52). A text change
+   inside a backdrop-filtered element makes Chrome re-read its backdrop, and
+   the backdrop here is the fixed full-viewport #field — so every tick
+   invalidated the WHOLE DOCUMENT. Measured in a 31s idle trace: two Paint
+   events every second, each with a clip of 3420x9962, i.e. the entire page,
+   for as long as the tab is open. Paint containment cuts the invalidation off
+   at this box, which holds four two-digit figures and three separators and
+   overflows nothing. */
+.cd{display:flex;justify-content:center;align-items:stretch;gap:clamp(7px,1.3vw,22px);margin-top:4px;contain:paint}
+.cd .u{text-align:center}
+.cd .n{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-weight:800;font-variant-numeric:tabular-nums;
+  font-size:clamp(28px,4.6vw,62px);line-height:.94;letter-spacing:-.03em;color:var(--cream)}
+.cd .k{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-weight:700;font-size:clamp(8.5px,.78vw,11px);letter-spacing:.17em;
+  text-transform:uppercase;color:rgba(246,241,230,.94);margin-top:9px}
+.cd .sep{width:1px;flex:0 0 1px;background:rgba(246,241,230,.32);align-self:stretch;margin-bottom:24px}
+
+/* ---------- THE COLOUR FIELD ----------
+   ONE fixed, full-viewport canvas for the WHOLE document. Not one wash per
+   section: per-section backgrounds are exactly what produced the hard edges
+   at section boundaries the client rejected. There is a single field; the
+   zones only say where each hue PEAKS, never when it switches.
+
+   Painted into a canvas, so no animated custom property is ever written to
+   :root — writing one there invalidates style for the entire document every
+   frame. No mix-blend-mode on this layer (measured cost), no filter, no
+   background-attachment:fixed. */
+#field{
+  position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;
+  pointer-events:none;
+}
+/* everything real sits above the field in the root stacking context */
+main,footer{position:relative;z-index:1}
+
+/* ---------- zones: lines only, no WebGL below the hero ---------- */
+section.zone,#scale{
+  position:relative;isolation:isolate;   /* no overflow:hidden — it chopped every line at the section seam */
+  padding:clamp(96px,14vh,170px) var(--gut);
+  background:transparent;          /* the field shows through — no per-zone wash */
+}
+section.zone{min-height:100svh;display:grid;align-content:center}
+/* THE HERO SEAM — root cause, found by ablation.
+   This scrim was rgba(0,10,32,.40) with inset:0 on every .zone and #scale.
+   Its own comment claimed it "adds no boundary of its own" because it is
+   identical in every section — true BETWEEN zones, false at the hero, which
+   was never in the selector list. So the field rendered at full brightness
+   across the hero and 40% darker from the first zone down, and that step WAS
+   the line. Measured: hiding main entirely left the field smooth (row delta
+   1.0); with main visible the same rows differed by ~40.
+   The contrast floor it protected is now held by text-shadow on .body and
+   .specs li, which costs nothing and has no edges. */
+/* (scrim deliberately removed — do not reinstate without also covering #hero) */
+/* ONE line layer for the whole document, not one per section. Per-section
+   hosts with overflow:hidden cut every stroke at the section boundary and
+   produced a hard horizontal seam across the page. Lines now live in
+   document space and cross section edges uninterrupted. */
+/* z-index 0, NOT -1. A negative z-index child paints behind its parent's
+   background, and body has an opaque one — every line was rendering under
+   the page. At 0 and placed directly after #field in DOM order it sits
+   above the field and below the sections. */
+/* The ribbons run past their section on purpose and the vertical bleed is the
+   whole effect — but sideways bleed past the viewport gives the landing page a
+   horizontal scrollbar (2331px of content in a 1440px window, measured; it is
+   on the live site too, and predates the hero redesign). `overflow-x:clip`
+   removes the overflow from the scroll region without making this a scroll
+   container, and `overflow-clip-margin` lets the ribbons keep bleeding
+   vertically. NOT fixable with overflow-x on html or body — both were tried
+   and both broke vertical scrolling (see system/base.css). */
+/* NOTHING in the line layer clips horizontally. A ribbon that stops at a
+   container edge reads as a cut, not a bleed — the whole effect is that the
+   strokes run off the page background, past every gutter and section seam.
+   The one horizontal guard is body{overflow-x:hidden} at the top of this
+   file; mixing overflow-x:clip with overflow-y:visible also silently drops
+   overflow-clip-margin (computed 0px, measured), so those container clips
+   were cutting at the box edge exactly, which is what they looked like.
+   Test vertical scroll at 370px after touching this. */
+#lineLayer{position:absolute;left:0;top:0;width:100%;z-index:0;pointer-events:none}
+.lines{position:absolute;left:0;width:100%;pointer-events:none;overflow:visible}
+/* will-change lists BOTH properties the rAF loop writes. Promoting for
+   transform alone left the per-frame opacity write repainting the layer.
+   The opacity TRANSITION is gone on purpose: paint() writes opacity every
+   frame, so a 500ms transition was being restarted sixty times a second and
+   never completing — the browser interpolating a value that had already
+   changed again. Together with the SVG mask that used to wrap these ribbons,
+   that was the stutter. The fade it provided is already in the easing. */
+.lines svg{position:absolute;overflow:visible;will-change:transform,opacity}
+.lines path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- COPY SHIELD ----------
+   The field alone stays under the contrast ceiling, but a 30–40px ribbon
+   passing straight behind a line of copy does not — measured at 1.5:1 in the
+   education and market zones before this existed. ONE wide, very soft haze
+   per copy block. It is IDENTICAL in every section and every zone, so it adds
+   no boundary of its own; it is a local floor, not a wash. The fade is
+   deliberately enormous (its stops span hundreds of px) so it reads as haze
+   rather than as a card — a tight version of this measured fine but looked
+   like a panel nobody asked for. Plain gradient: no filter, no blend mode,
+   no backdrop-filter (already measured on this page at 4.4x the scroll
+   sweep). */
+.sinner{position:relative;z-index:0;max-width:var(--maxw);margin:0 auto}
+/* NO panel behind the copy — not a dark radial, not a glass sheet.
+   Both were the same mistake: a full-width layer wrapping the entire
+   section. The glass version also caused the hero seam — its
+   brightness(.62) started at the section's top edge and multiplied
+   everything behind it, drawing a hard horizontal line exactly at the
+   boundary (measured: every colour channel dropped ~37-45 at that row).
+   h2 is 30-64px and clears AA on its own. Only the small copy needs help,
+   and it gets it from a tight text-shadow rather than a panel. */
+.body,.specs li{text-shadow:none}
+/* Liquid-glass panels on the description blocks. Scoped to the block, never
+   the section — a section-wide panel is what drew the hero seam earlier, and
+   a block that cannot span a boundary cannot show an edge. Contrast measured
+   on the true backdrop (text hidden): worst pane 4.84:1, floor 4.5. */
+.glass{
+  position:relative;isolation:isolate;
+  border-radius:26px;
+  padding:clamp(20px,2vw,30px) clamp(22px,2.2vw,34px);
+  margin-left:clamp(-22px,-2.2vw,-34px);
+  /* LIQUID GLASS.
+     A flat blur reads as frosted, not liquid. What makes a lens read as a
+     lens is that the EDGE behaves differently from the middle: it bends and
+     concentrates what is behind it, picks up a bright specular rim, and
+     separates colour very slightly. So this is built as three layers —
+       body : heavy blur, the "thick" centre of the pane
+       rim  : a ring with far LESS blur but much more saturation and
+              brightness, which is what selling the lensing depends on
+       sheen: a directional specular highlight across the top-left
+     Centre stays near brightness 1 so the artwork behind survives. */
+  /* brightness pulled well under 1 so a bright blob behind the panel cannot
+   blow the contrast floor — measured 2.16:1 against cream where the cyan
+   passed through at brightness 1.04. Saturation stays HIGH so the colour
+   still reads as colour rather than grey, and the rim + sheen below are what
+   keep it looking like glass rather than a dark box (the earlier dark
+   version had neither). */
+  -webkit-backdrop-filter:blur(22px) saturate(1.75) brightness(0.52);
+  backdrop-filter:blur(22px) saturate(1.75) brightness(0.52);
+  background:linear-gradient(158deg,rgba(255,255,255,.075),rgba(255,255,255,.015) 46%,rgba(6,18,50,.30));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    inset 0 -14px 30px -22px rgba(255,255,255,.22),
+    0 26px 60px -34px rgba(0,0,0,.66);
+}
+/* the lens rim: barely blurred, strongly saturated, so the edge magnifies and
+   brightens what passes behind it instead of matching the centre */
+.glass::before{
+  /* The lens rim, FEATHERED. It was a hard ring (mask-composite:exclude with
+     a 14px pad), so the rim's blur(3px) met the body's blur(22px) at a sharp
+     line and that step drew a second rectangle inside the panel.
+     Now the mask is the union of an x and a y edge-gradient, each fading to
+     transparent ~22% in, so the lensing falls off smoothly and there is no
+     inner boundary anywhere. */
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  -webkit-backdrop-filter:blur(4px) saturate(2.0) brightness(0.98);
+  backdrop-filter:blur(4px) saturate(2.0) brightness(0.98);
+  -webkit-mask-image:
+    linear-gradient(to right,  #000 0%, transparent 22%, transparent 78%, #000 100%),
+    linear-gradient(to bottom, #000 0%, transparent 22%, transparent 78%, #000 100%);
+  mask-image:
+    linear-gradient(to right,  #000 0%, transparent 22%, transparent 78%, #000 100%),
+    linear-gradient(to bottom, #000 0%, transparent 22%, transparent 78%, #000 100%);
+  -webkit-mask-composite:source-over;
+  mask-composite:add;
+}
+/* directional specular sweep — the giveaway that the surface is wet/glassy */
+.glass::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  /* Pulled back hard. At .20/.16 the sheen itself was the brightest thing
+     inside the panel and was the limiting factor on text contrast — it
+     measured brighter than the backdrop it was sitting over. A specular
+     highlight only has to be visible at the very top edge, not across the
+     copy. */
+  background:
+    linear-gradient(152deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.02) 14%,transparent 30%),
+    radial-gradient(90% 40% at 4% -14%, rgba(255,255,255,.10), transparent 62%);
+}
+.inner{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;width:100%;
+  display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:clamp(30px,5vw,88px);align-items:start}
+.zone.flip .col-a{order:2}.zone.flip .col-b{order:1}
+/* Accent-carrying chrome. The BACKGROUND of .ztag and the RULE colours are
+   written per-frame from the same damped OKLab value that drives the field,
+   so nothing in the page snaps while the field glides. Written as inline
+   styles on these few elements — never as a custom property on :root, which
+   would invalidate style for the whole document every frame. */
+.num{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+  color:rgba(246,241,230,.86)}
+.ztag{display:inline-flex;align-items:center;margin-top:16px;padding:8px 16px;border-radius:999px;
+  font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:#06122C;background:var(--accent)}
+.rule{display:block;height:1px;border:0;margin-top:20px;width:clamp(56px,9vw,120px);
+  background:rgba(246,241,230,.5)}
+h2{font-family:"Cabinet Grotesk","Cabinet Grotesk fallback","General Sans",sans-serif;font-weight:800;
+  letter-spacing:-.035em;line-height:.95;
+  font-size:clamp(30px,4.4vw,64px);max-width:14ch;margin-top:18px;
+  text-shadow:0 0 14px rgba(0,8,28,.5)}
+.body{font-size:clamp(15px,1.25vw,18.5px);line-height:1.58;max-width:52ch;
+  color:rgba(246,241,230,.94)}
+.specs{list-style:none;margin-top:26px;border-top:1px solid rgba(246,241,230,.24)}
+.specs li{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid rgba(246,241,230,.15);
+  font-size:15px;line-height:1.45;color:rgba(246,241,230,.94)}
+.specs b{font-family:"Cabinet Grotesk",sans-serif;font-weight:700;font-size:12px;
+  opacity:.78;min-width:22px;flex:0 0 22px}
+
+/* ---------- scale ---------- */
+#scale{text-align:center}
+#scale h2{margin:14px auto 0;max-width:18ch;text-align:center}
+.figs{max-width:var(--maxw);margin:clamp(44px,7vh,86px) auto 0;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(18px,3vw,48px)}
+.fig .n{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.04em;
+  font-size:clamp(34px,5.6vw,82px);line-height:1;color:var(--cream);
+  text-shadow:0 0 14px rgba(0,8,28,.5)}
+.fig .l{margin-top:10px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:600;color:rgba(246,241,230,.9)}
+
+
+/* The shared footer component, copied from system/base.css because home loads
+   no stylesheet. This is a duplicate and duplicates drift — the real fix is
+   home linking system/tw.css like the other sixteen pages. Flagged, not done:
+   that is a change to how this page is built, not to how it looks. */
+/* ---- Footer — the "Sign-off" ------------------------------------------
+   Replaces the cream lightbox that used to sit on home and the plain column
+   footer on the subpages. Those were two different footers for one site; this
+   is one component, emitted for every page by tools/normalise-shell.py.
+
+   The page now ends on the event's own wordmark rather than on a credit box,
+   and the organiser and partner credits shrink to what they are: credits. */
+/* the organiser column — the ministry is the one display-set thing up here */
+/* partner credit — an inline pill, not a panel. It is a credit. */
+/* The wordmark is an SVG, not styled text. A clamp()ed font-size can only
+   approximate the column width, so at some viewport it either clips or leaves
+   a gap — it did both. textLength with lengthAdjust="spacingAndGlyphs" fits
+   the glyphs to the viewBox and the viewBox scales to the column, so it can
+   never crop at any width. */
+/* capped at --maxw like .cols and .base: without it the wordmark spans the
+   full padding box and sits wider than the columns it signs off */
+/* Build credit. The only OUTBOUND links in the shell, so they are underlined
+   rather than left to colour alone — every other footer link is internal and
+   reads as navigation by position. */
+@media (max-width:820px){ .foot .cols{grid-template-columns:1fr 1fr} }
+@media (max-width:560px){ .foot .cols{grid-template-columns:1fr} }
+
+/* ---- Sponsors: "The Scale Bento" --------------------------------------
+   Replaces the four-column card grid. Banded density, but each cell's width
+   is set by the length of the name it holds: --w becomes the flex-basis and
+   flex-grow divides the slack on whatever row it landed on. Long names get
+   wide cells, short names narrow ones, and no row can end short — a fixed
+   column count stranded four empty cells at the end of the sponsor band.
+
+   Lines are Tier 1.5 shaded ribbons (system/tube.js), placed in the gutters
+   rather than across the names, drawn from the real model strokes. See the
+   module at the foot of this file. */
+/* The heading needs real space above the bento. This was 0 — the only
+   section on the page where it was (zones 16, scale 40, news 31) — and at
+   line-height .93 the display face's descenders overflow their own box, so
+   zero read as the card touching the word. --gap-lg puts it in the same
+   range as the other two heading-to-block gaps. */
+#sponsors-home .sb{position:relative;isolation:isolate;margin-top:var(--gap-lg)}
+/* The clip lives on the full-bleed SECTION, never on .sb. .sb is inset by the
+   gutter, so clipping there cut every ribbon dead on the card edge — the
+   straight vertical seam down the bento. The section spans the page, so the
+   strokes now bleed across the gutters and the page background and are cut
+   only where the viewport ends. No overflow-clip-margin anywhere: it widens
+   the clip region on EVERY axis, so the vertical allowance was also letting
+   844px (100vh) of horizontal overflow straight back into the scroll region
+   — measured. overflow-y:visible gives the vertical bleed instead, for free
+   and without limit. */
+
+#sponsors-home .ribbons{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:visible}
+#sponsors-home .ribbons svg{position:absolute;overflow:visible}
+#sponsors-home .sb > *:not(.ribbons){position:relative;z-index:1}
+
+/* The band is rounded; the cells inside it are not. Rounding each CELL would
+   put gaps between them and turn this back into the row of cards it replaced,
+   so the band is the panel and the cells keep their shared hairline edges,
+   clipped to its silhouette. `clip` not `hidden` — hidden makes a scroll
+   container. */
+/* .srow, not .band: .band is the system's full-width page-section component
+   (99px/66px padding). These are rows INSIDE the bento, and borrowing the name
+   meant every one of them silently inherited section padding — masked until now
+   only by an unlayered * reset on this page. */
+#sponsors-home .srow{display:flex;flex-wrap:wrap;gap:1px;background:var(--ink-hairline);
+  border:1px solid var(--ink-hairline);margin-bottom:clamp(18px,2.4vh,30px);
+  /* --r-card, not --r-panel or --r-section. DESIGN-SYSTEM.md §3 assigns those
+     by role: --r-panel (26px) is for GLASS PANELS, --r-section (28-54px) for
+     LARGE MEDIA BLOCKS. A sponsor band is neither — it is a card holding
+     cells, the same thing .ncard is, and .ncard uses --r-card. The lead band
+     at --r-section was a 54px slab one section away from 18px news cards,
+     which is the drift the tokens exist to prevent. */
+  border-radius:var(--r-card);overflow:clip}
+#sponsors-home .c{position:relative;min-width:0;flex:1 1 calc(var(--w,25) * 1%);
+  padding:clamp(16px,1.9vw,26px);
+  display:flex;flex-direction:column;justify-content:flex-end;gap:clamp(5px,.7vh,9px);
+  /* translucent, so the ribbons read THROUGH the grid rather than being
+     buried behind an opaque lid */
+  background:rgba(0,19,63,.72);backdrop-filter:blur(2px);transition:background .28s}
+#sponsors-home .c:hover{background:rgba(0,26,82,.82)}
+/* the role is a label ON the name, so the pair sits together at the cell's
+   baseline; space-between turned the spare min-height into a hole between them */
+#sponsors-home .c .role{font-size:9.5px;letter-spacing:var(--ls-label);
+  text-transform:uppercase;color:var(--ink-56);font-weight:600}
+#sponsors-home .c .co{font-family:var(--f-display);font-weight:700;
+  letter-spacing:-.028em;line-height:1.06;color:var(--cream)}
+/* zone accent: a short length of ribbon with the logo's own radius and cap.
+   An accent is a zone identity — never a fill, a link colour or a state. */
+#sponsors-home .c[data-z]::before{content:"";position:absolute;height:3px;
+  border-radius:var(--r-pill);width:clamp(28px,3vw,52px);
+  left:clamp(16px,1.9vw,26px);top:clamp(14px,1.6vw,20px);opacity:.9}
+#sponsors-home .c[data-z="1"]::before{background:var(--coral)}
+#sponsors-home .c[data-z="2"]::before{background:var(--green)}
+#sponsors-home .c[data-z="3"]::before{background:var(--cyan)}
+#sponsors-home .c[data-z="4"]::before{background:var(--violet)}
+/* main sponsor at display-sm/700, not display-md/800: at 800 it matched the
+   section's own h2 and a sponsor credit outranked the page title */
+#sponsors-home .b1 .c{flex:1 1 100%;padding:clamp(28px,3.4vw,52px);
+  min-height:clamp(150px,19vh,220px);gap:clamp(10px,1.4vh,16px);
+  background:linear-gradient(180deg,rgba(0,26,82,.58),rgba(0,19,63,.78))}
+#sponsors-home .b1 .c::before{content:"";position:absolute;inset:0 0 auto;height:3px;
+  width:auto;border-radius:0;opacity:1;
+  background:linear-gradient(90deg,var(--coral),var(--green),var(--cyan),var(--violet))}
+#sponsors-home .b1 .c .co{font-size:var(--t-display-sm);font-weight:700;
+  letter-spacing:var(--ls-display-tight)}
+#sponsors-home .b1 .c .role{color:var(--coral-tag);font-size:11px}
+#sponsors-home .b1 .c p{margin:0;max-width:56ch;font-size:var(--t-body-lg);
+  line-height:var(--lh-body);color:var(--ink-84)}
+#sponsors-home .b2 .c{min-height:clamp(104px,12vh,138px)}
+#sponsors-home .b2 .c .co{font-size:clamp(16px,1.55vw,22px)}
+#sponsors-home .b3 .c{min-height:clamp(74px,9vh,98px)}
+#sponsors-home .b3 .c .co{font-family:var(--f-body);font-weight:500;
+  font-size:clamp(13px,1.05vw,15px);letter-spacing:0;line-height:1.3;color:var(--ink-90)}
+#sponsors-home .ndiv{display:flex;align-items:center;gap:clamp(18px,2vw,28px);
+  margin:clamp(30px,4vh,48px) 0 clamp(14px,2vh,20px)}
+#sponsors-home .ndiv .n{font-family:var(--f-mono);font-weight:700;
+  font-size:var(--t-label);letter-spacing:var(--ls-label);color:var(--violet);flex:none}
+#sponsors-home .ndiv .t{font-family:var(--f-display);font-weight:800;
+  letter-spacing:var(--ls-display-tight);font-size:var(--t-display-sm);
+  color:var(--cream);flex:none}
+#sponsors-home .ndiv::after{content:"";flex:1;height:2px;border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--violet),transparent);opacity:.5}
+/* below 900 the weights stop earning their keep: a 14%-weighted cell is
+   unreadable on a phone */
+@media (max-width:900px){ #sponsors-home .b2 .c,#sponsors-home .b3 .c{flex:1 1 calc((100% - 1px) / 2)} }
+@media (max-width:520px){
+  #sponsors-home .b2 .c{flex:1 1 100%}
+  #sponsors-home .b3 .c{flex:1 1 calc((100% - 1px) / 2)}
+}
+/* The hidden state comes from .armed, which only JS adds and only once it
+   knows the observer exists. opacity:0 in CSS alone made the whole sponsor
+   list invisible whenever the observer never fired. */
+@media (prefers-reduced-motion:no-preference){
+  #sponsors-home .sb.armed .c{opacity:0;transform:translateY(14px);
+    transition:opacity .55s cubic-bezier(.215,.61,.355,1),
+               transform .55s cubic-bezier(.215,.61,.355,1),background .28s}
+  #sponsors-home .sb.armed .c.in{opacity:1;transform:none}
+}
+
+/* ---------- footer ----------
+   GONE. Home carried its own cream ".lightbox" footer while the other
+   fifteen pages used ".foot" from system/base.css — two footers for one
+   site. The Sign-off component now serves every page and is emitted by
+   tools/normalise-shell.py, so there is nothing to style here. */
+
+/* ---------- responsive ---------- */
+/* Below 900px the split collapses: copy on top, element under it. 900 is the
+   same threshold `layout()` uses for `wide`, so the CSS layout and the camera
+   framing always change together — if these two ever disagree the element is
+   framed for a column that isn't there. */
+@media (max-width:900px){
+  /* STACKED, NOT LAYERED. The canvas is position:absolute inset:0 on wide,
+     which is right there. On narrow that same rule laid the element straight
+     over the copy — headline, date and both buttons sat on the strokes.
+     Row 1 is the element, row 2 the copy. layout() sizes from the canvas box,
+     so the framing follows without the module being told. */
+  #hero{grid-template-columns:1fr;grid-template-rows:auto auto;align-items:start;justify-items:center;gap:clamp(4px,0.8vh,12px);
+    padding-top:clamp(96px,16vh,150px)}
+  /* 52svh/430px made the hero 906px tall in an 844px viewport: the copy ran to
+     856px and BOTH CTAs were cut off the bottom of the screen — on the 3D path
+     as well as the still, since they share this row. The hero is
+     min-height:100svh, so the one thing it must do is fit in one. 42svh/360px
+     is the largest row that keeps the statement, the date, the place and both
+     buttons inside the first screen at 370x844. */
+  #hero canvas{position:relative;inset:auto;grid-row:1;width:100%;height:min(42svh,360px)}
+  .hero-copy{grid-row:2}
+  .hero-copy{grid-column:1;justify-items:center;text-align:center;
+    max-width:min(30ch,100%);margin:0 auto}
+  .hero-meta{justify-items:center}
+  .hero-meta .hrule{background:linear-gradient(90deg,rgba(246,241,230,.02),
+    rgba(246,241,230,.20),rgba(246,241,230,.02));width:min(200px,64%)}
+  .cta{justify-content:center}
+}
+@media (max-width:1000px){
+  /* nav.links{display:none} was here. It is the nav component's rule and now
+     lives in system/base.css — held here it was UNLAYERED, so it beat
+     `header.navopen nav.links{display:flex}` from the bundle whatever the
+     specificity, and the sheet opened empty: the trigger flipped to a close
+     X, the header took .navopen, but the links stayed display:none. */
+  .inner{grid-template-columns:1fr}
+  .zone.flip .col-a{order:1}.zone.flip .col-b{order:2}
+  section.zone{min-height:auto;padding:clamp(80px,11vh,120px) var(--gut)}
+}
+@media (max-width:640px){
+  .figs{grid-template-columns:1fr 1fr;gap:26px 16px}
+  #hero h1 .say{font-size:clamp(23px,6.6vw,34px)}
+  #hero h1 .grad{font-size:clamp(34px,11.6vw,58px)}
+  .eyebrow hr{display:none}
+  .eyebrow{gap:0;font-size:10px;letter-spacing:.16em}
+  /* The bar's own small-screen refinement moved to system/base.css with the
+     rest of the nav — it is the component's, not this page's. Held here it
+     made the same nav 72px on home and 80px everywhere else. */
+  .pill{padding:10px 16px;font-size:12.5px}
+  .cd{gap:6px}
+  .cd .n{font-size:clamp(25px,8vw,36px)}
+  .cd .k{font-size:8.5px;letter-spacing:.1em;margin-top:7px}
+  .cd .sep{margin-bottom:20px}
+  /* mobile raster budget: phone GPUs are the one case this machine cannot
+     measure, so shadows drop further and the nav blur radius halves. */
+  /* NOT #hero h1. Its payoff line is background-clip:text with
+     -webkit-text-fill-color:transparent, and a text-shadow under transparent
+     glyphs shows THROUGH them — a centred zero-offset blur paints a dark halo
+     inside each letter, which reads as an inner glow rather than a gradient
+     fill. The h1 already has layered drop-shadow() filters, which apply to the
+     rendered result and composite correctly with a clipped background. */
+  h2,.fig .n{text-shadow:0 0 10px rgba(0,8,28,.5)}
+  header.scrolled::before{-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
+}
+
+/* ---------- hero intro: CSS-owned ----------
+   Never gsap.set(opacity:0) on already-painted content. Everything is visible
+   by default; these keyframes animate opacity + transform only (compositor,
+   CLS 0) and start the moment the markup exists. Type paints first; the
+   element (≈1.2s of mesh build, ≈320k triangles) arrives after. */
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+/* ONE HERO GESTURE, THEN A SHOCKWAVE — not a five-step ladder. The old
+   sequence ticked title .04 / date .14 / place .24 / statement .34 / CTAs .44:
+   five evenly-spaced beats, which is exactly the one-by-one cadence that reads
+   as lifeless. Now the statement leads in two overlapping beats and everything
+   supporting it arrives near-unison off the back of it. */
+#hero h1 .say,#hero h1 .grad,#hero .hero-meta>*,#hero .cta{
+  animation:rise 1.1s cubic-bezier(.215,.61,.355,1) both}
+#hero h1 .say{animation-delay:.04s}
+#hero h1 .grad{animation-delay:.13s}          /* overlaps the setup, never after it */
+/* the shockwave: a 60ms spread across six elements, near-unison by design */
+#hero .hero-meta>*{animation-delay:.30s}
+#hero .hero-meta .hm-when{animation-delay:.34s}
+#hero .hero-meta .hm-where{animation-delay:.36s}
+#hero .cta{animation-delay:.36s}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  #hero h1 .say,#hero h1 .grad,#hero .hero-meta>*,#hero .cta{animation:none!important}
+  .lines svg{transition:none!important}
+  *{scroll-behavior:auto!important}
+}
+
+/* ---- News tiles + Sponsors (home) --------------------------------------
+   Written in this page's own vocabulary (.sinner/.num/.d/.pill and its inline
+   tokens), because the landing page predates system/base.css and does not load
+   it. When home is migrated onto the system these become .ncard and the
+   sponsor wall from the Sponsors template — until then they must not import
+   classes that do not exist here. */
+/* row gap is deliberately larger than the column gap: when the grid drops to
+   one or two columns the tiles stacked almost touching. */
+#news-home .nrow{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(34px,4.2vw,56px) clamp(18px,2.2vw,30px);
+  margin-top:clamp(26px,3.4vh,44px)}
+#news-home .ntile{display:grid;gap:14px;text-decoration:none;color:inherit;
+  transition:transform .32s cubic-bezier(.215,.61,.355,1)}
+#news-home .ntile:hover{transform:translateY(-3px)}
+#news-home .nmedia{aspect-ratio:16/10;border-radius:18px;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,color-mix(in oklab,var(--accent) 24%,#0A3080),#001D61 58%,#00133F);
+  box-shadow:inset 0 0 0 1px rgba(246,241,230,.14)}
+#news-home .nmedia svg{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+#news-home .ndate{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+  font-size:12px;color:rgba(246,241,230,.56)}
+#news-home .ntile h3{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.035em;
+  font-size:clamp(17px,1.5vw,21px);line-height:1.16;margin:0;color:var(--cream)}
+#news-home .ntile p{margin:0;font-size:14px;line-height:1.5;color:rgba(246,241,230,.84)}
+#news-home .more{font-size:13px;font-weight:600;color:rgba(246,241,230,.9)}
+#news-home .ntile:hover .more{color:var(--cream)}
+@media (max-width:900px){ #news-home .nrow{grid-template-columns:1fr} }
+
+
+/* ---- Zones as a stepped tab panel (home) -------------------------------
+   Was four full-height sections you scrolled through in sequence. As tabs the
+   whole floor plan is comparable in one screen, the page loses three screens
+   of near-identical scrolling, and the zone you are reading drives the section
+   accent — so the colour still changes, it just changes on demand instead of
+   by scroll position.
+   Written in this page's own vocabulary; it does not load system/base.css. */
+#zones .zlede{max-width:46ch;margin:16px 0 0;color:rgba(246,241,230,.84);
+  font-size:clamp(15px,1.3vw,18px);line-height:1.55}
+#zones .zwrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:clamp(26px,3.4vw,58px);align-items:start;margin-top:clamp(30px,4.2vh,56px)}
+
+/* [hidden] is only `display:none` from the UA stylesheet, so ANY author
+   `display` declaration beats it — `.zpanel{display:grid}` made all four
+   panels render at once no matter what the JS set. The guard has to be
+   explicit and it has to win. */
+#zones .zpanel[hidden]{display:none!important}
+#zones .zpanel{display:grid;gap:16px}
+#zones .zpanel h3{font-size:clamp(24px,3vw,44px);line-height:1.02;margin:0;color:var(--cream)}
+
+/* the rail: one line per zone, the active one opens its description */
+#zones .zrail{display:grid;gap:0;align-content:start}
+#zones .zstep{appearance:none;background:none;border:0;cursor:pointer;text-align:left;
+  display:grid;gap:6px;padding:clamp(16px,1.9vh,24px) 0 clamp(16px,1.9vh,24px) clamp(16px,1.6vw,24px);
+  border-left:2px solid rgba(246,241,230,.14);
+  transition:border-color .32s cubic-bezier(.215,.61,.355,1),opacity .32s cubic-bezier(.215,.61,.355,1)}
+#zones .zstep:hover{border-left-color:rgba(246,241,230,.4)}
+#zones .zstep:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+/* The row label IS the chip — the zone's colour as a filled pill, the same
+   language as .ztag, so a collapsed row reads as its zone at a glance. This is
+   what "add the colour to the collapsed state, maybe a chip" asked for; a 9px
+   dot was my wrong first reading of it. align-self:start so the pill hugs its
+   text instead of stretching the grid column. */
+#zones .zstep .sn{font-family:"JetBrains Mono","JetBrains Mono fallback",ui-monospace,monospace;font-size:10.5px;
+  letter-spacing:.17em;color:rgba(246,241,230,.56)}
+#zones .zstep .st{font-family:"Cabinet Grotesk",sans-serif;font-weight:800;letter-spacing:-.03em;
+  font-size:clamp(17px,1.6vw,23px);line-height:1.12;color:rgba(246,241,230,.72);
+  transition:color .32s cubic-bezier(.215,.61,.355,1)}
+#zones .zstep .sd{display:none;font-size:14px;line-height:1.55;color:rgba(246,241,230,.84);
+  max-width:40ch}
+/* only the selected step is expanded and carries the accent — one marker, not two */
+#zones .zstep[aria-selected="true"]{border-left-color:var(--accent)}
+#zones .zstep[aria-selected="true"] .sn{color:var(--accent)}
+#zones .zstep[aria-selected="true"] .st{color:var(--cream)}
+#zones .zstep[aria-selected="true"] .sd{display:block}
+
+@media (max-width:900px){
+  #zones .zwrap{grid-template-columns:1fr}
+  /* rail first on mobile: pick a zone, then read it */
+  #zones .zpanels{order:2}
+  #zones .zrail{order:1}
+}
+
+/* ---- data-zone -> --accent -------------------------------------------
+   This page defines the four hues but never mapped them to --accent, so every
+   var(--accent) in it resolved to nothing. tokens.css does this for the rest of
+   the site; home does not load it, so it needs its own copy.
+   The values match DESIGN-SYSTEM.md 1: Career coral, Education green,
+   Skills cyan, Market violet. */
+[data-zone="coral"] { --accent:var(--coral)  }
+[data-zone="green"] { --accent:var(--green)  }
+[data-zone="cyan"]  { --accent:var(--cyan)   }
+[data-zone="violet"]{ --accent:var(--violet) }
+[data-zone="navy"]  { --accent:var(--cream)  }
+
+/* ---- fixes from review -------------------------------------------------- */
+
+/* 1. The frost was abrupt because header.scrolled::before CREATED the layer —
+      there was nothing to transition from. The layer now always exists and
+      only its opacity moves. */
+
+
+/* 4. SPACING: section.zone and #scale carried the section rhythm; the news and
+      sponsors sections were added later and inherited none of it,
+so they sat
+      flush against their neighbours. */
+/* #sponsors-home belongs here too. This rule read
+   `#news-home,#sponsors-home` and was narrowed to news alone during the
+   sponsors rebuild — one of the four narrowings its handover flagged as worth
+   checking. It is the rule that carries the page gutter, so sponsors lost it
+   and ran edge to edge: measured 0px side padding against 20px on every other
+   section at 370, with the rounded band's corners cut off at the viewport. */
+#news-home,#sponsors-home{
+  position:relative;isolation:isolate;
+  padding:clamp(96px,14vh,170px) var(--gut);
+}
+
+/* 6. A CALM GROUND for the content-heavy sections — a SOLID ground behind a
+      SOLID line, not a fade. The first version masked the scrim to nothing at
+      both edges, which turned a section boundary into a 400px blur: it read as
+      the page being out of focus rather than as a deliberate change. A crisp
+      rule states the transition and the ground behind it is opaque, so the
+      colour field stops where the content starts. */
+.calm{background:var(--navy-950);border-top:1px solid rgba(246,241,230,.16)}
+
+/* 2. The 2025 numbers read as another text block. Now they sit on their own
+      panel, divided, with the figures doing the work. */
+#scale .figs{position:relative;margin-top:clamp(32px,4.4vh,60px);
+  border-radius:26px;padding:clamp(26px,3.2vw,46px) clamp(22px,2.6vw,38px);
+  background:rgba(10,30,80,.28);
+  -webkit-backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+  backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),var(--sh-lg)}
+#scale .fig{position:relative;padding-left:clamp(16px,2vw,30px)}
+#scale .fig:first-child{padding-left:0}
+#scale .fig + .fig::before{content:"";position:absolute;left:0;top:.1em;bottom:.6em;
+  width:1px;background:rgba(246,241,230,.16)}
+@media (max-width:640px){
+  #scale .fig{padding-left:0}
+  #scale .fig + .fig::before{display:none}
+}
+
+/* 3. News tiles on glass. */
+#news-home .nmedia{
+  background:rgba(10,30,80,.3);
+  -webkit-backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+  backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),var(--sh-sm)}
+#news-home .ntile{padding:14px;border-radius:22px;
+  transition:transform .32s cubic-bezier(.215,.61,.355,1),background .32s cubic-bezier(.215,.61,.355,1)}
+#news-home .ntile:hover{background:rgba(255,255,255,.04)}
+/* 5. SPONSORS,
+rebuilt. Was a flat wrapped list of names with the role set in
+      accent underneath — no hierarchy,
+nothing to scan,
+and the roles read as
+      errors. Now: the main sponsor as a feature,
+partners as a dense card grid
+      where the ROLE leads (that is the useful information),
+and the remaining
+      sponsors as a quiet name grid. */
+/* The tag sat ABOVE the copy on its own line,
+stacked{display:flex;align-items:center;flex-wrap:wrap;
+  gap:clamp(10px,1.1vw,16px)}
+
+/* partners: a real grid{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(12px,1.4vw,20px);list-style:none;margin:0;padding:0}
+
+/* the rest: a quiet name grid{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px clamp(16px,2vw,30px);list-style:none;margin:0;padding:0}
+
+@media (max-width:1000px){
+
+}
+@media (max-width:640px){
+
+}
+
+/* Same trap, everywhere else: never let a display rule outrank [hidden]. */
+[hidden]{display:none!important}
+
+/* ---- the inner pages' line elements on home ---------------------------
+   .lineset is the subpage graphic layer (system/graphics.css + system/lines.js).
+   Home carries its own CSS, so the few rules it needs are copied here rather
+   than pulling in the whole stylesheet. NOTE: no overflow clipping and no
+   contain — the ribbons are sized past their section on purpose; clipping them
+   chops a stroke at the seam. The vertical mask fades each set out inside its
+   own section so a ribbon never crosses into the next one's text. */
+.lineset{position:absolute;inset:0;z-index:0;pointer-events:none;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%,#000 78%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 22%,#000 78%,transparent 100%);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%;mask-size:100% 100%}
+.lineset svg{position:absolute;overflow:visible;will-change:transform}
+.lineset path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+/* [data-lines] is the system's, in system/graphics.css. Not redefined here. */
+[data-lines] > *:not(.lineset){position:relative;z-index:1}
+@media (prefers-reduced-motion:reduce){ .lineset path{stroke-dashoffset:0!important} }
+
+/* ---- zone panel + numbers, second review ------------------------------- */
+
+/* 1. The zone tag stretched the full width of the panel because .zpanel is a
+      grid and the tag had no width of its own — a pill should hug its text. */
+#zones .zpanel .ztag{display:inline-flex;width:auto;justify-self:start;align-self:start}
+
+/* 2. THE WHOLE PANEL on glass, not just the body copy. The tag and heading sat
+      on the raw field while the paragraph sat on glass, so one panel had two
+      grounds. */
+#zones .zpanel{
+  padding:clamp(24px,2.6vw,40px);border-radius:26px;
+  background:rgba(10,30,80,.3);
+  -webkit-backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+  backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),var(--sh-lg)}
+/* the inner glass is now redundant — one ground per panel */
+#zones .zpanel .glass{background:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:none;margin:0;padding:0;border-radius:0}
+#zones .zpanel .glass::before,#zones .zpanel .glass::after{display:none}
+
+/* 3. VISUALS: the zone's COLOURED ICON, in the same accent-filled well the
+      subpages use (.icowell.solid). This was briefly a large ribbon
+      illustration behind the panel; the decision on record is the icon only,
+      so the illustration is gone and the icon leads the panel beside its tag. */
+#zones .zpanel{position:relative}
+#zones .zhead{display:flex;align-items:center;gap:clamp(12px,1.3vw,18px);
+  margin-bottom:clamp(14px,1.6vh,22px)}
+#zones .zhead .ztag{margin-top:0;align-self:center;justify-self:auto}
+.icowell{display:grid;place-items:center;width:52px;height:52px;flex:none;
+  border-radius:20px;color:var(--accent);
+  background:color-mix(in oklab, var(--accent) 14%, transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--accent) 26%, transparent)}
+.icowell.solid{background:var(--accent);color:var(--tag-ink,#06122C);
+  box-shadow:0 1px 2px rgba(0,9,30,.26),0 6px 16px rgba(0,9,30,.18)}
+.icowell.lg{width:60px;height:60px;border-radius:22px}
+.ico{width:var(--ico,20px);height:var(--ico,20px);flex:none;display:inline-block;
+  vertical-align:-.18em;color:inherit}
+.ico.lg{--ico:28px}
+
+/* 4. LEGIBILITY: the rail sits straight on the colour field, which swings from
+      green to violet behind it. Type that light on a mid-tone needs a shadow
+      to hold its edge — the field cannot be darkened without losing the point
+      of it. */
+#zones .zstep .st,#zones .zstep .sd,#zones .zstep .sn{
+  text-shadow:0 1px 2px rgba(0,9,30,.5),0 2px 10px rgba(0,9,30,.35)}
+#zones .sinner > .num,#zones .sinner > h2,#zones .zlede{
+  text-shadow:0 1px 2px rgba(0,9,30,.45),0 3px 14px rgba(0,9,30,.3)}
+
+/* 5. THE NUMBERS, celebrated. The flat glass panel with a heavy drop shadow
+      read as a grey box with a bruise under it. Now a gradient stroke around
+      the panel (padding-box/border-box double background — a real gradient
+      border, not an approximation), a lighter shadow, and each figure in its
+      own zone hue so the four numbers are four things, not one block. */
+#scale .figs{position:relative;border:0;
+  background:rgba(10,30,80,.3);
+  box-shadow:0 1px 2px rgba(0,9,30,.22),0 10px 30px rgba(0,9,30,.16)}
+/* A gradient STROKE, nothing else. The padding-box/border-box double-background
+   trick failed here because the padding-box layer is translucent glass, so the
+   border-box gradient showed through the whole panel and filled it. A masked
+   ring paints only the 2px edge and leaves the glass interior untouched. */
+#scale .figs::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;
+  pointer-events:none;
+  background:linear-gradient(104deg,var(--coral),var(--violet) 34%,var(--cyan) 68%,var(--green));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+#scale .fig:nth-child(1) .n{color:var(--coral)}
+#scale .fig:nth-child(2) .n{color:var(--green)}
+#scale .fig:nth-child(3) .n{color:var(--cyan)}
+#scale .fig:nth-child(4) .n{color:var(--violet)}
+#scale .fig .n{text-shadow:0 1px 1px rgba(0,9,30,.3),0 4px 16px rgba(0,9,30,.22)}
+#scale .fig .l{color:rgba(246,241,230,.9)}
+
+/* ---- edge-only ribbons ---------------------------------------------------
+   The ribbons crossed the sponsor grid and made 16 company names hard to read.
+   Masking them to the OUTER EDGES keeps the gesture — it still enters and
+   leaves the frame — without any ink over the content column. Percentages, not
+   --maxw: the gutter is only 60px each side at 1440 and nothing at all below
+   1280, so an absolute measure has nowhere to put them.
+   Two masks composited: outer-edges horizontally, faded top and bottom
+   vertically so a ribbon still never reaches the next section's text. */
+[data-lines-edge] .lineset{
+  -webkit-mask-image:
+    linear-gradient(90deg,#000 0,#000 10%,transparent 21%,transparent 79%,#000 90%,#000 100%),
+    linear-gradient(180deg,transparent 0,#000 18%,#000 82%,transparent 100%);
+  mask-image:
+    linear-gradient(90deg,#000 0,#000 10%,transparent 21%,transparent 79%,#000 90%,#000 100%),
+    linear-gradient(180deg,transparent 0,#000 18%,#000 82%,transparent 100%);
+  -webkit-mask-composite:source-in; mask-composite:intersect;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%; mask-size:100% 100%;
+}
+
+/* The zone tag was a fixed coral, so Market, Education and Career all showed
+   the same pill while the field behind them changed with scroll — which read
+   as the colour being tied to scroll position. It takes the zone's accent. */
+.ztag{background:var(--accent);color:var(--tag-ink,#06122C)}
+
+/* =====================================================================
+   ZONES — the mobile stepped accordion
+   =====================================================================
+   At <=900px the two-column tab layout stacked into two DETACHED blocks:
+   a rail of four steps, then — up to 239px further down the page, past the
+   sticky header — a separate glass card holding the answer. Tapping a step
+   put the reply somewhere you could not see, and the collapsed rows each
+   showed `.sd`, a sentence cut mid-clause.
+
+   The fix is presentational, not structural: `.zrail` and `.zpanels` go
+   `display:contents` so their children become items of ONE `.zwrap` grid,
+   and explicit grid-rows interleave them — step 1, panel 1, step 2, panel 2
+   ... Each panel therefore renders inside its own step's row. No DOM moves,
+   so the desktop two-column tablist is untouched.
+
+   Semantics follow the presentation: see the zone script, which swaps the
+   tablist roles for accordion roles at this same 900px breakpoint.
+
+   Accent discipline: the four hues stay ZONE IDENTITIES — here a vertical
+   rule down the open row and the index key. No fill, no link, no state. */
+
+/* #zones carries no inline gutter of its own. Every other section matches
+   `section.zone,#scale`, `#openin`, `#news-home,#sponsors-home` or `footer`;
+   #zones was added later, has no class="zone", and matches none of them.
+   Above 1320px `.sinner`'s max-width:var(--maxw) centres the content and
+   hides the omission; at 1320 and below there is no margin left and the
+   whole section ran hard into both screen edges. 1320 is exactly where
+   --maxw stops leaving a margin, so wider screens are provably unaffected.
+   (This restores the rule the earlier mobile pass documented; that pass's
+   edits are not present in this working tree.) */
+@media (max-width:1320px){
+  #zones{padding-inline:var(--gut)}
+}
+
+/* The chevron is an affordance for the mobile accordion ONLY. Above 900px the
+   rail is a tab strip and the marker is the accent rule, so it is not rendered
+   at all — .zstep is a grid and a fourth child would add a row. */
+#zones .zstep .zchev{display:none}
+
+@media (max-width:900px){
+  #zones{
+    /* the page's own local vocabulary — same hairline `.specs li` uses and
+       the same 2px the desktop rail rule already carries */
+    --zrule:rgba(246,241,230,.15);
+    --zmark:2px;
+    --zrow-pad:clamp(14px,1.8vh,20px);
+    /* ONE indent value, used as the collapsed row's indent AND as the open
+       card's padding — so the title does not shift sideways when it opens */
+    --zrow-ind:clamp(17px,4.6vw,23px);
+    /* the open row's glass: the panel's own ground, unchanged */
+    --zglass:rgba(10,30,80,.3);
+    /* THE RAIL. One continuous neutral line down the whole list; the open
+       row's segment of it is the zone accent. Neutral, not per-zone: four
+       dim hues would be four more things, and the point of the rail is that
+       it is ONE line with one lit segment. */
+    --ztrack:rgba(246,241,230,.3);
+  }
+
+  /* ONE list. The two source containers stop being boxes. */
+  #zones .zwrap{
+    display:grid;grid-template-columns:100%;gap:0;
+    margin-top:clamp(24px,3.4vh,40px);
+    border-bottom:1px solid var(--zrule)}
+  /* the panel half of the band is square on the bottom, so the closing
+     hairline of the list is the only rule under an open last row */
+  #zones .zrail,#zones .zpanels{display:contents}
+
+  /* interleave — every panel sits in the row under its own step */
+  #zones .zstep:nth-of-type(1){grid-row:1} #zones .zpanel:nth-of-type(1){grid-row:2}
+  #zones .zstep:nth-of-type(2){grid-row:3} #zones .zpanel:nth-of-type(2){grid-row:4}
+  #zones .zstep:nth-of-type(3){grid-row:5} #zones .zpanel:nth-of-type(3){grid-row:6}
+  #zones .zstep:nth-of-type(4){grid-row:7} #zones .zpanel:nth-of-type(4){grid-row:8}
+
+  /* the collapsed row: index key + headline, full width, nothing else.
+     Two columns now — the copy, and the chevron parked on the right. */
+  #zones .zstep{
+    width:100%;gap:4px clamp(12px,3vw,18px);
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    padding:var(--zrow-pad) var(--zrow-ind) var(--zrow-pad) var(--zrow-ind);
+    border-left:var(--zmark) solid var(--ztrack);
+    border-top:1px solid var(--zrule);
+    transition:border-color .32s cubic-bezier(.215,.61,.355,1),
+               background-color .18s linear}
+  #zones .zstep:nth-of-type(1){border-top:0}
+  /* THE CHIP IS MOBILE-ONLY. The row label becomes a filled pill in its zone's
+     colour, which is what makes a collapsed row scannable on a phone. Desktop
+     is a two-column tablist where the label is a quiet mono key over the panel
+     it selects — a row of full-width colour bars there is noise, and it was
+     never asked for. justify-self:start so the pill hugs its text instead of
+     stretching the grid column. */
+  #zones .zstep .sn{grid-column:1;grid-row:1;justify-self:start;
+    display:inline-flex;align-items:center;width:auto;
+    background:var(--accent);color:var(--tag-ink);
+    padding:5px 12px;border-radius:var(--r-pill);
+    /* No shadow on the chip. The one on .st/.sd holds light type against the
+       colour field, which cannot be darkened without losing the point of it —
+       but the chip brings its own opaque ground and dark ink, so the same
+       shadow has nothing to do except read as a drop shadow under the text. */
+    text-shadow:none}
+  #zones .zstep .st{grid-column:1;grid-row:2}
+
+  /* A zone-hue dot on every index key was tried here and removed: with a
+     chevron, a hairline and the open card's accent edge already in play it
+     read as one more thing rather than as identity. The hue now appears in
+     exactly one place — the open card's left edge — which is what makes it
+     mean something.
+
+     AFFORDANCE 1 — the chevron. This is the part that says "control", and it
+     is deliberately NEUTRAL: the hues stay zone identities, so the thing that
+     means "tap me" must not be one of them. */
+  #zones .zstep .zchev{
+    display:block;--ico:20px;grid-column:2;grid-row:1 / span 2;
+    color:rgba(246,241,230,.74);
+    transition:transform .32s cubic-bezier(.215,.61,.355,1),color .32s cubic-bezier(.215,.61,.355,1)}
+
+  /* AFFORDANCE 2 — a press state, so a tap answers immediately. Cream, not
+     accent: this is a state, and states are never a zone hue. */
+  #zones .zstep:active{background:rgba(246,241,230,.07)}
+  #zones .zstep:hover{border-left-color:var(--ztrack)}
+
+  /* LEGIBILITY. These rows sit straight on a colour field that swings from
+     green through cyan to violet; at .72/.56 the collapsed headline and key
+     were losing their edge against the bright passages. Raised here only —
+     the desktop rail sits over a much narrower range of the field. */
+  #zones .zstep .st{color:rgba(246,241,230,.9)}
+  #zones .zstep .sn{color:var(--tag-ink,#06122C)}
+  /* a truncated teaser is worse than no teaser — the open row says it in full */
+  #zones .zstep .sd{display:none!important}
+
+  /* THE OPEN ROW IS ONE GLASS BAND.
+     Square, flush, full-bleed to the row — NOT a floating card. A rounded,
+     inset card would break the rail into segments and put a second frame
+     around content the rail already brackets; this pattern is a stepped
+     list with one segment lit, so the open row is a band of glass in the
+     list, not an object on top of it.
+
+     Step and panel are two grid items, so the band is two halves sharing
+     one ground and one blur. Nothing is drawn across the join and there is
+     no ring: the band is defined by its ground and by the accent rail
+     beside it, which is enough and is one thing instead of three.
+     [aria-selected] is the pre-script fallback; the script swaps it for
+     [aria-expanded] as soon as it runs. */
+  #zones .zstep[aria-expanded="true"],
+  #zones .zstep[aria-selected="true"]{
+    border-left-color:var(--accent);
+    padding-bottom:clamp(10px,1.3vh,15px);
+    background:var(--zglass);
+    -webkit-backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+    backdrop-filter:blur(22px) saturate(1.35) brightness(1.02)}
+  #zones .zstep[aria-expanded="true"] .sn,
+  #zones .zstep[aria-selected="true"] .sn{color:var(--tag-ink,#06122C)}
+  #zones .zstep[aria-expanded="true"] .st,
+  #zones .zstep[aria-selected="true"] .st{color:var(--cream)}
+  #zones .zstep[aria-expanded="true"] .zchev,
+  #zones .zstep[aria-selected="true"] .zchev{
+    transform:rotate(180deg);color:var(--cream)}
+
+  /* the panel is the BOTTOM HALF of that same card — same ground, same blur,
+     ring on its outer edges only, radius on its bottom corners only. Its own
+     .zhead and h3 stay dropped: the step above is the card's title. */
+  #zones .zpanel{
+    gap:0;margin:0;border-radius:0;box-shadow:none;
+    border-left:var(--zmark) solid var(--accent);
+    padding:0 var(--zrow-ind) clamp(20px,2.6vh,28px) var(--zrow-ind);
+    background:var(--zglass);
+    -webkit-backdrop-filter:blur(22px) saturate(1.35) brightness(1.02);
+    backdrop-filter:blur(22px) saturate(1.35) brightness(1.02)}
+  #zones .zpanel .zhead,#zones .zpanel h3{display:none}
+
+  /* no nested card. .glass is a plain block inside the one glass surface. */
+  #zones .zpanel .glass{
+    margin:0;padding:0;border-radius:0;background:none;box-shadow:none;
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  #zones .zpanel .body{font-size:15px;line-height:1.6;color:rgba(246,241,230,.92)}
+  #zones .zpanel .specs{margin-top:18px}
+  /* the card's own bottom padding closes the list */
+  #zones .zpanel .specs li:last-child{border-bottom:0;padding-bottom:0}
+}
+
+/* =====================================================================
+   MOBILE SITE NAV — the missing hamburger
+   =====================================================================
+   `@media (max-width:1000px){ nav.links{display:none} }` hid the whole
+   eight-item site nav below 1000px and put nothing in its place, so on a
+   phone or a tablet the header offered exactly two destinations: the brand
+   and Register. About, Exhibitors, Schedule, Gallery, Interview Lounge,
+   News, Venue and FAQ had no route from the bar at all.
+
+   The sheet is the SAME <nav class="links"> element, restyled — not a second
+   copy of the links. So there is still one Primary nav landmark in the
+   document, the link list cannot drift out of sync with itself, and when the
+   sheet is closed the nav is display:none and simply absent from the
+   accessibility tree (no aria-hidden bookkeeping to get wrong).
+
+   The trigger is inert above 1000px — `display:none` outside the query — so
+   the desktop header flex row is untouched. */
+
+
+
+@media (max-width:1000px){
+
+
+
+  /* The bars are DRAWN, not an icon. `system/icons.js` is a curated 70-icon
+     subset and it has no `menu` glyph — the <i data-lucide="menu"> rendered
+     as an empty 24x24 box, which is why the trigger looked blank while the
+     `x` beside it worked. The nearest thing in the bundle is `align-left`,
+     a text-align glyph with uneven bars, and adding `Menu` would mean
+     editing system/icons.js. Three CSS bars cost nothing, need no bundle,
+     and give a real morph into the X instead of swapping two glyphs. */
+
+
+
+
+
+  /* open: the middle bar goes, the outer two cross */
+
+
+
+  /* the hamburger's reduced-motion rule is system/base.css's, like the rest
+     of the nav — this was the last nav declaration still living on the page */
+
+  /* THE SHEET — full screen, bottom-anchored, one indexed line per
+     destination. Not a dropdown: at this size the nav IS the screen, so the
+     list gets real typographic weight instead of being a small menu hanging
+     off the bar.
+
+     The 01-08 index keys are CSS counters, not markup — so they cannot fall
+     out of step with the list, and adding or removing a link renumbers it
+     for free. They use the page's mono-meta register, the same one `.sn`
+     and `.hm-sub` use. */
+
+  /* the bar's own controls stay above the sheet and keep working */
+
+  /* one Register, never two: the bar's pill stands down while the sheet is up */
+
+
+  /* pushes the list to the bottom but still scrolls if the viewport is short,
+     which `justify-content:flex-end` would not */
+
+
+
+
+
+
+  /* the page you are on reads brighter — NOT a zone hue. The four accents are
+     zone identities; a nav state is not one of them. */
+
+
+
+  /* the foot: the one action, then the standing detail */
+
+
+
+}
+</style>
+</head>
+<body>
+
+<!-- ONE colour field for the whole document. See the #field comment in CSS. -->
+<canvas id="field" aria-hidden="true"></canvas>
+
+<header id="topbar" class="nav">
+  <a class="brand" href="./" aria-label="VARA Expo 2026">
+    <img class="mark" src="./system/assets/vara-mark.png" srcset="./system/assets/vara-mark.png 1x, ./system/assets/vara-mark@2x.png 2x" width="40" height="38" alt="" decoding="async">
+    <span class="wordmark" aria-hidden="true">VARA EXPO <i>2026</i></span>
+  </a>
+  <!-- The SITE nav, not a list of this page's own anchors. The landing page
+       carried Career/Education/Skills/Market/2025 pointing at its own sections,
+       which duplicated the page's scroll and gave visitors no way to reach the
+       rest of the site from the front door. -->
+  <nav class="links" id="sitenav" aria-label="Primary">
+    <a href="pages/about/">About</a>
+    <a href="pages/exhibitors/">Exhibitors</a>
+    <a href="pages/schedule/">Schedule</a>
+    <a href="pages/gallery/">Gallery</a>
+    <a href="pages/interview-lounge/">Interview Lounge</a>
+    <a href="pages/news/">News</a>
+    <a href="pages/venue/">Venue</a>
+    <a href="pages/faq/">FAQ</a>
+    <!-- Only ever rendered inside the open sheet; display:none above 1000px,
+         so the desktop nav row is a row of eight links exactly as before. -->
+    <div class="navfoot">
+      <a class="pill navcta" href="pages/register/"><span class="dot"></span>Register Now</a>
+      <p class="navmeta">6&ndash;8 Nov 2026 &middot; Central Park</p>
+    </div>
+  </nav>
+  <a class="pill" href="pages/register/"><span class="dot"></span>Register Now</a>
+  <!-- Below 1000px `nav.links` is display:none and NOTHING replaced it, so the
+       eight site links were unreachable from the bar on every phone and tablet.
+       This is the control that reveals them. It does not duplicate the nav —
+       the same <nav class="links"> becomes the sheet at that width. -->
+  <button class="navtoggle" id="navtoggle" type="button"
+          aria-expanded="false" aria-controls="sitenav" aria-label="Menu">
+    <span class="nt-bars" aria-hidden="true"></span>
+  </button>
+</header>
+<div id="sentinel" aria-hidden="true" style="position:absolute;top:70vh;height:1px;width:1px"></div>
+
+<main>
+
+<!-- ===================== HERO — the only WebGL on the page ===================== -->
+<section id="hero" data-zone="all">
+  <div class="ambilight" aria-hidden="true"></div>
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <!-- THE STATIC HERO. Until now a WebGL failure hid #stage and put nothing in
+       its place, so the hero's right half went blank — the "fallback" was an
+       empty half screen. This is that fallback, and it is also what a
+       prefers-reduced-motion visitor gets, which means those visitors no
+       longer download 183 KB of three.js and wait on a mesh build to arrive at
+       a pose that does not move anyway. Hidden unless <html class="no-3d">. -->
+  <img class="hero-still" aria-hidden="true" alt="" decoding="async"
+       src="./system/assets/hero-static.webp"
+       srcset="./system/assets/hero-static.webp 1x, ./system/assets/hero-static@2x.webp 2x">
+  <div class="hero-copy">
+    <h1 class="d"><span class="say">Show up. Skill up.</span><span class="grad">Stand out</span></h1>
+    <div class="hero-meta">
+      <div class="hrule" aria-hidden="true"></div>
+      <p class="hm-sub">National Skills &amp; Career Expo &middot; Maldives</p>
+      <p class="hm-when"><b>6&ndash;8 November</b> <span>2026</span></p>
+      <p class="hm-where">Central Park, Hulhumal&eacute;</p>
+    </div>
+    <div class="cta">
+      <a class="pill" href="pages/register/">Register Now</a>
+      <a class="pill ghost" href="pages/exhibitors/">Exhibit with us</a>
+    </div>
+  </div>
+</section>
+
+<!-- the countdown leaves the hero and becomes a band under it, alongside the
+     descriptor that used to duplicate the VARA EXPO title -->
+<section id="openin">
+  <p class="who">The National Skills &amp; Career Expo · Free entry — three days where every college, employer and trade in the Maldives is standing in one park.</p>
+  <div class="glass cdwrap">
+    <p class="cdlbl">Doors open in</p>
+    <div class="cd" data-cd role="timer" aria-label="Countdown to opening"></div>
+  </div>
+</section>
+
+<!-- ===================== ZONES — vector lines only ===================== -->
+<section id="zones" data-zone="coral">
+  <div class="lines"></div>
+  <div class="sinner">
+    <div class="num">The floor plan</div>
+    <h2 class="d">Four zones, three days.</h2>
+    <p class="zlede">The park is laid out in four zones. Step through them.</p>
+
+    <div class="zwrap">
+      <div class="zpanels">
+      <div class="zpanel" id="zp-career" role="tabpanel" aria-labelledby="zt-career" data-zone="coral">
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="briefcase-business"></i></span><span class="ztag">Career Zone</span></div>
+        <h3 class="d">The people who are actually hiring.</h3>
+        <div class="glass"><p class="body">Not a jobs board. Recruiters from resorts, ports, banks, construction, health and the public service take meetings on the floor — with people who can say yes on the spot. Bring a CV; leave with an interview slot.</p>
+        <ul class="specs"><li><b>01</b><span>Live interview booths running all three days, walk-in and pre-booked</span></li><li><b>02</b><span>Free CV clinic and mock-interview desk staffed by HR practitioners</span></li><li><b>03</b><span>Apprenticeship and on-the-job training placements, signed on site</span></li><li><b>04</b><span>Employer talks: what a hiring manager actually reads first</span></li></ul></div>
+      </div>
+      <div class="zpanel" id="zp-education" role="tabpanel" aria-labelledby="zt-education" data-zone="green" hidden>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="graduation-cap"></i></span><span class="ztag">Education Zone</span></div>
+        <h3 class="d">Every route, laid out side by side.</h3>
+        <div class="glass"><p class="body">Diploma, degree, certificate, apprenticeship, overseas. See them next to each other, with the cost, the length and the job at the end stated plainly — so the choice is yours and it's an informed one.</p>
+        <ul class="specs"><li><b>01</b><span>Admissions officers from national and private institutions, in person</span></li><li><b>02</b><span>Scholarship and student-loan desk with same-day eligibility checks</span></li><li><b>03</b><span>Course comparison walls — fees, duration, entry requirement</span></li><li><b>04</b><span>Sessions in Dhivehi and English, twice daily</span></li></ul></div>
+      </div>
+      <div class="zpanel" id="zp-skills" role="tabpanel" aria-labelledby="zt-skills" data-zone="cyan" hidden>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="wrench"></i></span><span class="ztag">Skills Experience Zone</span></div>
+        <h3 class="d">Try the job before you choose it.</h3>
+        <div class="glass"><p class="body">The loudest, busiest corner of the park — and the point of the whole expo. You don't watch a trade here, you do one. Ten minutes with a welding torch tells you more than ten pages of prospectus.</p>
+        <ul class="specs"><li><b>01</b><span>Hands-on bays: welding, marine engineering, electrical, culinary, hairdressing</span></li><li><b>02</b><span>Live skills competitions with judging on the floor</span></li><li><b>03</b><span>Dive, hospitality and aviation simulators open to walk-ups</span></li><li><b>04</b><span>Robotics, drone and digital-fabrication demos from student teams</span></li></ul></div>
+      </div>
+      <div class="zpanel" id="zp-market" role="tabpanel" aria-labelledby="zt-market" data-zone="violet" hidden>
+        <div class="zhead"><span class="icowell solid lg"><i class="ico lg" data-lucide="store"></i></span><span class="ztag">Market Zone</span></div>
+        <h3 class="d">Small businesses, out in the open.</h3>
+        <div class="glass"><p class="body">Island enterprises, makers and graduates selling what they build. Proof that a skill is a livelihood — plus the desks that get a business registered, funded and trading.</p>
+        <ul class="specs"><li><b>01</b><span>SME and island-enterprise stalls, trading across all three evenings</span></li><li><b>02</b><span>Business registration and SME finance desks on site</span></li><li><b>03</b><span>Craft, food and fisheries producers from across the atolls</span></li><li><b>04</b><span>Evening programme: music, food and family activity until late</span></li></ul></div>
+      </div>
+      </div>
+      <div class="zrail" role="tablist" aria-label="Expo zones" aria-orientation="vertical">
+        <button class="zstep" id="zt-career" role="tab" type="button"
+                aria-selected="true" aria-controls="zp-career"
+                tabindex="0" data-zone="coral" data-target="zp-career">
+          <span class="sn">01 &middot; CAREER</span>
+          <span class="st">The people who are actually hiring.</span>
+          <span class="sd">Not a jobs board. Recruiters from resorts, ports, banks, construction, health and the public service take meetings on the floor —&hellip;</span>
+          <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
+        <button class="zstep" id="zt-education" role="tab" type="button"
+                aria-selected="false" aria-controls="zp-education"
+                tabindex="-1" data-zone="green" data-target="zp-education">
+          <span class="sn">02 &middot; EDUCATION</span>
+          <span class="st">Every route, laid out side by side.</span>
+          <span class="sd">Diploma, degree, certificate, apprenticeship, overseas. See them next to each other, with the cost, the length and the job at the&hellip;</span>
+          <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
+        <button class="zstep" id="zt-skills" role="tab" type="button"
+                aria-selected="false" aria-controls="zp-skills"
+                tabindex="-1" data-zone="cyan" data-target="zp-skills">
+          <span class="sn">03 &middot; SKILLS EXPERIENCE</span>
+          <span class="st">Try the job before you choose it.</span>
+          <span class="sd">The loudest, busiest corner of the park — and the point of the whole expo. You don't watch a trade here, you do one. Ten minutes&hellip;</span>
+          <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
+        <button class="zstep" id="zt-market" role="tab" type="button"
+                aria-selected="false" aria-controls="zp-market"
+                tabindex="-1" data-zone="violet" data-target="zp-market">
+          <span class="sn">04 &middot; MARKET</span>
+          <span class="st">Small businesses, out in the open.</span>
+          <span class="sd">Island enterprises, makers and graduates selling what they build. Proof that a skill is a livelihood — plus the desks that get a&hellip;</span>
+          <i class="ico zchev" data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="scale" data-zone="coral">
+  <div class="lines"></div>
+  <div class="sinner">
+  <div class="num">The 2025 edition</div>
+  <h2 class="d">It worked. We're doing it bigger.</h2>
+  <div class="figs">
+    <div class="fig"><div class="n">20,000<span style="font-size:.5em">+</span></div><div class="l">Visitors</div></div>
+    <div class="fig"><div class="n">150<span style="font-size:.5em">+</span></div><div class="l">Exhibitors</div></div>
+    <div class="fig"><div class="n">3</div><div class="l">Days</div></div>
+    <div class="fig"><div class="n">4</div><div class="l">Zones</div></div>
+  </div>
+  </div>
+</section>
+
+<section id="news-home" class="calm" data-zone="green">
+  <div class="lines"></div>
+  <div class="sinner">
+    <div class="num">Latest</div>
+    <h2 class="d">News from the expo</h2>
+    <div class="nrow">
+      <a class="ntile" href="pages/news-detail/">
+        <div class="nmedia"><svg viewBox="0 0 160 100" aria-hidden="true"><path d="M18 74c0-26 16-44 38-44s34 16 34 30-12 26-24 26-18-10-18-18" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" opacity=".92"/><path d="M96 22c18 6 30 20 34 38" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" opacity=".55"/></svg></div>
+        <div class="ndate">9 Nov 2025</div>
+        <h3>VARA Expo Wraps Up with Over 20,000 Visitors</h3>
+        <p>The expo closed on Saturday night, a third ahead of the attendance organisers planned for.</p>
+        <span class="more">Read &rarr;</span>
+      </a>
+      <a class="ntile" href="pages/news-detail/">
+        <div class="nmedia"><svg viewBox="0 0 160 100" aria-hidden="true"><path d="M18 74c0-26 16-44 38-44s34 16 34 30-12 26-24 26-18-10-18-18" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" opacity=".92"/><path d="M96 22c18 6 30 20 34 38" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" opacity=".55"/></svg></div>
+        <div class="ndate">8 Nov 2025</div>
+        <h3>Panel Discussions on the Maldivian Labour Market</h3>
+        <p>Employers, training providers and the Ministry on the gap between qualifications and hiring.</p>
+        <span class="more">Read &rarr;</span>
+      </a>
+      <a class="ntile" href="pages/news-detail/">
+        <div class="nmedia"><svg viewBox="0 0 160 100" aria-hidden="true"><path d="M18 74c0-26 16-44 38-44s34 16 34 30-12 26-24 26-18-10-18-18" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" opacity=".92"/><path d="M96 22c18 6 30 20 34 38" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" opacity=".55"/></svg></div>
+        <div class="ndate">8 Nov 2025</div>
+        <h3>Inaugurated by the First Lady of Maldives</h3>
+        <p>First Lady Sajidha Mohamed toured the Skills Experience zone on the opening morning.</p>
+        <span class="more">Read &rarr;</span>
+      </a>
+    </div>
+    <div class="cta" style="margin-top:clamp(24px,3vh,38px)">
+      <a class="pill ghost" href="pages/news/">All news</a>
+    </div>
+  </div>
+</section>
+
+<section id="sponsors-home" class="calm bleed-x" data-zone="violet">
+  <div class="sinner">
+    <div class="num">With the support of</div>
+    <h2 class="d">Sponsors &amp; partners</h2>
+
+    <div class="sb">
+      <div class="ribbons" aria-hidden="true"></div>
+
+      <div class="srow b1">
+        <div class="c">
+          <div class="role">Main Sponsor</div>
+          <div class="co">Bank of Maldives</div>
+          <p>The largest bank in the Maldives, present across every atoll, backing the expo
+             for a third year and recruiting on site through the Interview Lounge.</p>
+        </div>
+      </div>
+
+      <div class="ndiv"><span class="n">01</span><span class="t">Partners</span></div>
+      <div class="srow b2">
+        <div class="c" data-z="1" style="--w:28"><div class="role">Broadcasting Partner</div><div class="co">Public Service Media</div></div>
+        <div class="c" data-z="2" style="--w:38"><div class="role">Venue Partner</div><div class="co">Housing Development Corporation</div></div>
+        <div class="c" data-z="3" style="--w:28"><div class="role">First Aid Partner</div><div class="co">Maldivian Red Crescent</div></div>
+        <div class="c" data-z="4" style="--w:36"><div class="role">Sustainability Partner</div><div class="co">Waste Management Corporation</div></div>
+        <div class="c" data-z="1" style="--w:26"><div class="role">Safety Partner</div><div class="co">Global Fire Services</div></div>
+        <div class="c" data-z="2" style="--w:32"><div class="role">Electricity Partner</div><div class="co">State Electric Company Limited</div></div>
+        <div class="c" data-z="3" style="--w:30"><div class="role">Setup Partner</div><div class="co">Shady Cabin Rentals</div></div>
+        <div class="c" data-z="4" style="--w:30"><div class="role">Image Partner</div><div class="co">Oceans End Pvt Ltd</div></div>
+      </div>
+
+      <div class="ndiv"><span class="n">02</span><span class="t">Sponsors</span></div>
+      <div class="srow b3">
+        <div class="c" style="--w:14"><div class="co">Dhiraagu</div></div>
+        <div class="c" style="--w:24"><div class="co">Maldives Airports Company Ltd</div></div>
+        <div class="c" style="--w:16"><div class="co">Oxiqa Pvt Ltd</div></div>
+        <div class="c" style="--w:28"><div class="co">Maldives Transport and Contracting Company Plc</div></div>
+        <div class="c" style="--w:22"><div class="co">State Trading Organization plc</div></div>
+        <div class="c" style="--w:26"><div class="co">Maldives Pension Administration Office</div></div>
+        <div class="c" style="--w:24"><div class="co">Business Center Corporation</div></div>
+        <div class="c" style="--w:22"><div class="co">Male&rsquo; Water &amp; Sewerage Company</div></div>
+      </div>
+    </div>
+
+    <div class="cta" style="margin-top:clamp(24px,3vh,38px)">
+      <a class="pill ghost" href="pages/contact/">Become a sponsor</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="cols">
+    <div class="who">
+      <h4>Organised by</h4>
+      <p class="org">Ministry of Homeland Security,<br>Labour and Technology</p>
+      <p class="muted">VARA Expo &mdash; the National Skills &amp; Career Expo of the Maldives. 6&ndash;8 November 2026, Central Park, Hulhumal&eacute;.</p>
+    </div>
+    <div><h4>Event</h4><ul><li><a href="pages/about/">About</a></li><li><a href="pages/schedule/">Schedule</a></li><li><a href="pages/venue/">Venue</a></li><li><a href="pages/gallery/">Gallery</a></li></ul></div>
+    <div><h4>Take part</h4><ul><li><a href="pages/exhibitors/">Exhibitors</a></li><li><a href="pages/register/">Register</a></li><li><a href="pages/information-kit/">Exhibitor Information</a></li><li><a href="pages/exhibitor-feedback/">Exhibitor Feedback</a></li></ul></div>
+    <div><h4>More</h4><ul><li><a href="pages/news/">News</a></li><li><a href="pages/sponsors/">Sponsors</a></li><li><a href="pages/faq/">FAQ</a></li><li><a href="pages/contact/">Contact</a></li><li><a href="pages/information-kit/">Information Kit</a></li></ul></div>
+  </div>
+  <div class="credit"><span class="k">Platinum Partner</span><span class="v">Bank of Maldives</span></div>
+  <svg class="mark" viewBox="0 0 1000 118" role="img" aria-label="VARA Expo 2026" preserveAspectRatio="xMidYMid meet"><text x="0" y="98" textLength="1000" lengthAdjust="spacingAndGlyphs" font-size="118">VARA EXPO 2026</text></svg>
+  <div class="base"><span>&copy; 2026 VARA Expo &middot; Ministry of Homeland Security, Labour and Technology</span><span class="built">Powered by <a href="https://diveos.mv/" target="_blank" rel="noopener noreferrer">DiveOS</a><i aria-hidden="true">|</i><a href="https://novas.com.mv/" target="_blank" rel="noopener noreferrer">A Novas Product</a></span></div>
+</footer>
+
+<!-- ====================== countdown (standalone, no deps) ====================== -->
+<script>
+/* Target: 6 Nov 2026, 09:00 Maldives time (UTC+5), written as an explicit UTC
+   instant so it counts identically from any viewer timezone.
+   · writes to the DOM only when a value actually changed
+   · the interval stops on visibilitychange, so a hidden tab never ticks
+   · a target in the past clamps to zero; negatives are never shown */
+(function(){
+  var TARGET = Date.UTC(2026, 10, 6, 4, 0, 0);
+  var UNITS  = [['Days',864e5],['Hours',36e5],['Minutes',6e4],['Seconds',1e3]];
+  var boxes  = [].slice.call(document.querySelectorAll('[data-cd]'));
+  if (!boxes.length) return;
+  boxes.forEach(function(b){
+    b.innerHTML = UNITS.map(function(u,i){
+      return (i ? '<div class="sep"></div>' : '') +
+        '<div class="u"><div class="n" data-u="'+u[0]+'">--</div><div class="k">'+u[0]+'</div></div>';
+    }).join('');
+  });
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+  function tick(){
+    var left = TARGET - Date.now(); if (left < 0) left = 0;
+    var rem = left, vals = {};
+    UNITS.forEach(function(u){ vals[u[0]] = Math.floor(rem/u[1]); rem -= vals[u[0]]*u[1]; });
+    boxes.forEach(function(b){
+      UNITS.forEach(function(u){
+        var el = b.querySelector('[data-u="'+u[0]+'"]'); if (!el) return;
+        var v = u[0] === 'Days' ? String(vals[u[0]]) : pad(vals[u[0]]);
+        if (el.textContent !== v) el.textContent = v;
+      });
+    });
+  }
+  var iv = null;
+  function start(){ if (!iv){ tick(); iv = setInterval(tick, 1000); } }
+  function stop(){ if (iv){ clearInterval(iv); iv = null; } }
+  document.addEventListener('visibilitychange', function(){ document.hidden ? stop() : start(); }, {passive:true});
+  tick(); if (!document.hidden) start();
+})();
+
+/* nav frost: ONE IntersectionObserver on a sentinel, not a scroll listener. */
+(function(){
+  var bar = document.getElementById('topbar'), s = document.getElementById('sentinel');
+  new IntersectionObserver(function(es){
+    bar.classList.toggle('scrolled', !es[0].isIntersecting);
+  },{threshold:0}).observe(s);
+})();
+</script>
+
+<!-- ====================== THE COLOUR FIELD ======================
+     ONE continuous, page-wide field. Ported from prototypes/chroma.
+
+     The correction this file exists to make: the previous pass gave every
+     section its own radial-gradient wash, which put a HARD BOUNDARY at each
+     section edge — precisely what the client rejected ("the zones should
+     blend more seamlessly"). There is now exactly one fixed full-viewport
+     canvas for the whole document, and the zones are TARGETS, not states.
+
+     Three things make it seamless:
+       1. Zone colours are targets. Each [data-zone] section records its
+          document-space centre as a marker; the viewport centre's position
+          between the two bracketing markers is smoothstepped into a blend.
+          The target is therefore ALWAYS moving — there is no threshold to
+          cross and no frame at which the colour "switches".
+       2. A critically-damped follower chases that target every frame,
+          frame-rate independent: k = 1 - exp(-dt/TAU). Colour keeps easing
+          after the scroll has stopped. dt is clamped to [0.0005, 1/30] so a
+          hidden tab cannot resume with one enormous step.
+       3. Interpolation happens in OKLab. sRGB lerps pass through a
+          desaturated grey midpoint (coral -> cyan is the worst offender) and
+          that muddy crossing itself reads as an abrupt change.
+     ============================================================ -->
+<script>
+(function(){
+'use strict';
+var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var COARSE  = matchMedia('(pointer: coarse)').matches;
+var MEM     = (typeof navigator.deviceMemory === 'number') ? navigator.deviceMemory : 8;
+
+/* ---------- brand constants ---------- */
+var C = {
+  coral:  {hex:'#FF724F', lt:'#FFD179', r:255, g:114, b:79 },
+  cyan:   {hex:'#38DCF6', lt:'#8FFFF4', r:56,  g:220, b:246},
+  violet: {hex:'#C558F2', lt:'#FB85E5', r:197, g:88,  b:242},
+  green:  {hex:'#66DF5F', lt:'#93F9A6', r:102, g:223, b:95 }
+};
+var ORDER = ['coral','cyan','violet','green'];
+
+/* ---------- OKLab: the perceptual working space (~30 lines, no library) ---- */
+function s2l(c){ c/=255; return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+function l2s(v){
+  var o = v<=0.0031308 ? v*12.92 : 1.055*Math.pow(Math.max(v,0), 1/2.4)-0.055;
+  o = Math.round(o*255);
+  return o<0 ? 0 : (o>255 ? 255 : o);
+}
+function toLab(r,g,b){
+  var R=s2l(r), G=s2l(g), B=s2l(b);
+  var l=Math.cbrt(0.4122214708*R + 0.5363325363*G + 0.0514459929*B);
+  var m=Math.cbrt(0.2119034982*R + 0.6806995451*G + 0.1073969566*B);
+  var s=Math.cbrt(0.0883024619*R + 0.2817188376*G + 0.6299787005*B);
+  return [ 0.2104542553*l + 0.7936177850*m - 0.0040720468*s,
+           1.9779984951*l - 2.4285922050*m + 0.4505937099*s,
+           0.0259040371*l + 0.7827717662*m - 0.8086757660*s ];
+}
+function fromLab(L,A,B2,out){
+  var l=L+0.3963377774*A+0.2158037573*B2;
+  var m=L-0.1055613458*A-0.0638541728*B2;
+  var s=L-0.0894841775*A-1.2914855480*B2;
+  l=l*l*l; m=m*m*m; s=s*s*s;
+  out[0]=l2s( 4.0767416621*l - 3.3077115913*m + 0.2309699292*s);
+  out[1]=l2s(-1.2684380046*l + 2.6097574011*m - 0.3413193965*s);
+  out[2]=l2s(-0.0041960863*l - 0.7034186147*m + 1.7076147010*s);
+  return out;
+}
+function hexLab(h){
+  return toLab(parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16));
+}
+for (var _i=0;_i<ORDER.length;_i++){
+  var _c=C[ORDER[_i]]; _c.lab=hexLab(_c.hex); _c.ltLab=hexLab(_c.lt);
+}
+
+/* ---------- critically-damped follower, frame-rate independent ----------
+   k = 1 - exp(-dt/TAU). NEVER a fixed per-frame constant: that is
+   frame-rate dependent and behaves differently at 60 vs 120Hz. This is
+   also the mechanism that lets colour keep ramping after scroll stops. */
+function kOf(dt, tau){ return 1 - Math.exp(-dt / tau); }
+var TAU_COLOR = 0.42, TAU_ANCHOR = 0.50;
+
+/* ---------- state ---------- */
+var mix  = {coral:1, cyan:.30, violet:.30, green:.30};   /* DAMPED current  */
+var mixT = {coral:1, cyan:.30, violet:.30, green:.30};   /* moving TARGET   */
+var anchor  = {x:.38,y:.34}, anchorT = {x:.38,y:.34};
+var ANCHORS = { all:{x:.50,y:.40}, coral:{x:.38,y:.34}, cyan:{x:.66,y:.30},
+                violet:{x:.30,y:.68}, green:{x:.70,y:.58} };
+var pan = {y:0};
+
+function dom(k){ var d=(mix[k]-0.30)/0.70; return d<0?0:(d>1?1:d); }
+
+/* ---------- markers: one per [data-zone] section, at its DOCUMENT centre.
+   Between two markers the target blends CONTINUOUSLY. The sections still say
+   where each hue peaks; they no longer say when it switches. ---------- */
+var MARKS = [];
+function buildMarks(){
+  MARKS.length = 0;
+  var secs = document.querySelectorAll('[data-zone]');
+  for (var i=0;i<secs.length;i++){
+    var s = secs[i], top = 0, n = s;
+    while (n){ top += n.offsetTop; n = n.offsetParent; }
+    MARKS.push({ y: top + s.offsetHeight*0.5, key: s.getAttribute('data-zone') });
+  }
+  MARKS.sort(function(a,b){ return a.y - b.y; });
+}
+function weightsInto(dst, key, s, key2){
+  /* 'all' is the hero: every hue at full strength at once. It is a state in
+     THIS system, not a separate layer, which is the whole point — the hero's
+     glow and the zones' colour are painted by the same canvas, so the handoff
+     between them is just the damped follower doing its usual interpolation.
+     A second ground stacked over the field always changes character at the
+     hero's edge no matter how carefully it is masked. */
+  for (var i=0;i<ORDER.length;i++){
+    var k = ORDER[i];
+    /* HERO COLOUR COVERAGE = 0.22.
+       At 1 the four hues blanket the whole hero and the navy ground is
+       entirely covered — which is what "the navy gets washed out" was. The
+       navy hex never changed; what changed is how much of it you can see.
+       0.22 keeps the ground unmistakably #001D61 with the hues reading as
+       distinct pools over it, so the 3D element is the most saturated thing
+       in frame instead of competing with an equally colourful background. */
+    /* HERO COLOUR COVERAGE. 0.22 measured as #1c5284 / #3871ac on the ground —
+       pastel steel. 0.14 was still too much: a 30-point grid over the hero came
+       back with hues of 310-346 and saturation 15-33 across the whole centre
+       left, i.e. a pale PINK wash sitting exactly where the copy sits. Screen
+       blending is why — screening coral over navy lifts coral's blue channel
+       and lands on salmon, which the pass-A comment already warns about.
+
+       0.06 still was not zero, and a weak pool is worse than a strong one: four
+       faint hues overlapping average to GREY. Measured at 0.06 the hero centre
+       came back #424378 and the lower left #493c58 — a muddy mauve at 19-29%
+       saturation, sitting in the middle of a ground whose corners were a clean
+       68% blue. The reference has no mud anywhere; it is a clean deep navy
+       with one violet bloom on it.
+
+       So the hero ground is now the ramp and the vignette, nothing else. All
+       of its colour comes from the AMBILIGHT, which is tied to the element and
+       therefore lands where the reference's bloom lands, instead of being
+       smeared across the whole section. Below the hero the pools return to
+       full strength — this constant only governs the `all` (hero) key. */
+    var HW = 0;
+    var a = (key==='all') ? HW : ((k===key)?1:0.30);
+    var b = (key2==='all') ? HW : ((k===key2)?1:0.30);
+    dst[k] = a + (b-a)*s;
+  }
+}
+function updateTarget(){
+  if (!MARKS.length) return;
+  var y = window.pageYOffset + window.innerHeight*0.5;
+  var i = 0;
+  while (i < MARKS.length-1 && y >= MARKS[i+1].y) i++;
+  var a = MARKS[i], b = MARKS[Math.min(i+1, MARKS.length-1)];
+  var s = 0;
+  if (b !== a && b.y > a.y) s = (y - a.y)/(b.y - a.y);
+  if (y <= MARKS[0].y){ a = b = MARKS[0]; s = 0; }
+  if (s<0) s=0; if (s>1) s=1;
+  s = s*s*(3-2*s);                       /* smoothstep the ramp shape */
+  weightsInto(mixT, a.key, s, b.key);
+  anchorT.x = ANCHORS[a.key].x + (ANCHORS[b.key].x - ANCHORS[a.key].x)*s;
+  anchorT.y = ANCHORS[a.key].y + (ANCHORS[b.key].y - ANCHORS[a.key].y)*s;
+  pan.y = -((window.pageYOffset / Math.max(1, document.body.scrollHeight - window.innerHeight)) - 0.5) * 0.10;
+}
+
+/* ---------- canvas ----------
+   Composited at 0.30 scale into an offscreen buffer and upscaled: the
+   bilinear resample IS the blur. No per-frame filter:blur() on a
+   full-screen layer, and no 8-bit gradient banding. */
+var main = document.getElementById('field');
+var mctx = main.getContext('2d');
+var off  = document.createElement('canvas');
+var octx = off.getContext('2d');
+var W=0,H=0,OW=0,OH=0, SCALE=0.30;
+var MOBILE = innerWidth < 760, LIGHT = COARSE || MEM <= 4 || MOBILE;
+
+var BLOBS_ALL = [
+  {key:'coral',  x:.74,y:.26,r:.48,ax:.10,ay:.075,sx:.061,sy:.043,ph:0.0,w:1.00},
+  {key:'cyan',   x:.17,y:.62,r:.46,ax:.11,ay:.090,sx:.047,sy:.055,ph:1.7,w:1.00},
+  {key:'violet', x:.82,y:.82,r:.44,ax:.09,ay:.105,sx:.039,sy:.062,ph:3.1,w:1.00},
+  {key:'green',  x:.24,y:.10,r:.42,ax:.11,ay:.070,sx:.053,sy:.037,ph:4.6,w:1.00},
+  {key:'coral',  x:.02,y:.94,r:.30,ax:.08,ay:.100,sx:.068,sy:.031,ph:2.2,w:0.60},
+  {key:'cyan',   x:.99,y:.02,r:.28,ax:.07,ay:.085,sx:.033,sy:.071,ph:5.3,w:0.55}
+];
+var BLOBS = BLOBS_ALL.slice(0, LIGHT ? 4 : 6);
+
+function resize(){
+  W = innerWidth; H = innerHeight;
+  MOBILE = W < 760; LIGHT = COARSE || MEM <= 4 || MOBILE;
+  BLOBS = BLOBS_ALL.slice(0, LIGHT ? 4 : 6);
+  main.width = W; main.height = H;
+  OW = Math.max(2, Math.round(W*SCALE));
+  OH = Math.max(2, Math.round(H*SCALE));
+  off.width = OW; off.height = OH;
+  mctx.imageSmoothingEnabled = true; mctx.imageSmoothingQuality = 'high';
+  buildMarks(); updateTarget();
+  /* SNAP the follower to its target before the first paint. `mix` is seeded at
+     {coral:1, ...} — the old pre-scroll state — and the damped follower then
+     eases from there to whatever the page actually opens on. With the hero now
+     asking for NO hue pools at all, that seed meant the landing page opened on
+     a full coral wash and spent the first second easing out of it; measured at
+     the top of the page the ground read #303166 and #312c4a instead of the
+     ramp's own #001D61. The follower exists to smooth CHANGES, not to animate
+     the first frame in from a value nobody chose. */
+  for (var _k in mixT) mix[_k] = mixT[_k];
+  /* NOT draw(0): after the field has settled, t=0 would redraw a fully
+     breathing frame and the ground would visibly pop on every resize. */
+  draw(clock());
+}
+function rgba(c,a){ return 'rgba('+c.r+','+c.g+','+c.b+','+a.toFixed(4)+')'; }
+/* Hold the breathing through the hero entrance, then fade its amplitude out.
+   Smoothstepped, so the wobble shrinks to nothing instead of stopping dead. */
+var BREATHE_HOLD = 5.0, BREATHE_FADE = 3.0;
+var FOREVER = /[?&]breathe=1/.test(location.search);
+function breatheAt(t){
+  if (REDUCED) return 0;
+  if (FOREVER) return 1;
+  var u = (t - BREATHE_HOLD) / BREATHE_FADE;
+  if (u <= 0) return 1;
+  if (u >= 1) return 0;
+  return 1 - u*u*(3-2*u);
+}
+function blobPos(b,t){
+  /* every blob leans toward the (damped) anchor in proportion to its own
+     (damped) dominance — continuous, so nothing can jump at a boundary */
+  var k = dom(b.key)*b.w*0.85;
+  var bx = b.x + (anchor.x - b.x)*k, by = b.y + (anchor.y - b.y)*k;
+  return { x:(bx + Math.sin(t*b.sx*6.2831 + b.ph)*b.ax)*OW,
+           y:(by + Math.cos(t*b.sy*6.2831 + b.ph*1.3)*b.ay + pan.y)*OH };
+}
+function draw(t){
+  /* navy ground. #001D61 is the client's structural base. */
+  var g = octx.createLinearGradient(0,0,0,OH);
+  /* Was #00102F -> #001D61 -> #000B22, which fell to near-black at the
+     bottom and made every section boundary read as a dark seam. Now the
+     whole ramp stays inside the navy family, so sections blend into each
+     other instead of through black. */
+  /* THE GROUND, TAKEN FROM pages/logo-animation/ — which is the approved one.
+     That page has no colour field at all: it is the brand navy ramp with a
+     single blue bloom behind the element, and nothing else. Every attempt to
+     tune this by hand went wrong in a different direction (near-black and
+     chroma-less, then a bright royal blue, then a muddy mauve), because the
+     thing that made it look wrong was never the blue — it was the four hue
+     pools smeared across the hero. Take the ramp verbatim rather than
+     re-deriving it; these are --navy and --navy-900 with a slightly deeper
+     foot.  #001D61 -> #001A52 at 58% -> #00113B. */
+  g.addColorStop(0,'#001D61'); g.addColorStop(0.58,'#001A52'); g.addColorStop(1,'#00113B');
+  octx.globalCompositeOperation='source-over'; octx.globalAlpha=1;
+  octx.fillStyle=g; octx.fillRect(0,0,OW,OH);
+
+  /* THE FIELD SETTLES. It used to breathe on sin(t) forever, which meant a
+     full-viewport canvas was redrawn 60 times a second for the life of the
+     page — visible as the whole viewport flashing under Rendering > Paint
+     flashing. The wobble now eases to nothing over BREATHE_FADE seconds once
+     the entrance is done, after which the composed frame is CONSTANT and the
+     loop parks itself (see frame() below). Scroll still recolours the field;
+     what stops is time-driven motion nobody asked for. ?breathe=1 restores
+     the old behaviour for an A/B. */
+  var breathe = breatheAt(t), i,b,c,w,br,ab,p,rad,peak,rg;
+
+  /* pass A — atmosphere: wide low-alpha halo, screen blend, so neighbouring
+     hues genuinely meet instead of abutting */
+  octx.globalCompositeOperation='screen';
+  for (i=0;i<BLOBS.length;i++){
+    b=BLOBS[i]; c=C[b.key]; w=mix[b.key]*b.w;
+    br = 1 + Math.sin(t*(6.2831/7.4)+b.ph)*0.085*breathe;
+    ab = 1 + Math.sin(t*(6.2831/8.6)+b.ph*0.7)*0.10*breathe;
+    p = blobPos(b,t);
+    rad = b.r*Math.max(OW,OH)*br;
+    peak = Math.min(0.66, (0.06+0.56*w)*ab);
+    if (peak<=0.0004) continue;   /* was .004 — blobs popped in/out at the threshold */
+    rg = octx.createRadialGradient(p.x,p.y,0,p.x,p.y,rad);
+    rg.addColorStop(0,rgba(c,peak)); rg.addColorStop(0.20,rgba(c,peak*0.74));
+    rg.addColorStop(0.46,rgba(c,peak*0.30)); rg.addColorStop(0.74,rgba(c,peak*0.08));
+    rg.addColorStop(1,rgba(c,0));
+    octx.fillStyle=rg; octx.fillRect(0,0,OW,OH);
+  }
+  /* pass B — identity: a tight near-opaque core in the EXACT brand hex.
+     Screen alone cannot do this: screening coral over navy lifts coral's
+     blue channel and the hue lands on salmon. */
+  octx.globalCompositeOperation='source-over';
+  for (i=0;i<BLOBS.length;i++){
+    b=BLOBS[i]; c=C[b.key]; w=mix[b.key]*b.w;
+    br = 1 + Math.sin(t*(6.2831/7.4)+b.ph)*0.085*breathe;
+    ab = 1 + Math.sin(t*(6.2831/8.6)+b.ph*0.7)*0.10*breathe;
+    p = blobPos(b,t);
+    rad = b.r*Math.max(OW,OH)*br*(0.92 + 0.22*dom(b.key));   /* was 0.52+0.16 — too tight, read as a splotch */
+    peak = Math.min(0.40, Math.max(0,(w-0.04))*0.78*ab);     /* was 0.74/1.34 — near-opaque core */
+    if (peak<=0.001) continue;    /* was .01 — same pop */
+    rg = octx.createRadialGradient(p.x,p.y,0,p.x,p.y,rad);
+    rg.addColorStop(0,rgba(c,peak)); rg.addColorStop(0.30,rgba(c,peak*0.80));
+    rg.addColorStop(0.62,rgba(c,peak*0.38)); rg.addColorStop(0.84,rgba(c,peak*0.12));
+    rg.addColorStop(1,rgba(c,0));
+    octx.fillStyle=rg; octx.fillRect(0,0,OW,OH);
+  }
+  /* pass C — THE BLOOM, not a vignette. Also taken verbatim from
+     pages/logo-animation/:
+        radial-gradient(120% 90% at 74% 46%, #0B2A7A 0%, transparent 62%)
+     One soft blue light behind where the element sits — at 1440x900 the
+     element measures a centre of 71.3% / 52.8%, so 74% / 46% lands on it.
+     It replaces a vignette that darkened the edges instead: the reference
+     does not darken anything, it LIGHTS one spot, and the depth is the
+     ramp's own.
+
+     createRadialGradient is circular, so the 120% x 90% ellipse is made by
+     squashing the y axis around the bloom's centre while it is filled. */
+  var bx = OW*0.74, by = OH*0.46, brx = OW*1.20, bry = OH*0.90;
+  octx.save();
+  octx.translate(bx, by);
+  octx.scale(1, bry/brx);
+  var bg2 = octx.createRadialGradient(0,0,0, 0,0, brx);
+  bg2.addColorStop(0,    'rgba(11,42,122,1)');
+  bg2.addColorStop(0.62, 'rgba(11,42,122,0)');
+  octx.globalCompositeOperation='source-over';
+  octx.fillStyle=bg2;
+  octx.fillRect(-brx, -brx, brx*2, brx*2);
+  octx.restore();
+  octx.globalCompositeOperation='source-over';
+
+  mctx.globalCompositeOperation='source-over'; mctx.globalAlpha=1;
+  mctx.drawImage(off,0,0,OW,OH,0,0,W,H);
+}
+
+/* ---------- accent: the SAME damped OKLab value drives the chrome ----------
+   Zone tags, numerals and rules are tinted from this, so nothing snaps while
+   the background glides. Written as inline styles on the ~20 elements that
+   actually use it — NEVER as a custom property on :root, which invalidates
+   style for the entire document every frame. Chroma's comments record that. */
+var accentEls = { tag:[], text:[], rule:[], edge:[] };
+function collectAccents(){
+  /* .ztag is NO LONGER scroll-driven. The per-frame inline write below blended
+     the four zone colours by whichever section was dominant as you scrolled,
+     which was right when the zones were four full-height sections. They are tabs
+     now, so scroll position says nothing about which zone you are reading: every
+     tag showed the same blended coral whatever its zone, and it drifted as you
+     scrolled. The tag takes its zone's accent from CSS instead
+     (.ztag{background:var(--accent)}) and the tab selection drives that. An
+     inline style would beat the rule, so this list stays empty. */
+  accentEls.tag  = [];
+  accentEls.text = [].slice.call(document.querySelectorAll('.num, .fig .l'));
+  accentEls.rule = [].slice.call(document.querySelectorAll('.rule'));
+  accentEls.edge = [].slice.call(document.querySelectorAll('.specs'));
+}
+var _rgb=[0,0,0], _rgbLt=[0,0,0];
+var lastTag=[-1,-1,-1], lastLt=[-1,-1,-1];
+function applyAccent(){
+  var L=0,A=0,B=0,L2=0,A2=0,B2=0,sum=0,i,k,p,c;
+  for (i=0;i<ORDER.length;i++){
+    k=ORDER[i]; p=dom(k); if (p<=0) continue;
+    c=C[k]; sum+=p;
+    L+=c.lab[0]*p; A+=c.lab[1]*p; B+=c.lab[2]*p;
+    L2+=c.ltLab[0]*p; A2+=c.ltLab[1]*p; B2+=c.ltLab[2]*p;
+  }
+  if (sum<1e-6){ c=C.coral; L=c.lab[0];A=c.lab[1];B=c.lab[2];
+                 L2=c.ltLab[0];A2=c.ltLab[1];B2=c.ltLab[2]; sum=1; }
+  fromLab(L/sum,A/sum,B/sum,_rgb);
+  fromLab(L2/sum,A2/sum,B2/sum,_rgbLt);
+  var changed = _rgb[0]!==lastTag[0]||_rgb[1]!==lastTag[1]||_rgb[2]!==lastTag[2];
+  var changedLt = _rgbLt[0]!==lastLt[0]||_rgbLt[1]!==lastLt[1]||_rgbLt[2]!==lastLt[2];
+  if (changed){
+    lastTag[0]=_rgb[0];lastTag[1]=_rgb[1];lastTag[2]=_rgb[2];
+    var s='rgb('+_rgb[0]+','+_rgb[1]+','+_rgb[2]+')';
+    for (var i2=0;i2<accentEls.tag.length;i2++) accentEls.tag[i2].style.background = s;
+  }
+  if (changedLt){
+    lastLt[0]=_rgbLt[0];lastLt[1]=_rgbLt[1];lastLt[2]=_rgbLt[2];
+    /* the LIGHT end of the ramp for anything that is TEXT or a hairline:
+       the saturated hex would not hold 4.5:1 over the composited field. */
+    /* Accent TEXT is pulled 52% toward cream. The saturated ramp end alone
+       measured 2.3:1 over a bright field; this keeps the hue legible AND
+       keeps the numerals visibly zone-coloured. */
+    var CR=[243,237,223], mixf=0.62;
+    var sl='rgb('+Math.round(_rgbLt[0]+(CR[0]-_rgbLt[0])*mixf)+','+
+                  Math.round(_rgbLt[1]+(CR[1]-_rgbLt[1])*mixf)+','+
+                  Math.round(_rgbLt[2]+(CR[2]-_rgbLt[2])*mixf)+')';
+    var rl='rgba('+_rgbLt[0]+','+_rgbLt[1]+','+_rgbLt[2]+',.62)';
+    for (var i3=0;i3<accentEls.text.length;i3++) accentEls.text[i3].style.color = sl;
+    /* <hr class="rule"> is a filled 1px block -> background.
+       .specs is a <ul>: ONLY its top border may take the accent. Setting
+       background here filled the whole list block — caught in QA. */
+    for (var i4=0;i4<accentEls.rule.length;i4++) accentEls.rule[i4].style.background = rl;
+    for (var i5=0;i5<accentEls.edge.length;i5++) accentEls.edge[i5].style.borderTopColor = rl;
+  }
+}
+/* the rule hairlines are <hr> (background) and .specs (border-top); .specs li
+   borders stay neutral cream so the list never loses its 4.5:1 separation. */
+
+function stepColour(dt){
+  if (dt > 1/30) dt = 1/30;
+  if (dt < 0.0005) dt = 0.0005;
+  var kc = kOf(dt, TAU_COLOR), ka = kOf(dt, TAU_ANCHOR), i, k;
+  for (i=0;i<ORDER.length;i++){ k=ORDER[i]; mix[k] += (mixT[k]-mix[k])*kc; }
+  anchor.x += (anchorT.x-anchor.x)*ka;
+  anchor.y += (anchorT.y-anchor.y)*ka;
+  applyAccent();
+}
+
+/* ---------- the loop ----------
+   Runs continuously while visible: the follower must keep easing AFTER the
+   scroll has stopped, which is the whole point. It stops on visibilitychange
+   and re-bases its clock on resume, so a hidden tab never resumes with one
+   giant dt. */
+var raf = 0, prev = 0, t0 = performance.now();
+function clock(){ return (performance.now() - t0)/1000; }
+/* Is anything still moving? The follower is critically damped, so it never
+   exactly reaches its target — these are the thresholds below which another
+   frame cannot change a pixel. */
+var lastPan = 0;
+function settled(t){
+  if (breatheAt(t) > 0) return false;
+  for (var i=0;i<ORDER.length;i++){ var k=ORDER[i]; if (Math.abs(mixT[k]-mix[k]) > 0.0006) return false; }
+  if (Math.abs(anchorT.x-anchor.x) > 0.0004 || Math.abs(anchorT.y-anchor.y) > 0.0004) return false;
+  if (Math.abs(pan.y - lastPan) > 0.0002) return false;
+  return true;
+}
+function frame(now){
+  var dt = (now - prev)/1000; prev = now;
+  updateTarget();
+  stepColour(dt);
+  var t = (now - t0)/1000;
+  draw(t);
+  lastPan = pan.y;
+  /* PARK. Once the breathing has faded out and the follower has arrived, the
+     next frame would be identical to this one, so there is no next frame. A
+     scroll, a resize or a tab return kicks it awake. This is what takes the
+     page to zero repaints at rest. */
+  if (settled(t)){ raf = 0; return; }
+  raf = requestAnimationFrame(frame);
+}
+function start(){ if (!raf && !REDUCED){ prev = performance.now(); raf = requestAnimationFrame(frame); } }
+function stop(){ if (raf){ cancelAnimationFrame(raf); raf = 0; } }
+/* The loop polls scroll inside updateTarget() rather than listening, so once
+   it has parked something has to wake it. Passive, and it only ever calls
+   start(), which is a no-op while the loop is already running. */
+addEventListener('scroll', start, {passive:true});
+
+collectAccents();
+resize();
+addEventListener('resize', resize, {passive:true});
+addEventListener('load', function(){ buildMarks(); updateTarget(); }, {passive:true});
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden) stop(); else start();     /* prev is re-based in start() */
+}, {passive:true});
+
+if (REDUCED){
+  /* static composed frame at the current scroll position, no loop at all */
+  updateTarget();
+  for (var q=0;q<ORDER.length;q++) mix[ORDER[q]] = mixT[ORDER[q]];
+  anchor.x = anchorT.x; anchor.y = anchorT.y;
+  applyAccent(); draw(0);
+  addEventListener('scroll', function(){
+    updateTarget();
+    for (var q2=0;q2<ORDER.length;q2++) mix[ORDER[q2]] = mixT[ORDER[q2]];
+    anchor.x = anchorT.x; anchor.y = anchorT.y;
+    applyAccent(); draw(0);
+  }, {passive:true});
+} else {
+  start();
+}
+
+/* ---- test hooks (QA only) ----
+   Pixels are read back from a SEPARATE 1x1 scratch canvas, never from the
+   live field context: calling getImageData on the display context puts it
+   into readback mode and slows the real compositing path every frame. */
+var _sc = document.createElement('canvas'), _scc;
+function _readPx(x,y){
+  if (!_scc){ _sc.width = 1; _sc.height = 1;
+              _scc = _sc.getContext('2d', {willReadFrequently:true}); }
+  _scc.drawImage(main, Math.round(x), Math.round(y), 1, 1, 0, 0, 1, 1);
+  var d = _scc.getImageData(0,0,1,1).data; return [d[0],d[1],d[2]];
+}
+window.__varaField = function(){
+  return { mix:{coral:mix.coral,cyan:mix.cyan,violet:mix.violet,green:mix.green},
+           accent:lastTag.slice(), accentLt:lastLt.slice(),
+           centre:_readPx(W*0.5,H*0.5), marks:MARKS.length };
+};
+window.__varaSample = function(x,y){ return _readPx(x,y); };
+})();
+</script>
+
+<!-- ====================== the line system (everything below the hero) ====================== -->
+<script type="module">
+import { STROKES } from './data/strokes.js';
+import { paintTube, paintStack, TUBE, STACK } from './system/tube.js';
+/* Reads --rung-scale (system/tokens.css): the ladder is a desktop scale and a
+   rank-0 rung is 18.4% of a 370 phone. Falls back to 1 — full weight — if the
+   token is ever missing, rather than zeroing every stroke. */
+const rungScale = () =>
+  parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rung-scale')) || 1;
+
+
+/* ---- WHICH lines get the shaded tube surface --------------------------
+   Not all of them. A tube is ~125 DOM nodes against a flat stroke's 2, and
+   below about 0.5 opacity the across-tube shading is not perceptible — so
+   spending 60x the nodes on the supporting strokes buys nothing you can see.
+   Each zone's DOMINANT stroke (alpha >= .8) is the only one large and opaque
+   enough to earn it: 5 of the 18 lines on this page.
+     ?tubes=all  every line          ?tubes=off  none (the flat original)
+   ?segs=N overrides the tessellation so the quality/weight trade can be felt
+   on a real device rather than argued about. */
+const TQ = new URLSearchParams(location.search);
+const TUBE_MODE = (TQ.get('tubes') || 'hero').toLowerCase();
+if (+TQ.get('segs') > 3) TUBE.segs = Math.min(64, +TQ.get('segs'));
+/* Threshold lowered from .8 to .5: at 50px and .58 opacity the supporting
+   stroke is now big enough to show the shading, and leaving it flat next to a
+   shaded one reads as a mistake rather than as a hierarchy. Strokes below .5
+   still stay flat — there the surface genuinely is not perceptible. */
+/* Every layout entry is a tube now. The threshold stays as a guard: anything
+   added below it would render flat, which is the thing being removed here. */
+const wantsTube = alpha => TUBE_MODE === 'off' ? false : alpha >= 0.5;
+/* The segmented surface is the approved one — per-segment gradients across
+   the tube, ~820 nodes a ribbon plus a mask. ?tubes=stack swaps in the cheap
+   concentric-band version (~226 a ribbon, no mask) if the weight ever has to
+   come down; ?tubes=off is the flat original. */
+const STACK_MODE = TUBE_MODE === 'stack';
+/* ?px=N sets the dominant stroke weight and scales the rest with it, so the
+   weight can be dialled on the page instead of through an edit. */
+const PX = +TQ.get('px') || 0;
+
+const VB = STROKES._viewBox;                 // "0 0 1000.0 878.5"
+const VBW = 1000;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* NOTE: the per-zone `ZONE` wash table that used to live here is GONE.
+   It painted a radial-gradient background into every section, which is what
+   produced a hard edge at each section boundary. Colour is now one
+   page-wide damped OKLab field — see the colour-field script above. */
+
+/* [stroke, sizeVW, centreX%, centreY%, rotationDeg, targetPx, opacity, parallaxRate]
+   x/y are the CENTRE of the line's box, so a shape sits half off-frame
+   deliberately rather than by accident. targetPx is the on-screen stroke
+   thickness — converted to viewBox units at build time and on resize, so the
+   hairline/ribbon contrast holds at every viewport. For the weights themselves see the
+   note on LAYOUTS below; no mobile step-down has been ruled on, so there is
+   no responsive weight here and one should not be invented. Hairlines 6–10px against
+   ribbons 30–40px in the SAME composition is what stops this reading as a
+   logo dropped in; the brand film flies strokes through frame at many scales
+   at once, and that is the reference. 6–10 lines per section. */
+/* KEYED BY SECTION ID. Four of these keys — career, education, skills,
+   market — went dead in 755ec98 ("home: zones become a stepped tab panel"),
+   which replaced the four full-height zone SECTIONS with a single #zones
+   section holding a tab panel. The sections those layouts named stopped
+   existing, so `LAYOUTS[sec.id]` came back undefined and sixteen of the
+   eighteen lines on this page silently stopped drawing. Only `scale` still
+   matched an id, which is why the page had exactly two ribbons on it.
+
+   Resolved by giving the section that actually exists its own set rather than
+   restoring four sets for four sections that do not. #zones holds all four
+   zones at once, so its set carries all four hues — one per zone, dominant
+   first — instead of following the selected tab. Following the tab would mean
+   rebuilding the shaded geometry on every tab click, which is real work for a
+   colour change nobody asked for.
+
+   Weights are the ONE tube scale — 68 / 56 / 44, rank 0 first. 80px is retired:
+   at that weight a ribbon stops being a line through a composition and becomes
+   a slab across it. See ILLUSTRATION.md Tier 1.5. */
+/* PLACEMENT RULE, from Mufhim: a ribbon belongs in the space between bands and
+   in the gutters, may intrude into the column people read by about a tenth,
+   and only at a weight that does not compete with the words.
+
+   ZONES AND SCALE ARE AN AGREED EXCEPTION AND ARE NOT TO BE MOVED. Their
+   ribbons cross their own section and that was signed off — they read as part
+   of those two compositions rather than as something laid over them. I pulled
+   them out once while fixing the news band and was told to put them back;
+   these four rows are the originals, restored exactly.
+
+   The rule was written for the SPONSORS band, whose ribbons were bleeding up
+   out of their own section and across the news headlines three bands away.
+   That is what moved. See the RIBBONS array at the foot of this file.
+
+   Placement, not masking: a mask was tried and removed the lines entirely,
+   because mask-image covers only the host's own box and these strokes are
+   positioned far outside it. */
+const LAYOUTS = {
+  /* Only strokes that get the shaded surface are listed. The two faint ones
+     that used to sit here (.42 and .34) fell under the tube threshold and so
+     rendered as FLAT ribbons next to shaded ones — which read as unfinished
+     rather than as a hierarchy. Hierarchy now comes from weight and opacity
+     between two shaded strokes, not from mixing two different materials. */
+  /* Weights come from the ONE tube scale — 68 / 56 / 44, rank 0 first. There is
+     no second ladder for a second context. 80px was the previous dominant and
+     is retired: at that weight the ribbon stops being a line through a
+     composition and becomes a slab across it, which is unmistakable at phone
+     width. See ILLUSTRATION.md Tier 1.5, and the ladder rendered at true size
+     in explorations/perf/tube-weights.html. */
+  zones: [
+    ['coral', 128,  76,  56,  22, 68, .95,  1.00],
+    ['green',  74,  10,  92, -16, 56, .50,  0.55],
+  ],
+  scale: [
+    ['coral', 120, -14,  30, -30, 68, .82,  0.90],
+    ['cyan',   78, 110,  22,  40, 56, .58, -0.66],
+  ],
+};
+
+let uid = 0;
+function makeLine(host, spec){
+  const [name, sizeVW, xPct, yPct, rot, targetPx, alpha] = spec;
+  const S = STROKES[name];
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox', VB);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.setAttribute('aria-hidden','true');
+  svg.style.width = sizeVW + 'vw';
+  svg.style.left  = xPct + '%';
+  svg.style.top   = yPct + '%';
+  svg.style.opacity = alpha;
+  svg.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+
+  /* each line keeps its own stroke's 36-stop gradient, straight from the model */
+  const gid = 'g'+(uid++);
+  const defs = document.createElementNS(ns,'defs');
+  const lg = document.createElementNS(ns,'linearGradient');
+  lg.setAttribute('id', gid);
+  lg.setAttribute('gradientUnits','objectBoundingBox');
+  lg.setAttribute('x1','0'); lg.setAttribute('y1','0');
+  lg.setAttribute('x2','1'); lg.setAttribute('y2','1');
+  S.colors.forEach((c,i)=>{
+    const st = document.createElementNS(ns,'stop');
+    st.setAttribute('offset', (i/(S.colors.length-1)*100).toFixed(1)+'%');
+    st.setAttribute('stop-color', c);
+    lg.appendChild(st);
+  });
+  defs.appendChild(lg); svg.appendChild(defs);
+
+  const p = document.createElementNS(ns,'path');
+  p.setAttribute('d', S.d);
+  p.setAttribute('stroke', `url(#${gid})`);
+  svg.appendChild(p);
+  host.appendChild(svg);
+  return { svg, p };
+}
+
+/* Same placement and transform as makeLine, but the stroke is replaced by a
+   shaded tube. The returned `p` is the tube's mask path, so the draw-on below
+   animates it identically — one stroke-dashoffset write per line per frame,
+   whichever kind of line it is. */
+function makeTube(host, spec){
+  const [name, sizeVW, xPct, yPct, rot, targetPx, alpha] = spec;
+  const S = STROKES[name];
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox', VB);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.setAttribute('aria-hidden','true');
+  svg.style.width = sizeVW + 'vw';
+  svg.style.left  = xPct + '%';
+  svg.style.top   = yPct + '%';
+  svg.style.opacity = alpha;
+  svg.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+  /* one light for the whole page, held steady as each svg is rotated */
+  const La = (150 - rot) * Math.PI / 180;
+  const w = parseFloat(widthUnits(sizeVW, targetPx));
+  if (STACK_MODE){
+    const bands = paintStack(svg, S.d, w, S.colors, La);
+    host.appendChild(svg);
+    return { svg, p: bands[0], extra: bands.slice(1),
+             tube:{ d:S.d, colors:S.colors, La, stack:true } };
+  }
+  const t = paintTube(svg, S.d, w, S.colors, La);
+  host.appendChild(svg);
+  return { svg, seg:t, tube:{ d:S.d, colors:S.colors, La } };
+}
+
+/* on-screen px -> viewBox units, so hairline vs ribbon survives any viewport */
+function widthUnits(sizeVW, targetPx){
+  /* Math.max(1, boxPx) was a divide-by-zero guard that quietly produced a
+     catastrophe instead: a viewport reporting 0 (a hidden tab, a frame laid
+     out before it has a size) made boxPx 1, and an 80px stroke came back as
+     80000 viewBox units. Clamp the VIEWPORT to a sane floor instead, so a
+     degenerate measurement yields a slightly wrong width rather than one a
+     thousand times too big. */
+  const boxPx = (sizeVW/100) * Math.max(320, innerWidth);
+  return (targetPx * rungScale() * VBW / boxPx).toFixed(2);
+}
+
+if (PX > 8) for (const k in LAYOUTS){
+  const top = Math.max(...LAYOUTS[k].map(l => l[5]));
+  for (const l of LAYOUTS[k]) l[5] = Math.round(l[5] * PX / top);
+}
+const drawables = [];
+window.__varaLineNodes = () => [...document.querySelectorAll('#lineLayer svg')]
+  .reduce((n,v) => n + v.querySelectorAll('*').length + 1, 0);
+const zoneSections = [...document.querySelectorAll('[data-zone]')].filter(s => s.id !== 'hero');
+
+/* One layer spanning the whole document; each section's lines are parented
+   to a positioned band inside it rather than to the section itself, so a
+   stroke can run past a section edge instead of being clipped by it. */
+const lineLayer = document.createElement('div');
+lineLayer.id = 'lineLayer';
+lineLayer.className = 'bleed-x';   // the system's bleed contract, system/graphics.css
+/* directly after the field: above it, below everything that follows */
+const fieldEl = document.getElementById('field');
+if (fieldEl && fieldEl.parentNode) fieldEl.parentNode.insertBefore(lineLayer, fieldEl.nextSibling);
+else document.body.insertBefore(lineLayer, document.body.firstChild);
+function bandFor(sec){
+  const b = document.createElement('div');
+  b.className = 'lines';
+  lineLayer.appendChild(b);
+  const place = () => {
+    b.style.top    = sec.offsetTop + 'px';
+    b.style.height = sec.offsetHeight + 'px';
+  };
+  place();
+  (window.__bands || (window.__bands = [])).push(place);
+  return b;
+}
+addEventListener('resize', () => (window.__bands||[]).forEach(f=>f()), {passive:true});
+addEventListener('load',   () => (window.__bands||[]).forEach(f=>f()), {passive:true});
+
+for (const sec of zoneSections){
+  const host = bandFor(sec);
+  const dead = sec.querySelector('.lines');
+  if (dead) dead.remove();
+  const specs = LAYOUTS[sec.id] || [];
+  specs.forEach((spec, i)=>{
+    const { svg, p, tube, extra, seg } = wantsTube(spec[6]) ? makeTube(host, spec) : makeLine(host, spec);
+    let len;
+    if (seg){
+      len = seg.len;
+      if (REDUCED) seg.reveal(1, 1);
+    } else {
+      if (!tube) p.setAttribute('stroke-width', widthUnits(spec[1], spec[5]));
+      len = p.getTotalLength();
+      for (const e of [p, ...(extra||[])]){
+        e.style.strokeDasharray = len;
+        e.style.strokeDashoffset = REDUCED ? 0 : len;
+      }
+    }
+    /* i is the line's rank inside its zone. LAYOUTS already orders each zone
+       dominant-first (alpha .95 / par 1.00, then the supporting strokes), so
+       rank is a ready-made stagger order and a ready-made draw hierarchy. */
+    drawables.push({ svg, el:p, extra, seg, len, sec, spec, i, n:specs.length, tube,
+                     rot:spec[4], par:spec[7], alpha:spec[6] });
+  });
+}
+
+addEventListener('resize', ()=>{
+  for (const d of drawables){
+    const w = widthUnits(d.spec[1], d.spec[5]);
+    if (d.tube){
+      /* the tube radius is in viewBox units and depends on the viewport, so
+         the shaded geometry is rebuilt — on resize only, never per frame.
+         The reveal state is carried over or the line snaps back to undrawn. */
+      const off = d.el ? d.el.style.strokeDashoffset : '';
+      if (d.tube.stack){
+        const bands = paintStack(d.svg, d.tube.d, parseFloat(w), d.tube.colors, d.tube.La);
+        d.el = bands[0]; d.extra = bands.slice(1);
+        d.len = d.el.getTotalLength();
+        for (const e of [d.el, ...(d.extra||[])]){
+          e.style.strokeDasharray = d.len;
+          e.style.strokeDashoffset = REDUCED ? 0 : (off || d.len);
+        }
+      } else {
+        d.seg = paintTube(d.svg, d.tube.d, parseFloat(w), d.tube.colors, d.tube.La);
+        d.len = d.seg.len;
+        d.el = null; d.extra = null;
+      }
+      continue;
+    }
+    d.el.setAttribute('stroke-width', w);
+  }
+  schedule();
+}, {passive:true});
+
+/* ---------- ONE shared rAF for every line on the page ----------
+   No per-line scroll listener. Three motions, all transform /
+   stroke-dashoffset only:
+     1. draw-on as the section enters      (inOutQuint, per the handoff)
+     2. slow parallax drift, per line rate, as the section passes
+     3. scroll-velocity nudge on offset + opacity, settling when you stop  */
+const inOutQuint = t => t<0.5 ? 16*t**5 : 1 - Math.pow(-2*t+2,5)/2;
+/* Ease-in-out belongs to a clip that plays on its own clock. On a value
+   SCRUBBED by scroll it fights the input: the finger moves linearly while the
+   line stalls at both ends, which is the "mechanical" feel. Expo-out moves
+   with the scroll immediately and decelerates into place. */
+/* The exponent was -9, which front-loads the gesture brutally: 46% of the
+   stroke is drawn in the first tenth of the travel, so the line appears to
+   snap in and the rest of the scroll window has nothing left to show.
+   system/lines.js hit this on the subpages and settled on -4.2 over a window
+   roughly twice as long; this is the same correction, so the two systems draw
+   at the same speed. */
+const expoOut = t => t >= 1 ? 1 : 1 - Math.pow(2, -4.2*t);
+const clamp = (v,a,b) => v<a?a:(v>b?b:v);
+
+/* ?motion=a shows the original for comparison; default is the house language. */
+const MOTION = (new URLSearchParams(location.search).get('motion') || 'house').toLowerCase();
+const EASE = MOTION === 'a' ? inOutQuint : expoOut;
+
+/* ---- HERO-LEAD + SHOCKWAVE, not a ladder ----
+   The first version of this staggered every line by rank (0, .10, .20, .30) —
+   a one-by-one tick, which is the motion that reads as lifeless. The house
+   language is ONE hero gesture, then the remainder arriving NEAR-UNISON as a
+   shockwave off it: a lead and a response, two beats, not four.
+
+   The beats OVERLAP — the shockwave starts at .20 while the hero is still
+   drawing until .34 — because a dead gap between two related moves is the
+   single biggest cause of a sequence feeling static.
+
+   Everything is complete by ~.56 of the zone's scroll window and HOLDS for
+   the rest of it. The payoff lands late and then sits; motion is the minority
+   of the time the zone is on screen. */
+/* Windows widened to match system/lines.js: the hero completes at .58 of the
+   zone's scroll window rather than .34, and the response runs .26 -> .86. The
+   gesture now occupies most of the time the band is on screen instead of being
+   over before you have finished scrolling into it.
+   ?draw=N scales both windows — 1.4 slower again, 0.7 back toward the old
+   snap — so the speed can be dialled on the page. */
+const DRAW = Math.min(3, Math.max(0.3, +TQ.get('draw') || 1));
+const HERO_WIN  = [0.00, Math.min(1, 0.58 * DRAW)];
+const WAVE_AT   = 0.26;          // fires while the hero is still drawing
+const WAVE_JIT  = 0.05;          // near-unison, not a ladder
+const WAVE_SPAN = 0.60;
+function windowFor(d){
+  if (MOTION === 'a') return [0, 1];
+  if (d.i === 0) return HERO_WIN;
+  const start = WAVE_AT + (d.i - 1) * WAVE_JIT;
+  return [start, Math.min(1, start + WAVE_SPAN * DRAW)];
+}
+
+/* resolved once, not per frame */
+for (const d of drawables){
+  d.win = windowFor(d);
+  /* the hero draws its natural way; the shockwave strokes alternate, so the
+     response reads as the zone filling in rather than one uniform sweep */
+  d.dir = (MOTION !== 'a' && d.i > 0 && d.i % 2 === 0) ? -1 : 1;
+}
+
+/* ---------- PLAY ONCE, THEN STOP ----------------------------------------
+   This used to be a permanent scroll-scrubbed rig: a rAF loop that ran for as
+   long as you kept scrolling, and every frame it read four bounding rects and
+   wrote a transform, an opacity and a reveal for each line. Scrubbing is the
+   right idea for a value that should track the finger, but it means the most
+   expensive thing on the page does work on EVERY scroll frame, forever.
+
+   The lines do not need to track the finger. They need to arrive once. So each
+   band now draws itself on a clock the first time it comes into view, over
+   about a second and a half, and is then finished — the loop stops, the
+   observer disconnects, and scrolling past it afterwards costs nothing at all.
+   There is no scroll listener.
+
+   What is deliberately given up: the parallax drift and the scroll-velocity
+   nudge, both of which only existed because a per-frame loop was already
+   running. The resting transform is written once at build.
+
+   ?motion=scroll restores the old scrubbed rig for comparison. */
+const SCRUB = MOTION === 'scroll';
+const DUR = 1500 * DRAW;                 // ms for a band's full gesture
+const STAGGER = 260 * DRAW;              // hero leads, the response answers
+
+/* the resting pose, written once — there is nothing left to animate it */
+for (const d of drawables){
+  d.svg.style.transform = `translate(-50%,-50%) rotate(${d.rot}deg)`;
+  d.svg.style.opacity = d.alpha;
+}
+
+function setReveal(d, e){
+  if (d.seg){ d.seg.reveal(e, d.dir); return; }
+  const off = d.len * (1 - e);
+  const dv = (d.dir < 0 ? -off : off).toFixed(1);
+  d.el.style.strokeDashoffset = dv;
+  if (d.extra) for (const x of d.extra) x.style.strokeDashoffset = dv;
+}
+
+function playOnce(){
+  const bySec = new Map();
+  for (const d of drawables){
+    if (!bySec.has(d.sec)) bySec.set(d.sec, []);
+    bySec.get(d.sec).push(d);
+  }
+  for (const d of drawables) setReveal(d, 0);
+
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries){
+      if (!en.isIntersecting) continue;
+      io.unobserve(en.target);                     // once only
+      const set = bySec.get(en.target);
+      if (!set) continue;
+      const t0 = performance.now();
+      let live = true;
+      (function step(now){
+        if (!live) return;
+        let done = true;
+        for (const d of set){
+          const t = (now - t0 - d.i * STAGGER) / DUR;
+          const e = EASE(clamp(t, 0, 1));
+          setReveal(d, e);
+          d.svg.style.opacity = (d.alpha * (0.55 + 0.45*e)).toFixed(3);
+          if (e < 1) done = false;
+        }
+        if (done){ live = false; return; }         // finished: the loop ENDS
+        requestAnimationFrame(step);
+      })(performance.now());
+    }
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0 });
+
+  for (const sec of bySec.keys()) io.observe(sec);
+}
+
+/* ---------- the old scrubbed rig, kept behind ?motion=scroll ---------- */
+let lastY = scrollY, lastT = performance.now(), vel = 0, raf = 0, idle = 0;
+
+function paint(){
+  const vh = innerHeight;
+  for (const d of drawables){
+    const r = d.sec.getBoundingClientRect();
+    if (r.bottom < -vh*0.4 || r.top > vh*1.4) continue;   // cheap cull
+    const t = clamp(1 - (r.top - vh*0.08) / (vh*0.82), 0, 1);
+    const w = d.win;
+    const e = EASE(clamp((t - w[0]) / (w[1] - w[0]), 0, 1));
+    const vN = clamp(vel/2600, -1, 1);
+    const off = clamp(d.len*(1-e) + d.len*0.035*vN*d.par, 0, d.len);
+    setReveal(d, 1 - off/d.len);
+    const rel = (r.top + r.height/2 - vh/2) / vh;
+    d.svg.style.transform =
+      `translate(-50%,-50%) translate3d(${(rel*d.par*12).toFixed(1)}px,${(-rel*d.par*46).toFixed(1)}px,0) rotate(${d.rot}deg)`;
+    const ink = (MOTION === 'a') ? 1 : 0.55 + 0.45*e;
+    d.svg.style.opacity = (d.alpha * ink * (1 + 0.16*Math.abs(vN))).toFixed(3);
+  }
+}
+function frame(now){
+  const dt = Math.max(1, now - lastT);
+  const raw = (scrollY - lastY) / dt * 1000;
+  lastY = scrollY; lastT = now;
+  vel += (raw - vel) * 0.18;
+  paint();
+  if (Math.abs(vel) < 4){ idle++; } else { idle = 0; }
+  if (idle > 24){ raf = 0; return; }
+  raf = requestAnimationFrame(frame);
+}
+function schedule(){
+  if (REDUCED || !SCRUB) return;
+  idle = 0;
+  if (!raf){ lastT = performance.now(); lastY = scrollY; raf = requestAnimationFrame(frame); }
+}
+
+if (REDUCED){
+  for (const d of drawables) setReveal(d, 1);
+} else if (SCRUB){
+  addEventListener('scroll', schedule, {passive:true});
+  document.addEventListener('visibilitychange', ()=>{
+    if (document.hidden){ if (raf) cancelAnimationFrame(raf); raf = 0; }
+    else { lastT = performance.now(); lastY = scrollY; vel = 0; schedule(); }
+  }, {passive:true});
+  paint(); schedule();
+} else {
+  playOnce();
+}
+window.__varaLines = drawables;
+</script>
+
+<!-- ====================== the hero element (3D) ====================== -->
+<!-- The hero element and its motion live in ./hero-element.js. It finds
+     #hero and #stage itself and writes --amb-x / --amb-y back onto #hero
+     for the ambilight; there is no init call and no options. The module
+     was authored against THIS composition (copy left, element right above
+     900px) and its framing constants match layout() here exactly.
+     ?noloop pins the earlier one-shot entrance. -->
+<script>
+/* THE 3D GATE. Runs before the module below, so when the answer is "no",
+   three.js is never fetched at all — 183 KB gzip and a mesh build that would
+   only have produced a pose that never moves.
+
+   Two reasons to say no, and deliberately NOT a third:
+     1. the device cannot make a WebGL context. This used to fail LATE, inside
+        safeInit, after three.js had been downloaded and parsed, and it left
+        the hero's right half blank;
+     2. the visitor asked for reduced motion — hero-element.js already honours
+        that by pinning the element at its finished pose, so the still IS that
+        state, minus the download.
+   There is no device sniffing. deviceMemory and hardwareConcurrency are wrong
+   in both directions and would take the animated hero away from machines that
+   run it perfectly well. ?static=1 forces the still for review; ?static=0
+   forces the 3D path. */
+(function(){
+  var q = location.search;
+  if (/[?&]static=0/.test(q)) return;
+  var force = /[?&]static=1/.test(q);
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var webgl = false;
+  if (!force && !reduce){
+    try { var c = document.createElement('canvas');
+          webgl = !!(c.getContext('webgl2') || c.getContext('webgl')); }
+    catch (e){ webgl = false; }
+  }
+  if (force || reduce || !webgl){
+    document.documentElement.classList.add('no-3d');
+    window.__varaStaticHero = force ? 'forced' : (reduce ? 'reduced-motion' : 'no-webgl');
+  }
+})();
+</script>
+<script type="module">
+  /* Imported dynamically so the gate above can stop it. A plain src= module
+     tag is fetched whatever the gate decides. */
+  if (!document.documentElement.classList.contains('no-3d')) import('./hero-element.js');
+</script>
+
+<script>
+/* ---- zone tabs (home) ---------------------------------------------------
+   Roving tabindex + arrow keys, and the SECTION's data-zone follows the
+   selected tab so the shared colour field and every var(--accent) on the
+   panel move with it. */
+(function(){
+  var sec   = document.getElementById('zones');
+  if (!sec) return;
+  var rail  = sec.querySelector('.zrail');
+  var steps = [].slice.call(sec.querySelectorAll('.zstep'));
+  var panes = [].slice.call(sec.querySelectorAll('.zpanel'));
+
+  /* ---- two presentations, two patterns -------------------------------
+     At <=900px the CSS folds the rail and the panel column into ONE list
+     in which every panel renders inside its own step's row. That is an
+     accordion, not a tab strip — a tab is a control for a panel that
+     lives OUTSIDE the strip, and a tablist whose panels are interleaved
+     between its tabs tells a screen-reader user something the layout
+     flatly contradicts. So the roles are swapped wholesale at the same
+     breakpoint rather than left half-converted:
+
+       >900px  tablist / tab / tabpanel, aria-selected, roving tabindex,
+               arrow + Home/End keys.
+       <=900px plain buttons with aria-expanded, panels as role=region,
+               every header in the tab order, no arrow keys (the
+               accordion pattern makes them optional and they would
+               fight the page's own scroll).
+
+     aria-controls (header -> panel) and aria-labelledby (panel -> header)
+     are valid in both patterns and never move. */
+  var ACC = window.matchMedia('(max-width:900px)');
+  var cur = 0;
+
+  function select(i, focus){
+    cur = i;
+    var acc = ACC.matches;
+    steps.forEach(function(s, n){
+      var on = n === i;
+      if (acc) s.setAttribute('aria-expanded', String(on));
+      else     s.setAttribute('aria-selected', String(on));
+      s.tabIndex = acc ? 0 : (on ? 0 : -1);
+      if (on && focus) s.focus();
+    });
+    panes.forEach(function(p, n){ p.hidden = n !== i; });
+    sec.dataset.zone = steps[i].dataset.zone;   // accent + field follow the open zone
+  }
+
+  function applyMode(){
+    if (ACC.matches){
+      /* .zrail is display:contents here — it is not a box and not a
+         container; its label would describe nothing. */
+      rail.removeAttribute('role');
+      rail.removeAttribute('aria-orientation');
+      rail.removeAttribute('aria-label');
+      steps.forEach(function(s){
+        s.removeAttribute('role');            // a plain <button>
+        s.removeAttribute('aria-selected');
+      });
+      panes.forEach(function(p){ p.setAttribute('role', 'region'); });
+    } else {
+      rail.setAttribute('role', 'tablist');
+      rail.setAttribute('aria-orientation', 'vertical');
+      rail.setAttribute('aria-label', 'Expo zones');
+      steps.forEach(function(s){
+        s.setAttribute('role', 'tab');
+        s.removeAttribute('aria-expanded');
+      });
+      panes.forEach(function(p){ p.setAttribute('role', 'tabpanel'); });
+    }
+    select(cur);
+  }
+
+  steps.forEach(function(s, i){
+    s.addEventListener('click', function(){ select(i); });
+  });
+  rail.addEventListener('keydown', function(e){
+    if (ACC.matches) return;                  // accordion: no roving, no arrows
+    var i = steps.indexOf(document.activeElement);
+    if (i < 0) return;
+    var n = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? i + 1
+          : e.key === 'ArrowUp'   || e.key === 'ArrowLeft'  ? i - 1
+          : e.key === 'Home' ? 0
+          : e.key === 'End'  ? steps.length - 1 : -1;
+    if (n === -1) return;
+    e.preventDefault();
+    select((n + steps.length) % steps.length, true);
+  });
+
+  if (ACC.addEventListener) ACC.addEventListener('change', applyMode);
+  else ACC.addListener(applyMode);            // Safari < 14
+  applyMode();
+})();
+</script>
+<script>
+/* ---- mobile site nav ----------------------------------------------------
+   Opens the header's own <nav class="links"> as a sheet below 1000px. The
+   nav is display:none when closed, so it leaves the a11y tree on its own and
+   there is no aria-hidden state to keep in sync — the only state is
+   aria-expanded on the trigger. */
+(function(){
+  var bar = document.getElementById('topbar');
+  var btn = document.getElementById('navtoggle');
+  var nav = document.getElementById('sitenav');
+  if (!bar || !btn || !nav) return;
+
+  var MQ = window.matchMedia('(max-width:1000px)');
+  var scrollY = 0;
+
+  function open(){
+    scrollY = window.scrollY;
+    bar.classList.add('navopen');
+    btn.setAttribute('aria-expanded', 'true');
+    /* lock the page behind the sheet without losing the scroll position */
+    document.body.style.overflow = 'hidden';
+    var first = nav.querySelector('a');
+    if (first) first.focus();
+  }
+  function close(focus){
+    bar.classList.remove('navopen');
+    btn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    if (focus) btn.focus();
+  }
+  function isOpen(){ return bar.classList.contains('navopen'); }
+
+  btn.addEventListener('click', function(){ isOpen() ? close() : open(); });
+
+  /* a tap on a link navigates; close first so a same-page anchor is not left
+     under an open sheet */
+  nav.addEventListener('click', function(e){
+    if (e.target.closest('a')) close();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (!isOpen()) return;
+    if (e.key === 'Escape'){ e.preventDefault(); close(true); return; }
+    if (e.key !== 'Tab') return;
+    /* keep focus inside the sheet: the trigger and the links are the loop */
+    var items = [btn].concat([].slice.call(nav.querySelectorAll('a')));
+    var i = items.indexOf(document.activeElement);
+    if (i < 0) return;
+    var n = e.shiftKey ? i - 1 : i + 1;
+    e.preventDefault();
+    items[(n + items.length) % items.length].focus();
+  });
+
+  /* NB: there is no "tap outside to close" — the sheet is full-screen, so
+     there is no outside. The X and Escape are the ways out. */
+
+  /* growing past the breakpoint restores the inline nav; the sheet must not
+     be left open behind it */
+  function sync(){ if (!MQ.matches && isOpen()) close(); }
+  if (MQ.addEventListener) MQ.addEventListener('change', sync);
+  else MQ.addListener(sync);
+})();
+</script>
+<script src="./system/lines.js"></script>
+<script src="./system/icons.js"></script>
+<script>lucide.createIcons({attrs:{"stroke-width":1.9}});</script>
+
+<!-- ============ sponsors: shaded ribbons + cell reveal ====================
+     Weights are the system ladder, rank 0 first: 68 / 56 / 44. This band used
+     to run 80/52/34 — its own scale, which is exactly the drift the single
+     ladder exists to stop. 80px is retired.
+     Surface is Tier 1.5 (ILLUSTRATION.md): system/tube.js, paintStack at ~226
+     nodes a ribbon rather than paintTube's ~820, because this band sits low on
+     the page and the hero above it already carries the node budget. Paths are
+     the REAL model strokes from ./data/strokes.js — the same spines the hero
+     uses — so the loops are the brand's geometry and each stroke brings its
+     own 36-stop ramp, which is what the shading leans on. Placed in the
+     gutters, not across the names.
+     ===================================================================== -->
+<script type="module">
+import { paintStack } from './system/tube.js';
+/* Reads --rung-scale (system/tokens.css): the ladder is a desktop scale and a
+   rank-0 rung is 18.4% of a 370 phone. Falls back to 1 — full weight — if the
+   token is ever missing, rather than zeroing every stroke. */
+const rungScale = () =>
+  parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rung-scale')) || 1;
+
+import { STROKES }    from './data/strokes.js';
+
+const NS = 'http://www.w3.org/2000/svg';
+const sec  = document.querySelector('#sponsors-home .sb');
+const host = document.querySelector('#sponsors-home .ribbons');
+if (sec && host) {
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const VB  = STROKES._viewBox;
+  const VBW = parseFloat(VB.split(' ')[2]);
+
+  /* Centres pushed outside the content box and each svg scaled past the band,
+     so only the outer flank of a curve enters frame and carries on out the
+     far edge. A ribbon that ENDS inside the frame shows a round cap, and a
+     visible cap is what "stops abruptly" looks like.
+     Weights are the ONE tube scale — 68 / 56 / 44, rank 0 first (ILLUSTRATION.md
+     Tier 1.5; the ladder at true size is explorations/perf/tube-weights.html).
+     Not a second ladder for a second context: a ribbon is a ribbon whether it
+     leads a hero band or sits behind this grid. 80px is RETIRED — at that
+     weight it stops being a line through a composition and becomes a slab
+     across it. The mobile step IS adopted and is NOT reimplemented here: it
+     comes from --rung-scale in system/tokens.css (1, and .6 below 640), read
+     once by rungScale() above and applied inside widthUnits. A second set of
+     numbers living in this file is the drift the one ladder exists to stop.
+     THREE RUNGS MEANS THREE RIBBONS — this set draws three. A fourth doubled
+     onto the bottom rung is a wash, not a hierarchy.
+     Every stroke is >= .5 opacity because one composition never mixes flat
+     and shaded. */
+  const RIBBONS = [
+    { k:'violet', x:-44, y:46,  rot:-14, w:150, px:68, alpha:.48 },
+    { k:'cyan',   x:132, y:58,  rot:10,  w:142, px:56, alpha:.40 },
+    { k:'coral',  x:96,  y:4,   rot:-6,  w:128, px:44, alpha:.36 },
+  ].sort((a,b) => STROKES[a.k].layer - STROKES[b.k].layer);
+
+  /* clamp the VIEWPORT, not the result: a zero-width box would otherwise turn
+     an 80px stroke into tens of thousands of viewBox units */
+  const widthUnits = (svg, px) =>
+    px * rungScale() * (VBW / Math.max(1, svg.getBoundingClientRect().width));
+
+  const built = RIBBONS.map(R => {
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', VB);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');   // never 'none': it
+    Object.assign(svg.style, {                                   // ovalises the tube
+      left:R.x+'%', top:R.y+'%', width:R.w+'%',
+      transform:`translate(-50%,-50%) rotate(${R.rot}deg)`,
+      opacity:R.alpha, willChange:'stroke-dashoffset',
+    });
+    host.appendChild(svg);
+    return { svg, R, bands:null, len:0, drawn:false };
+  });
+
+  function paint(){
+    for (const b of built){
+      const S = STROKES[b.R.k];
+      /* light counter-rotated by the ribbon's own rotation, so one light
+         serves the page instead of each ribbon carrying its own */
+      const La = (150 - b.R.rot) * Math.PI / 180;
+      b.bands = paintStack(b.svg, S.d, widthUnits(b.svg, b.R.px), S.colors, La);
+      b.len = b.bands[0].getTotalLength();
+      for (const el of b.bands){
+        el.style.strokeDasharray  = b.len;
+        el.style.strokeDashoffset = b.drawn ? 0 : b.len;
+      }
+    }
+  }
+  paint();
+  /* tube radius is in viewBox units, so a resize without a repaint is a
+     ribbon at the wrong weight */
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(paint, 140); });
+
+  const finish = () => built.forEach(b => {
+    b.drawn = true; for (const el of b.bands) el.style.strokeDashoffset = 0;
+  });
+
+  if (REDUCED) finish();
+  else {
+    const DUR = 1500, STAGGER = 260;
+    const expoOut = t => 1 - Math.pow(2, -4.2*t);   /* -9 draws 84% in the first tenth */
+    const run = () => {
+      const t0 = performance.now(); let raf = 0;
+      const stop = () => { cancelAnimationFrame(raf); finish(); };
+      const tick = now => {
+        let live = false;
+        built.forEach((b,i) => {
+          const e = Math.min(1, Math.max(0, (now - t0 - i*STAGGER)/DUR));
+          const v = expoOut(e);
+          for (const el of b.bands) el.style.strokeDashoffset = (b.len*(1-v)).toFixed(1);
+          if (e < 1) live = true; else b.drawn = true;
+        });
+        if (live) raf = requestAnimationFrame(tick); else stop();
+      };
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') stop();
+      }, { once:true });
+      raf = requestAnimationFrame(tick);
+    };
+    /* play once, then the loop ends and the observer disconnects; the cheapest
+       frame is the one with no loop in it */
+    const io = new IntersectionObserver(es => {
+      for (const e of es) if (e.isIntersecting){ io.disconnect(); run(); break; }
+    }, { threshold:.12 });
+    io.observe(sec);
+    setTimeout(() => { if (!built.every(b => b.drawn)){ io.disconnect(); finish(); } }, 2600);
+  }
+
+  /* Cell reveal — a CSS transition on a property no rAF loop writes. */
+  if (!REDUCED && 'IntersectionObserver' in window){
+    const cells = [...sec.querySelectorAll('.c')];
+    const show = el => {
+      const sibs = [...el.parentElement.children];
+      el.style.transitionDelay = Math.min(Math.max(sibs.indexOf(el),0),6)*55 + 'ms';
+      el.classList.add('in');
+    };
+    sec.classList.add('armed');
+    const cio = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting){ show(e.target); cio.unobserve(e.target); }
+    }), { rootMargin:'0px 0px -12% 0px', threshold:.15 });
+    cells.forEach(el => cio.observe(el));
+    /* content only JS can restore is content you can lose */
+    setTimeout(() => { cio.disconnect(); cells.forEach(el => el.classList.contains('in') || show(el)); }, 1200);
+  }
+}
+</script>
+
+</body>
+</html>

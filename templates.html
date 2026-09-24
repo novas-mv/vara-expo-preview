@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VARA Expo 2026 — templates</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="system/tw.css">
+<script src="system/icons.js"></script>
+<style>
+  .board{padding:calc(var(--pad-band) + 20px) var(--gut) var(--pad-band)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-lg);max-width:var(--maxw);margin:0 auto}
+  @media (max-width:1000px){ .grid3{grid-template-columns:1fr 1fr} }
+  @media (max-width:680px){ .grid3{grid-template-columns:1fr} }
+  .t{display:grid;gap:12px;text-decoration:none;color:inherit}
+  .t .shot{position:relative;aspect-ratio:16/11;border-radius:var(--r-card);overflow:hidden;
+    background:rgba(10,30,80,.24);box-shadow:inset 0 0 0 1px var(--ink-hairline);
+    transition:transform var(--d-base) var(--e-enter),box-shadow var(--d-base) var(--e-enter)}
+  .t:hover .shot{transform:translateY(-3px);box-shadow:inset 0 0 0 1px rgba(246,241,230,.26),var(--sh-lg)}
+  .t iframe{position:absolute;top:0;left:0;width:1440px;height:990px;border:0;
+    transform:scale(.333);transform-origin:0 0;pointer-events:none}
+  .t .cap{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .t .cap b{font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:-.02em}
+  .t .cap .st{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 8px;border-radius:var(--r-pill);color:var(--accent);
+    background:color-mix(in oklab, var(--accent) 16%, transparent)}
+  .t .cap p{margin:0;font-size:13px;color:var(--ink-84);line-height:1.45;width:100%}
+  .head{max-width:var(--maxw);margin:0 auto var(--gap-xl)}
+  .pend{display:grid;place-items:center;gap:10px;height:100%;color:var(--ink-56)}
+  .pend span{font-size:11px;letter-spacing:var(--ls-label);text-transform:uppercase}
+  .legend{display:flex;gap:var(--gap-md);flex-wrap:wrap;margin-top:var(--gap-md);
+    font-size:12.5px;color:var(--ink-56)}
+</style>
+</head>
+<body data-zone="coral">
+<div class="field" aria-hidden="true"></div>
+<div class="page">
+  <div class="board">
+    <div class="head">
+      <p class="eyebrow">VARA Expo 2026 · Ministry of Homeland Security, Labour and Technology</p>
+      <h1 style="font-size:var(--t-display-md);max-width:22ch">Site templates</h1>
+      <p class="lede" style="margin-top:var(--gap-md);max-width:58ch">
+        6&ndash;8 November 2026 &middot; Central Park, Hulhumal&eacute;
+      </p>
+      <p class="muted" style="margin-top:var(--gap-md);max-width:64ch">
+        Every template with an approved design. Click through to the real page.
+        <b style="color:var(--cream)">These are canonical</b> &mdash; the variants we
+        explored and rejected live in <code style="font-family:var(--f-mono);font-size:12px">explorations/</code>
+        and should not be integrated. See <a href="HANDOFF.md" style="color:var(--cream)">HANDOFF.md</a>.
+      </p>
+      <p class="muted" style="margin-top:var(--gap-sm);max-width:64ch">
+        Design record, not a template:
+        <a href="pages/hero-exploration/" style="color:var(--cream)">the nine hero explorations</a>
+        &mdash; tabbed, each in its own original CSS. Not linked from the site nav.
+      </p>
+      <div class="legend">
+        <span><i class="ico sm" data-lucide="check-circle-2" style="vertical-align:-.2em"></i> final &mdash; chosen, merged, graphic layer</span>
+        <span><i class="ico sm" data-lucide="circle-dot" style="vertical-align:-.2em"></i> approved &mdash; graphic layer still to come</span>
+      </div>
+    </div>
+    <div class="grid3" id="board"></div>
+  </div>
+</div>
+
+<script>
+const T = [
+ ['home','Home','final','coral','The 3D hero, zone sections, countdown. The approved landing page.'],
+ ['exhibitors','Exhibitors','final','coral','Zone bands with a card grid inside each, search across all 150+, zone filters.'],
+ ['schedule','Schedule','final','cyan','Grid timetable and continuous track as switchable views, selectable dates.'],
+ ['register','Register','final','coral','Four-step wizard; step one splits Visitor from Exhibitor and branches in CSS.'],
+ ['about','About','approved','navy','By-the-numbers structure — the stat wall leads, then what produced it.'],
+ ['gallery','Gallery','approved','violet','Mixed-size grid with feature tiles; native dialog lightbox.'],
+ ['venue','Venue','approved','cyan','Plan-led. The site plan drawn as ribbon illustration, not an embedded map.'],
+ ['faq','FAQ','approved','navy','Grouped accordion on native details/summary, sticky category rail.'],
+ ['news','News','approved','green','Featured lead story then a card grid, numbered pagination.'],
+ ['news-detail','News detail','approved','green','Centred long-read. Defines every long-form body style. Right rail still to be removed.'],
+];
+document.getElementById('board').innerHTML = T.map(([dir,name,state,zone,note]) => `
+  <a class="t" href="pages/${dir}/" data-zone="${zone}">
+    <div class="shot"><iframe src="pages/${dir}/" title="${name}" loading="lazy"></iframe></div>
+    <div class="cap">
+      <b>${name}</b>
+      <span class="st">${state}</span>
+      <p>${note}</p>
+    </div>
+  </a>`).join('');
+lucide.createIcons({attrs:{'stroke-width':1.75}});
+</script>
+</body>
+</html>

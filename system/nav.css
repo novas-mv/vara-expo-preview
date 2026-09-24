@@ -1,0 +1,241 @@
+/* =============================================================================
+   THE NAV COMPONENT — its CSS.
+   Paired with system/nav.js, which owns its behaviour: the sheet toggle and
+   the scrolled frost.
+
+   This is the whole component and it is the ONLY place the nav is styled. It
+   was split before, and every split cost something real:
+
+   - the CSS sat in base.css with everything else, so "the nav" was a region of
+     a shared file rather than a thing you could point at;
+   - pages/home/index.html kept its own copy of all 39 rules, which, being
+     unlayered, OUTRANKED the shared ones — a fix to the nav silently did not
+     reach the one page that mattered most;
+   - the frost lived in a loose <script> pasted into each page's body, and five
+     of the sixteen shared-shell pages did not have it, so their bar never
+     frosted and the nav looked different for no reason visible in any CSS.
+
+   So: nav CSS goes here, nav behaviour goes in nav.js, nav markup is emitted
+   by tools/normalise-shell.py. Nothing about the nav is declared on a page.
+   pages/home/index.html is the one exception and only for MARKUP — its nav is
+   hand-authored and the generator skips it — but it takes its CSS and its
+   behaviour from here like everything else.
+
+   Imported into Tailwind's components layer by system/tw-input.css, so
+   utilities can still override it and nothing here needs !important.
+   ============================================================================= */
+
+/* ---- Nav ------------------------------------------------------------------
+   Fixed and transparent at rest; on scroll ONE frosted bar fades in.
+
+   It used to be a 220%-tall gradient with no blur, because a backdrop-filter's
+   bottom edge is viewport-locked and draws a hard line across the page. The
+   consequence was that the nav looked different on every page — the "frost" was
+   really just the page's own background showing through at 82%/46%/0%, so a
+   dark section made it heavy and a light one made it vanish, and type overlapped
+   content underneath. Fix: give the bar a FIXED tint (so it reads identically
+   everywhere) PLUS a real blur, and hide the blur's hard bottom edge with a
+   mask that fades the last third out. Mask and backdrop-filter compose, so the
+   blur fades with the tint and no line is drawn. */
+.nav{
+  position:fixed; inset:0 0 auto 0; z-index:40; isolation:isolate;
+  display:flex; align-items:center; gap:clamp(14px,3vw,40px);
+  padding:18px var(--gut); background:transparent;
+  /* line-height is INHERITED, so without this the bar takes each page's body
+     line-height and the same nav is a different height per page: home sets
+     body line-height:normal (16px on the 13.5px link text) while the shared
+     base sets 28.35px (21.87px inherited), which made home's bar 76px and
+     every subpage's 80px — measured at 1440. Unitless resolves against the
+     nav's OWN font-size, which is set in px, so it is identical on a 16px
+     page and a 17.5px one. Same reason the nav is sized in px throughout:
+     Mufhim keeps home's body type different on purpose, and the nav must not
+     follow it. */
+  line-height:1.2;
+}
+
+/* Below 640 the bar tightens and its pill comes down with it. This lived in
+   pages/home/index.html and nowhere else, which is why the same nav measured
+   72px on home and 80px on all sixteen subpages. Scoped to .nav so the page's
+   other pills are untouched. */
+@media (max-width:640px){
+  .nav{padding:14px var(--gut)}
+  .nav .pill{padding:10px 16px;font-size:12.5px}
+}
+.nav::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:170%;
+  pointer-events:none; z-index:-1; opacity:0;
+  transition:opacity var(--d-frost) var(--e-enter);
+  background:linear-gradient(180deg,
+    rgba(0,16,47,.78) 0%, rgba(0,16,47,.70) 46%, rgba(0,16,47,0) 100%);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 58%,transparent 100%);
+}
+.nav.scrolled::before{opacity:1}
+/* the mark is a link home on every page, so it needs to sit like one */
+.nav .home{display:inline-flex;flex:none;border-radius:10px;
+  transition:opacity var(--d-fast) var(--e-enter)}
+.nav .home:hover{opacity:.78}
+.nav .home:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
+/* the mark is 96x92, not square: a fixed 34x34 squashed it 4% horizontally */
+.nav .mark{height:34px;width:auto;flex:none;display:block}
+/* ---- Site nav: HOME's nav, shared ------------------------------------------
+   The seventeen shared-shell pages now carry the SAME markup and the SAME
+   selectors as pages/home/index.html — header#topbar > .brand (+ .wordmark),
+   nav.links#sitenav of bare anchors, .navfoot/.navcta/.navmeta, the sibling
+   pill and button.navtoggle. Home is the canonical reference and keeps its
+   own page-local copy; these rules are that copy, moved out so the other
+   seventeen render identically instead of each re-authoring the bar.
+
+   The old `@media (max-width:900px){ .nav ul{display:none} }` is gone: it hid
+   the eight site links on every subpage with NOTHING in their place, so a
+   phone user could land on a page and not leave it.
+
+   Sizes are px, NOT em and NOT body-relative rem: home pins body to 16px
+   while this file sets 17.5px, so an em-sized nav would render at two
+   different sizes on the two. */
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+/* The hero used to carry a VARA EXPO 2026 title of its own. With the statement
+   leading the hero that line has nowhere to sit, so the name moves into the
+   nav beside the mark — where a wordmark belongs — instead of being dropped. */
+.wordmark{font-family:"Cabinet Grotesk","General Sans",sans-serif;font-weight:800;
+  font-size:14px;letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
+.wordmark i{font-style:normal;color:var(--coral)}
+@media (max-width:420px){ .wordmark{display:none} }
+/* 96x92, not square - a fixed 34x34 squashed it 4% */
+.brand img{height:34px;width:auto;display:block}
+.brand:hover{opacity:.78}
+.brand{transition:opacity .18s ease}
+.brand:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
+nav.links{display:flex;gap:clamp(12px,1.9vw,28px)}
+nav.links a{
+  color:rgba(246,241,230,.90);text-decoration:none;font-size:13.5px;font-weight:500;
+  padding:6px 0;border-bottom:1px solid transparent;transition:color .3s,border-color .3s;
+}
+nav.links a:hover,nav.links a:focus-visible{color:var(--ink);border-color:currentColor}
+nav.links a[aria-current="page"]{color:var(--cream)}
+
+/* =====================================================================
+   MOBILE SITE NAV — the missing hamburger
+   =====================================================================
+   The sheet is the SAME <nav class="links"> element, restyled — not a second
+   copy of the links. So there is still one Primary nav landmark in the
+   document, the link list cannot drift out of sync with itself, and when the
+   sheet is closed the nav is display:none and simply absent from the
+   accessibility tree (no aria-hidden bookkeeping to get wrong).
+
+   The trigger is inert above 1000px — `display:none` outside the query — so
+   the desktop header flex row is untouched.
+
+   1000px, not 900: home's bar (wordmark + eight links + pill) is the tightest
+   on the site and overflows at 820; from 820 to 1000 the inline row is
+   crowded, so the hamburger reads better across that band. */
+@media (max-width:1000px){
+  nav.links{display:none}
+}
+
+.navtoggle,.navfoot{display:none}
+
+@media (max-width:1000px){
+  .navtoggle{
+    display:inline-flex;align-items:center;justify-content:center;
+    appearance:none;background:none;border:0;cursor:pointer;
+    min-width:44px;min-height:44px;margin-right:-10px;   /* optical, not spatial */
+    padding:0;border-radius:14px;color:var(--ink);
+    transition:background .22s ease}
+  .navtoggle:active{background:rgba(246,241,230,.1)}
+  .navtoggle:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+  /* The bars are DRAWN, not an icon. `system/icons.js` is a curated 70-icon
+     subset and it has no `menu` glyph — the <i data-lucide="menu"> rendered
+     as an empty 24x24 box. Three CSS bars cost nothing, need no bundle, and
+     give a real morph into the X instead of swapping two glyphs. */
+  .navtoggle{position:relative}
+  .nt-bars{
+    position:absolute;top:50%;left:50%;
+    width:20px;height:2px;margin:-1px 0 0 -10px;
+    border-radius:2px;background:currentColor;
+    transition:background-color .2s linear}
+  .nt-bars::before,.nt-bars::after{
+    content:"";position:absolute;left:0;width:100%;height:2px;
+    border-radius:2px;background:currentColor;
+    transition:transform .32s cubic-bezier(.215,.61,.355,1)}
+  .nt-bars::before{top:-6px}
+  .nt-bars::after{top:6px}
+  /* open: the middle bar goes, the outer two cross */
+  header.navopen .nt-bars{background:transparent}
+  header.navopen .nt-bars::before{transform:translateY(6px) rotate(45deg)}
+  header.navopen .nt-bars::after{transform:translateY(-6px) rotate(-45deg)}
+  @media (prefers-reduced-motion:reduce){
+    .nt-bars,.nt-bars::before,.nt-bars::after{transition:none}
+  }
+
+  /* THE SHEET — full screen, bottom-anchored, one indexed line per
+     destination. The 01-08 index keys are CSS counters, not markup — so they
+     cannot fall out of step with the list, and adding or removing a link
+     renumbers it for free. */
+  header.navopen nav.links{
+    display:flex;flex-direction:column;gap:0;
+    position:fixed;inset:0;z-index:0;overflow-y:auto;
+    padding:clamp(78px,11vh,96px) var(--gut)
+            max(26px,env(safe-area-inset-bottom));
+    background:rgba(0,19,63,.74);
+    -webkit-backdrop-filter:blur(26px) saturate(1.3);
+    backdrop-filter:blur(26px) saturate(1.3);
+    counter-reset:navi}
+  /* The bar is z-index:40. Several pages carry their own fixed chrome above
+     that (exhibitors' .vlabel is z-index:90, gallery's lightbox 80), which
+     drew straight over the open sheet — measured on exhibitors at 370, where
+     the page's own caption sat on top of Register. Only while the sheet is
+     up; the resting bar keeps its 40 so nothing else moves. */
+  header.navopen{z-index:100}
+  /* the bar's own controls stay above the sheet and keep working */
+  header.navopen .brand,header.navopen .navtoggle{position:relative;z-index:1}
+  /* one Register, never two: the bar's pill stands down while the sheet is up */
+  header.navopen > .pill{display:none}
+
+  /* pushes the list to the bottom but still scrolls if the viewport is short,
+     which `justify-content:flex-end` would not */
+  header.navopen nav.links > a:first-of-type{margin-top:auto}
+
+  header.navopen nav.links a:not(.pill){
+    counter-increment:navi;
+    display:flex;align-items:baseline;gap:clamp(14px,4vw,20px);
+    padding:clamp(11px,1.7vh,17px) 0;
+    border-top:1px solid rgba(246,241,230,.14);border-bottom:0;
+    font-family:"Cabinet Grotesk","General Sans",sans-serif;
+    font-weight:700;letter-spacing:-.02em;
+    font-size:clamp(28px,8.6vw,40px);line-height:1.12;
+    color:rgba(246,241,230,.86)}
+  header.navopen nav.links a:not(.pill):last-of-type{
+    border-bottom:1px solid rgba(246,241,230,.14)}
+  header.navopen nav.links a:not(.pill)::before{
+    content:counter(navi,decimal-leading-zero);
+    flex:none;width:2.4em;
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    font-size:11px;font-weight:400;letter-spacing:.17em;
+    color:rgba(246,241,230,.42)}
+  header.navopen nav.links a:not(.pill):active{color:var(--ink)}
+  /* the page you are on reads brighter — NOT a zone hue. The four accents are
+     zone identities; a nav state is not one of them. */
+  header.navopen nav.links a[aria-current="page"]{color:var(--cream)}
+  header.navopen nav.links a[aria-current="page"]::before{
+    color:rgba(246,241,230,.8)}
+
+  /* the foot: the one action, then the standing detail */
+  header.navopen .navfoot{
+    display:flex;flex-direction:column;align-items:stretch;
+    gap:clamp(14px,2.2vh,20px);margin-top:clamp(22px,4vh,34px)}
+  header.navopen .navcta{
+    justify-content:center;width:100%;min-height:56px;font-size:15px;
+    /* `nav.links a` (0,0,1,2) outranks `.pill` (0,0,1,0), so the pill's own
+       dark ink lost to the nav's cream link colour and the label went
+       cream-on-cream — invisible. Restating .pill's ink at a specificity that
+       wins. The real fix is a --pill-ink token in the system layer; logged. */
+    color:#04143C}
+  header.navopen .navmeta{
+    margin:0;text-align:center;
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    white-space:nowrap;color:rgba(246,241,230,.45)}
+}
